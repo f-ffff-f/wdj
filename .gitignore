@@ -1,5 +1,13 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
+# enviroments
+.env
+
+# Prisma
+prisma/migrations/
+prisma/dev.db
+prisma/dev.db-journal
+
 # dependencies
 /node_modules
 /.pnp
