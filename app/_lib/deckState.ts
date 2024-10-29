@@ -1,4 +1,5 @@
-import { proxy, subscribe } from 'valtio'
+import { proxy } from 'valtio'
+import { devtools } from 'valtio/utils'
 
 interface ITrackInfo {
     id: string
@@ -30,6 +31,4 @@ export const deckState = proxy({
     } as IDeckState,
 })
 
-subscribe(deckState, () => {
-    console.log('State has changed:', JSON.stringify(deckState, null, 2))
-})
+const unsub = devtools(deckState, { name: 'deck state', enabled: true })
