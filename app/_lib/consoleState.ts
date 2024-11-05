@@ -1,3 +1,4 @@
+import { TDeckIds } from '@/app/_lib/constants'
 import { proxy } from 'valtio'
 import { devtools } from 'valtio/utils'
 
@@ -17,19 +18,21 @@ interface IDeck {
 }
 
 export const consoleState = proxy({
-    deck1: {
-        currentTrack: null,
-        playPosition: 0,
-        volume: 1,
-        isPlaying: false,
-    } as IDeck,
-    deck2: {
-        currentTrack: null,
-        playPosition: 0,
-        volume: 1,
-        isPlaying: false,
-    } as IDeck,
-    crossfadeValue: 0.5, // 0: Deck 1, 1: Deck 2, 0.5: Center
+    decks: {
+        a: {
+            currentTrack: null,
+            playPosition: 0,
+            volume: 1,
+            isPlaying: false,
+        } as IDeck,
+        b: {
+            currentTrack: null,
+            playPosition: 0,
+            volume: 1,
+            isPlaying: false,
+        },
+    } as { [key: TDeckIds[number]]: IDeck },
+    crossfadeValue: 0.5,
 })
 
 const unsub = devtools(consoleState, { name: 'console state', enabled: true })
