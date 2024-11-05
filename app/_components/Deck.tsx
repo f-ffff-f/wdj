@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
 import { useSnapshot } from 'valtio'
-import { deckState } from '@/app/_lib/deckState'
+import { consoleState } from '@/app/_lib/consoleState'
 import FileUploader from '@/app/_components/FileUploader'
 
 interface DeckProps {
@@ -8,41 +8,95 @@ interface DeckProps {
 }
 
 const Deck: React.FC<DeckProps> = ({ deckNumber }) => {
-    const deck = deckNumber === 1 ? deckState.deck1 : deckState.deck2
-    const snap = useSnapshot(deck)
+    const deckState = deckNumber === 1 ? consoleState.deck1 : consoleState.deck2
+    const crossfadeValue = consoleState.crossfadeValue
+    const deckSnap = useSnapshot(deckState)
+    const audioRef = useRef<HTMLAudioElement | null>(null)
+    const audioContextRef = useRef<AudioContext | null>(null)
+    const gainNodeRef = useRef<GainNode | null>(null)
+    const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null)
 
     const handleFileSelect = (file: File) => {
-        // 여기에 오디오 파일을 데크에 로드하는 로직을 구현하세요
-        console.log(`Deck ${deckNumber}에 선택된 파일:`, file)
-        // 예시로 현재 트랙을 파일 정보로 설정
-        deck.currentTrack = {
+        deckState.currentTrack = {
             id: file.name,
             title: file.name,
             artist: 'Unknown',
-            duration: 0, // 오디오 라이브러리를 사용해 재생 시간을 추출할 수 있습니다.
+            duration: 0,
         }
-        deck.playPosition = 0
-        deck.isPlaying = false
+        deckState.playPosition = 0
+        deckState.isPlaying = false
+
+        const audioURL = URL.createObjectURL(file)
+        if (audioRef.current) {
+            audioRef.current.src = audioURL
+        }
     }
 
     const handlePlayPause = () => {
-        deck.isPlaying = !deck.isPlaying
+        if (audioRef.current) {
+            if (deckSnap.isPlaying) {
+                audioRef.current.pause()
+            } else {
+                audioRef.current.play()
+            }
+        }
+        deckState.isPlaying = !deckState.isPlaying
     }
 
     const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        deck.volume = parseFloat(event.target.value)
+        deckState.volume = parseFloat(event.target.value)
+        if (gainNodeRef.current) {
+            const crossfadeAdjustment =
+                deckNumber === 1
+                    ? 1 - crossfadeValue // Deck 1은 크로스페이더 값이 낮을수록 볼륨이 높아짐
+                    : crossfadeValue // Deck 2는 크로스페이더 값이 높을수록 볼륨이 높아짐
+            gainNodeRef.current.gain.value = deckSnap.volume * crossfadeAdjustment
+        }
     }
+
+    useEffect(() => {
+        if (!audioContextRef.current) {
+            audioContextRef.current = new AudioContext()
+        }
+        if (audioRef.current && audioContextRef.current) {
+            const audioContext = audioContextRef.current
+
+            // Create MediaElementAudioSourceNode if not already created
+            if (!sourceNodeRef.current) {
+                sourceNodeRef.current = audioContext.createMediaElementSource(audioRef.current)
+            }
+
+            // Create GainNode if not already created
+            if (!gainNodeRef.current) {
+                gainNodeRef.current = audioContext.createGain()
+                sourceNodeRef.current.connect(gainNodeRef.current)
+                gainNodeRef.current.connect(audioContext.destination)
+            }
+
+            // Update gain based on volume and crossfade value
+            const crossfadeAdjustment = deckNumber === 1 ? 1 - crossfadeValue : crossfadeValue
+            gainNodeRef.current.gain.value = deckSnap.volume * crossfadeAdjustment
+        }
+    }, [deckSnap.volume, crossfadeValue, deckNumber])
 
     return (
         <div>
             <h2>Deck {deckNumber}</h2>
             <div>
-                <p>트랙: {snap.currentTrack ? snap.currentTrack.title : '없음'}</p>
-                <p>재생 위치: {snap.playPosition}s</p>
-                <p>볼륨: {snap.volume}</p>
-                <button onClick={handlePlayPause}>{snap.isPlaying ? '일시정지' : '재생'}</button>
-                <input type="range" min="0" max="1" step="0.01" value={snap.volume} onChange={handleVolumeChange} />
+                <p>트랙: {deckSnap.currentTrack ? deckSnap.currentTrack.title : '없음'}</p>
+                <p>재생 위치: {deckSnap.playPosition}s</p>
+                <p>볼륨: {deckSnap.volume}</p>
+                <button onClick={handlePlayPause}>{deckSnap.isPlaying ? '일시정지' : '재생'}</button>
+                <input type="range" min="0" max="1" step="0.01" value={deckSnap.volume} onChange={handleVolumeChange} />
                 <FileUploader onFileSelect={handleFileSelect} />
+                <audio
+                    ref={audioRef}
+                    onTimeUpdate={() => {
+                        if (audioRef.current) {
+                            deckState.playPosition = audioRef.current.currentTime
+                        }
+                    }}
+                />
             </div>
         </div>
     )
