@@ -1,5 +1,5 @@
-import { TDeckIds } from '@/app/_lib/constants'
 import { proxy } from 'valtio'
+import { TDeckIds, AUDIO_DEFAULTS, CROSSFADER_CONFIG } from '@/app/_lib/constants'
 import { devtools } from 'valtio/utils'
 
 interface ITrackInfo {
@@ -9,30 +9,24 @@ interface ITrackInfo {
     duration: number
 }
 
-interface IDeck {
+export interface IDeckState {
     currentTrack: ITrackInfo | null
     playPosition: number
     volume: number
     isPlaying: boolean
-    // 필요에 따라 추가 필드 작성
 }
 
-export const controlState = proxy({
+export interface ControlState {
+    decks: Record<TDeckIds[number], IDeckState>
+    crossfadeValue: number
+}
+
+export const controlState = proxy<ControlState>({
     decks: {
-        a: {
-            currentTrack: null,
-            playPosition: 0,
-            volume: 1,
-            isPlaying: false,
-        } as IDeck,
-        b: {
-            currentTrack: null,
-            playPosition: 0,
-            volume: 1,
-            isPlaying: false,
-        },
-    } as { [key: TDeckIds[number]]: IDeck },
-    crossfadeValue: 0.5,
+        a: { ...AUDIO_DEFAULTS },
+        b: { ...AUDIO_DEFAULTS },
+    },
+    crossfadeValue: CROSSFADER_CONFIG.DEFAULT,
 })
 
 const unsub = devtools(controlState, { name: 'control state', enabled: true })
