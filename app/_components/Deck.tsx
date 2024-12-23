@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react'
 import { useSnapshot } from 'valtio'
-import { consoleState } from '@/app/_lib/consoleState'
+import { controlState } from '@/app/_lib/controlState'
 import FileUploader from '@/app/_components/FileUploader'
 import { TDeckIds } from '@/app/_lib/constants'
 
@@ -9,8 +9,8 @@ interface DeckProps {
 }
 
 const Deck: React.FC<DeckProps> = ({ id }) => {
-    const deckState = consoleState.decks[id]
-    const crossfadeValue = consoleState.crossfadeValue
+    const deckState = controlState.decks[id]
+    const crossfadeValue = controlState.crossfadeValue
     const deckSnapshot = useSnapshot(deckState)
     const audioRef = useRef<HTMLAudioElement | null>(null)
     const audioContextRef = useRef<AudioContext | null>(null)

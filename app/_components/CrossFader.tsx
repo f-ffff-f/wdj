@@ -1,13 +1,13 @@
 // /src/components/Crossfader.tsx
 import React from 'react'
 import { useSnapshot } from 'valtio'
-import { consoleState } from '@/app/_lib/consoleState'
+import { controlState } from '@/app/_lib/controlState'
 
 const Crossfader: React.FC = () => {
-    const consoleSnap = useSnapshot(consoleState)
+    const controlSnap = useSnapshot(controlState)
 
-    const handleCrossfadeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        consoleState.crossfadeValue = parseFloat(event.target.value)
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        controlState.crossfadeValue = parseFloat(event.target.value)
     }
 
     return (
@@ -17,8 +17,8 @@ const Crossfader: React.FC = () => {
                 min="0"
                 max="1"
                 step="0.01"
-                value={consoleSnap.crossfadeValue}
-                onChange={handleCrossfadeChange}
+                value={controlSnap.crossfadeValue}
+                onChange={handleChange}
             />
         </div>
     )

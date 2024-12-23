@@ -3,7 +3,7 @@ import Deck from '@/app/_components/Deck'
 import Crossfader from '@/app/_components/CrossFader'
 import { DECK_IDS } from '@/app/_lib/constants'
 
-const Console = () => {
+const ControlInterface = () => {
     return (
         <div>
             <div className="flex flex-wrap justify-center gap-8 mb-8">
@@ -18,4 +18,4 @@ const Console = () => {
     )
 }
 
-export default Console
+export default ControlInterface

@@ -17,7 +17,7 @@ interface IDeck {
     // 필요에 따라 추가 필드 작성
 }
 
-export const consoleState = proxy({
+export const controlState = proxy({
     decks: {
         a: {
             currentTrack: null,
@@ -35,4 +35,4 @@ export const consoleState = proxy({
     crossfadeValue: 0.5,
 })
 
-const unsub = devtools(consoleState, { name: 'console state', enabled: true })
+const unsub = devtools(controlState, { name: 'control state', enabled: true })
