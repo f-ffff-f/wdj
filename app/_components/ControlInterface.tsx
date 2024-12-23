@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useSnapshot } from 'valtio'
 import { controlState, IDeckState } from '@/app/_lib/controlState'
 import FileUploader from '@/app/_components/FileUploader'
-import Crossfader from '@/app/_components/Crossfader'
+import CrossFader from '@/app/_components/CrossFader'
 import * as Tone from 'tone'
 import { AUDIO_DEFAULTS, PLAYER_CONFIG, CROSSFADER_CONFIG } from '@/app/_lib/constants'
 
@@ -164,7 +164,7 @@ const ControlInterface = () => {
                 ))}
             </div>
 
-            <Crossfader crossFadeRef={crossFade} />
+            <CrossFader crossFadeRef={crossFade} />
         </div>
     )
 }

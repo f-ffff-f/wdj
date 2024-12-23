@@ -3,15 +3,15 @@ import { useSnapshot } from 'valtio'
 import { controlState } from '@/app/_lib/controlState'
 import * as Tone from 'tone'
 
-interface ICrossfaderProps {
+interface ICrossFaderProps {
     crossFadeRef: React.RefObject<Tone.CrossFade>
 }
 
-const Crossfader = ({ crossFadeRef }: ICrossfaderProps) => {
+const CrossFader = ({ crossFadeRef }: ICrossFaderProps) => {
     const controlSnap = useSnapshot(controlState)
 
     // 크로스페이더 값 변경 처리
-    const handleCrossfade = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleCrossFade = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = parseFloat(event.target.value)
         controlState.crossfadeValue = value
 
@@ -33,7 +33,7 @@ const Crossfader = ({ crossFadeRef }: ICrossfaderProps) => {
                     max="1"
                     step="0.01"
                     value={controlSnap.crossfadeValue}
-                    onChange={handleCrossfade}
+                    onChange={handleCrossFade}
                     className="w-full"
                 />
                 <div className="text-center">
@@ -44,4 +44,4 @@ const Crossfader = ({ crossFadeRef }: ICrossfaderProps) => {
     )
 }
 
-export default Crossfader
+export default CrossFader
