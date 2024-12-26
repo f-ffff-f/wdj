@@ -51,7 +51,7 @@ bun dev
 
 ## 라이선스
 
-MIT License - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
+GPL (GNU General Public License) - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
 
 ## 기여하기
 
