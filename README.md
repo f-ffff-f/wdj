@@ -1,4 +1,6 @@
-# DJ Mixing Web Application
+# DJ Mixing Web Application [Alpha]
+
+[English](README.en.md) | 한국어
 
 브라우저에서 실행되는 현대적인 DJ 믹싱 웹 애플리케이션입니다.
 
