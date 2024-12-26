@@ -4,7 +4,7 @@ import { controlState, IDeckState } from '@/app/_lib/controlState'
 import FileUploader from '@/app/_components/FileUploader'
 import CrossFader from '@/app/_components/CrossFader'
 import * as Tone from 'tone'
-import { AUDIO_DEFAULTS, PLAYER_CONFIG, CROSSFADER_CONFIG } from '@/app/_lib/constants'
+import { PLAYER_CONFIG, CROSSFADER_CONFIG, GAIN_CONFIG } from '@/app/_lib/constants'
 
 const ControlInterface = () => {
     const deckAState = controlState.decks.a
@@ -44,8 +44,8 @@ const ControlInterface = () => {
         crossFade.current = new Tone.CrossFade(CROSSFADER_CONFIG.DEFAULT).toDestination()
 
         // Gain 노드 초기화 및 CrossFade에 연결
-        gainA.current = new Tone.Gain(AUDIO_DEFAULTS.volume)
-        gainB.current = new Tone.Gain(AUDIO_DEFAULTS.volume)
+        gainA.current = new Tone.Gain(GAIN_CONFIG.DEFAULT)
+        gainB.current = new Tone.Gain(GAIN_CONFIG.DEFAULT)
         gainA.current.connect(crossFade.current.a)
         gainB.current.connect(crossFade.current.b)
 
