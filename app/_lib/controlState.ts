@@ -7,6 +7,7 @@ interface ITrackInfo {
     title: string
     artist: string
     duration: number
+    url: string
 }
 
 export interface IDeckState {
@@ -19,6 +20,7 @@ export interface IDeckState {
 export interface ControlState {
     decks: Record<TDeckIds[number], IDeckState>
     crossfadeValue: number
+    library: ITrackInfo[]
 }
 
 export const controlState = proxy<ControlState>({
@@ -27,6 +29,7 @@ export const controlState = proxy<ControlState>({
         b: { ...AUDIO_DEFAULTS },
     },
     crossfadeValue: CROSSFADER_CONFIG.DEFAULT,
+    library: [],
 })
 
 const unsub = devtools(controlState, { name: 'control state', enabled: true })

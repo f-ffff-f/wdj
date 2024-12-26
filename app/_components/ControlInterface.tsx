@@ -1,25 +1,26 @@
 import React, { useEffect } from 'react'
 import { useSnapshot } from 'valtio'
 import { controlState, IDeckState } from '@/app/_lib/controlState'
-import FileUploader from '@/app/_components/FileUploader'
+import LibraryUploader from '@/app/_components/Library/Uploader'
+import LibraryList from '@/app/_components/Library/List'
 import CrossFader from '@/app/_components/CrossFader'
 import * as Tone from 'tone'
 import { PLAYER_CONFIG, CROSSFADER_CONFIG, GAIN_CONFIG } from '@/app/_lib/constants'
 
 const ControlInterface = () => {
+    const controlSnap = useSnapshot(controlState)
+
     const deckAState = controlState.decks.a
     const deckBState = controlState.decks.b
     const deckASnapshot = useSnapshot(deckAState)
     const deckBSnapshot = useSnapshot(deckBState)
 
-    // Tone.js 노드 참조 저장
     const playerA = React.useRef<Tone.Player | null>(null)
     const playerB = React.useRef<Tone.Player | null>(null)
     const gainA = React.useRef<Tone.Gain | null>(null)
     const gainB = React.useRef<Tone.Gain | null>(null)
     const crossFade = React.useRef<Tone.CrossFade | null>(null)
 
-    // Deck 설정 정의
     const decks = [
         {
             id: 'a',
@@ -40,20 +41,16 @@ const ControlInterface = () => {
     ] as const
 
     React.useEffect(() => {
-        // CrossFade 노드 초기화
         crossFade.current = new Tone.CrossFade(CROSSFADER_CONFIG.DEFAULT).toDestination()
 
-        // Gain 노드 초기화 및 CrossFade에 연결
         gainA.current = new Tone.Gain(GAIN_CONFIG.DEFAULT)
         gainB.current = new Tone.Gain(GAIN_CONFIG.DEFAULT)
         gainA.current.connect(crossFade.current.a)
         gainB.current.connect(crossFade.current.b)
 
-        // Player 초기화 및 Gain 노드에 연결
         playerA.current = new Tone.Player(PLAYER_CONFIG).connect(gainA.current)
         playerB.current = new Tone.Player(PLAYER_CONFIG).connect(gainB.current)
 
-        // 클린업
         return () => {
             playerA.current?.dispose()
             playerB.current?.dispose()
@@ -73,32 +70,25 @@ const ControlInterface = () => {
             }
         }
 
-    const handleFileSelect = (deckState: IDeckState, player: React.RefObject<Tone.Player>) => async (file: File) => {
-        try {
-            const audioURL = URL.createObjectURL(file)
-
-            if (player.current) {
-                await player.current.load(audioURL)
-
-                // 파일 정보 업데이트
-                deckState.currentTrack = {
-                    id: file.name,
-                    title: file.name,
-                    artist: 'Unknown',
-                    duration: player.current.buffer.duration,
+    const handleTrackSelect =
+        (deckState: IDeckState, player: React.RefObject<Tone.Player>) =>
+        async (event: React.ChangeEvent<HTMLSelectElement>) => {
+            const trackId = event.target.value
+            const selectedTrack = controlState.library.find((track) => track.id === trackId)
+            if (selectedTrack && player.current) {
+                try {
+                    await player.current.load(selectedTrack.url)
+                    deckState.currentTrack = {
+                        ...selectedTrack,
+                        duration: player.current.buffer.duration,
+                    }
+                    deckState.playPosition = 0
+                    deckState.isPlaying = false
+                } catch (error) {
+                    console.error('오디오 파일 로드 실패:', error)
                 }
-                deckState.playPosition = 0
-                deckState.isPlaying = false
-
-                console.log('오디오 파일 로드 완료:', {
-                    name: file.name,
-                    duration: player.current.buffer.duration,
-                })
             }
-        } catch (error) {
-            console.error('오디오 파일 로드 실패:', error)
         }
-    }
 
     const handlePlayPause = (deckState: IDeckState, player: React.RefObject<Tone.Player>) => async () => {
         try {
@@ -106,7 +96,6 @@ const ControlInterface = () => {
                 if (deckState.isPlaying) {
                     player.current.stop()
                 } else {
-                    // 현재 위치에서 재생 시작
                     player.current.start(undefined, deckState.playPosition)
                 }
                 deckState.isPlaying = !deckState.isPlaying
@@ -116,7 +105,6 @@ const ControlInterface = () => {
         }
     }
 
-    // 재생 위치 업데이트
     useEffect(() => {
         const updatePositions = setInterval(() => {
             if (playerA.current && deckAState.isPlaying) {
@@ -137,10 +125,9 @@ const ControlInterface = () => {
                     <div key={id} className="p-4 border rounded-lg">
                         <h2 className="text-xl font-bold mb-4">{title}</h2>
                         <div className="space-y-4">
-                            <FileUploader onFileSelect={handleFileSelect(state, player)} />
                             <p>트랙: {snapshot.currentTrack ? snapshot.currentTrack.title : '없음'}</p>
                             <p>길이: {snapshot.currentTrack?.duration.toFixed(2) || 0}초</p>
-                            <p>재생 위치: {snapshot.playPosition.toFixed(2)}s</p>
+                            <p>재생 위치: {snapshot.playPosition.toFixed(2)}초</p>
                             <div className="space-y-2">
                                 <p>볼륨: {snapshot.volume.toFixed(2)}</p>
                                 <input
@@ -163,8 +150,11 @@ const ControlInterface = () => {
                     </div>
                 ))}
             </div>
-
             <CrossFader crossFadeRef={crossFade} />
+            <div className="mt-8">
+                <LibraryUploader />
+                <LibraryList playerA={playerA} playerB={playerB} />
+            </div>
         </div>
     )
 }

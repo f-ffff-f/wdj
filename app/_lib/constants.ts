@@ -1,6 +1,8 @@
 export const DECK_IDS = ['a', 'b'] as const
 export type TDeckIds = typeof DECK_IDS
 
+// 이름 바꿔야됨
+
 // 오디오 초기값 설정
 export const AUDIO_DEFAULTS = {
     currentTrack: null,
