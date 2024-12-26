@@ -1,0 +1,9 @@
+# Documentation
+README.md
+CHANGELOG.md
+docs/**/*.md
+
+# 다른 무시하고 싶은 파일들
+dist
+build
+coverage 

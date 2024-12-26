@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DJ Mixing Web Application
 
-## Getting Started
+브라우저에서 실행되는 현대적인 DJ 믹싱 웹 애플리케이션입니다.
 
-First, run the development server:
+## 프로토타입 개발 현황
+
+- [x] 듀얼 데크 시스템
+- [x] 크로스페이더 컨트롤
+- [ ] 로컬 음악 라이브러리 관리
+- [ ] 실시간 웨이브폼 시각화
+- [ ] 키보드 컨트롤
+- [ ] 미디 컨트롤
+
+## 시작하기
+
+### 필수 요구사항
+
+-   [Bun](https://bun.sh) 1.0.0 이상
+-   Node.js 18.0.0 이상
+
+### 설치
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+# 저장소 클론
+git clone https://github.com/yourusername/your-repo-name.git
+
+# 프로젝트 디렉토리로 이동
+cd your-repo-name
+
+# 의존성 설치
+bun install
+```
+
+### 개발 서버 실행
+
+```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 애플리케이션을 확인하세요.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 기술 스택
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+-   [Next.js 14](https://nextjs.org/)
+-   [TypeScript](https://www.typescriptlang.org/)
+-   [Valtio](https://github.com/pmndrs/valtio)
+-   [TailwindCSS](https://tailwindcss.com/)
+-   [Tone.js](https://tonejs.github.io) - 오디오 처리
 
-## Learn More
+## 라이선스
 
-To learn more about Next.js, take a look at the following resources:
+MIT License - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 기여하기
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. 이 저장소를 포크합니다
+2. 새로운 기능 브랜치를 생성합니다 (`git checkout -b feat/amazing-feature`)
+3. 변경사항을 커밋합니다 (`git commit -m 'feat: add amazing feature'`)
+4. 브랜치에 푸시합니다 (`git push origin feat/amazing-feature`)
+5. Pull Request를 생성합니다
 
-## Deploy on Vercel
+## 크레딧
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+이 프로젝트는 [create-next-app](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)을 기반으로 제작되었습니다.
