@@ -1,4 +1,4 @@
-# DJ Mixing Web Application [Alpha] - DJ Mixing Web Application [Alpha].
+# DJ Mixing Web Application [Alpha]
 
 [한국어](README.md) | English
 
