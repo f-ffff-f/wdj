@@ -51,7 +51,7 @@ Open [http://localhost:3000] in your browser to view the application.
 
 ## License
 
-MIT License - see the [LICENSE](LICENSE) file for details.
+GPL (GNU General Public License) - see the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
