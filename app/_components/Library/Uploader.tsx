@@ -1,20 +1,21 @@
 import React from 'react'
-import { controlState } from '@/app/_lib/controlState'
+import { store } from '@/app/_lib/store'
+import { v4 as uuidv4 } from 'uuid'
 
 const LibraryUploader: React.FC = () => {
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const files = Array.from(event.target.files)
             files.forEach((file) => {
+                const trackId = uuidv4()
                 const audioURL = URL.createObjectURL(file)
                 const newTrack = {
-                    id: file.name,
-                    title: file.name,
-                    artist: 'Unknown',
-                    duration: 0, // 추후 업데이트 예정
+                    id: trackId,
+                    fileName: file.name,
+                    duration: 0,
                     url: audioURL,
                 }
-                controlState.library.push(newTrack)
+                store.vault.library.push(newTrack)
             })
         }
     }

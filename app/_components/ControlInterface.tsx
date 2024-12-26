@@ -1,17 +1,16 @@
 import React, { useEffect } from 'react'
 import { useSnapshot } from 'valtio'
-import { controlState, IDeckState } from '@/app/_lib/controlState'
+import { store } from '@/app/_lib/store'
 import LibraryUploader from '@/app/_components/Library/Uploader'
 import LibraryList from '@/app/_components/Library/List'
 import CrossFader from '@/app/_components/CrossFader'
 import * as Tone from 'tone'
-import { PLAYER_CONFIG, CROSSFADER_CONFIG, GAIN_CONFIG } from '@/app/_lib/constants'
+import { PLAYER_NODE_CONFIG, CROSSFADE_NODE_DEFAULT, GAIN_NODE_DEFAULT } from '@/app/_lib/constants'
+import { IDeck } from '@/app/_lib/types'
 
 const ControlInterface = () => {
-    const controlSnap = useSnapshot(controlState)
-
-    const deckAState = controlState.decks.a
-    const deckBState = controlState.decks.b
+    const deckAState = store.decks.a
+    const deckBState = store.decks.b
     const deckASnapshot = useSnapshot(deckAState)
     const deckBSnapshot = useSnapshot(deckBState)
 
@@ -41,15 +40,15 @@ const ControlInterface = () => {
     ] as const
 
     React.useEffect(() => {
-        crossFade.current = new Tone.CrossFade(CROSSFADER_CONFIG.DEFAULT).toDestination()
+        crossFade.current = new Tone.CrossFade(CROSSFADE_NODE_DEFAULT).toDestination()
 
-        gainA.current = new Tone.Gain(GAIN_CONFIG.DEFAULT)
-        gainB.current = new Tone.Gain(GAIN_CONFIG.DEFAULT)
+        gainA.current = new Tone.Gain(GAIN_NODE_DEFAULT)
+        gainB.current = new Tone.Gain(GAIN_NODE_DEFAULT)
         gainA.current.connect(crossFade.current.a)
         gainB.current.connect(crossFade.current.b)
 
-        playerA.current = new Tone.Player(PLAYER_CONFIG).connect(gainA.current)
-        playerB.current = new Tone.Player(PLAYER_CONFIG).connect(gainB.current)
+        playerA.current = new Tone.Player(PLAYER_NODE_CONFIG).connect(gainA.current)
+        playerB.current = new Tone.Player(PLAYER_NODE_CONFIG).connect(gainB.current)
 
         return () => {
             playerA.current?.dispose()
@@ -61,8 +60,7 @@ const ControlInterface = () => {
     }, [])
 
     const handleVolumeChange =
-        (deckState: IDeckState, gainNode: React.RefObject<Tone.Gain>) =>
-        (event: React.ChangeEvent<HTMLInputElement>) => {
+        (deckState: IDeck, gainNode: React.RefObject<Tone.Gain>) => (event: React.ChangeEvent<HTMLInputElement>) => {
             const newVolume = parseFloat(event.target.value)
             deckState.volume = newVolume
             if (gainNode.current) {
@@ -71,10 +69,10 @@ const ControlInterface = () => {
         }
 
     const handleTrackSelect =
-        (deckState: IDeckState, player: React.RefObject<Tone.Player>) =>
+        (deckState: IDeck, player: React.RefObject<Tone.Player>) =>
         async (event: React.ChangeEvent<HTMLSelectElement>) => {
             const trackId = event.target.value
-            const selectedTrack = controlState.library.find((track) => track.id === trackId)
+            const selectedTrack = store.vault.library.find((track) => track.id === trackId)
             if (selectedTrack && player.current) {
                 try {
                     await player.current.load(selectedTrack.url)
@@ -90,7 +88,7 @@ const ControlInterface = () => {
             }
         }
 
-    const handlePlayPause = (deckState: IDeckState, player: React.RefObject<Tone.Player>) => async () => {
+    const handlePlayPause = (deckState: IDeck, player: React.RefObject<Tone.Player>) => async () => {
         try {
             if (player.current) {
                 if (deckState.isPlaying) {
@@ -125,7 +123,7 @@ const ControlInterface = () => {
                     <div key={id} className="p-4 border rounded-lg">
                         <h2 className="text-xl font-bold mb-4">{title}</h2>
                         <div className="space-y-4">
-                            <p>트랙: {snapshot.currentTrack ? snapshot.currentTrack.title : '없음'}</p>
+                            <p>트랙: {snapshot.currentTrack ? snapshot.currentTrack.fileName : '없음'}</p>
                             <p>길이: {snapshot.currentTrack?.duration.toFixed(2) || 0}초</p>
                             <p>재생 위치: {snapshot.playPosition.toFixed(2)}초</p>
                             <div className="space-y-2">

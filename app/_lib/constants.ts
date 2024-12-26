@@ -1,10 +1,10 @@
 export const DECK_IDS = ['a', 'b'] as const
 export type TDeckIds = typeof DECK_IDS
 
-// 이름 바꿔야됨
+// 이름과 구조 더 훌륭하게 바꿔야됨
 
 // 오디오 초기값 설정
-export const AUDIO_DEFAULTS = {
+export const DECK_CONFIG = {
     currentTrack: null,
     playPosition: 0,
     volume: 1.0,
@@ -12,7 +12,7 @@ export const AUDIO_DEFAULTS = {
 } as const
 
 // 오디오 플레이어 설정
-export const PLAYER_CONFIG = {
+export const PLAYER_NODE_CONFIG = {
     fadeIn: 0,
     fadeOut: 0,
     loop: false,
@@ -20,10 +20,6 @@ export const PLAYER_CONFIG = {
 } as const
 
 // 크로스페이더 설정
-export const CROSSFADER_CONFIG = {
-    DEFAULT: 0.5,
-} as const
+export const CROSSFADE_NODE_DEFAULT = 0.5 as const
 
-export const GAIN_CONFIG = {
-    DEFAULT: 1.0,
-} as const
+export const GAIN_NODE_DEFAULT = 1.0 as const

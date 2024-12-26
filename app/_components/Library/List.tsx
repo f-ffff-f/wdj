@@ -2,32 +2,8 @@
 
 import React from 'react'
 import { useSnapshot } from 'valtio'
-import { controlState } from '@/app/_lib/controlState'
 import * as Tone from 'tone'
-
-interface ITrackListItemProps {
-    id: string
-    title: string
-    onLoadToDeck: (deckId: 'a' | 'b') => void
-}
-
-const TrackListItem: React.FC<ITrackListItemProps> = ({ id, title, onLoadToDeck }) => (
-    <div className="flex items-center justify-between p-4 border-b">
-        <button
-            onClick={() => onLoadToDeck('a')}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-            Deck A
-        </button>
-        <span className="flex-1 text-center px-4">{title}</span>
-        <button
-            onClick={() => onLoadToDeck('b')}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-            Deck B
-        </button>
-    </div>
-)
+import { store } from '@/app/_lib/store'
 
 interface ILibraryListProps {
     playerA: React.RefObject<Tone.Player>
@@ -35,7 +11,7 @@ interface ILibraryListProps {
 }
 
 const LibraryList = ({ playerA, playerB }: ILibraryListProps) => {
-    const { library } = useSnapshot(controlState)
+    const { library } = useSnapshot(store.vault)
 
     const handleLoadToDeck = (trackId: string) => async (deckId: 'a' | 'b') => {
         const track = library.find((t) => t.id === trackId)
@@ -46,12 +22,12 @@ const LibraryList = ({ playerA, playerB }: ILibraryListProps) => {
 
         try {
             await player.current.load(track.url)
-            controlState.decks[deckId].currentTrack = {
+            store.decks[deckId].currentTrack = {
                 ...track,
                 duration: player.current.buffer.duration,
             }
-            controlState.decks[deckId].playPosition = 0
-            controlState.decks[deckId].isPlaying = false
+            store.decks[deckId].playPosition = 0
+            store.decks[deckId].isPlaying = false
         } catch (error) {
             console.error('오디오 파일 로드 실패:', error)
         }
@@ -63,12 +39,38 @@ const LibraryList = ({ playerA, playerB }: ILibraryListProps) => {
                 <TrackListItem
                     key={track.id}
                     id={track.id}
-                    title={track.title}
+                    fileName={track.fileName}
                     onLoadToDeck={handleLoadToDeck(track.id)}
                 />
             ))}
         </div>
     )
 }
+
+interface ITrackListItemProps {
+    id: string
+    fileName: string
+    onLoadToDeck: (deckId: 'a' | 'b') => void
+}
+
+const TrackListItem: React.FC<ITrackListItemProps> = ({ id, fileName, onLoadToDeck }) => (
+    <div className="flex items-center justify-between p-4 border-b">
+        <button
+            onClick={() => onLoadToDeck('a')}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+            Deck A
+        </button>
+        <span className="flex-1 text-center px-4">
+            ({id.slice(0, 4)}..) {fileName}
+        </span>
+        <button
+            onClick={() => onLoadToDeck('b')}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+            Deck B
+        </button>
+    </div>
+)
 
 export default LibraryList

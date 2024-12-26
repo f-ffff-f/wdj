@@ -1,19 +1,19 @@
 import React from 'react'
 import { useSnapshot } from 'valtio'
-import { controlState } from '@/app/_lib/controlState'
 import * as Tone from 'tone'
+import { store } from '@/app/_lib/store'
 
 interface ICrossFaderProps {
     crossFadeRef: React.RefObject<Tone.CrossFade>
 }
 
 const CrossFader = ({ crossFadeRef }: ICrossFaderProps) => {
-    const controlSnap = useSnapshot(controlState)
+    const crossfadeSnap = useSnapshot(store.crossfade)
 
     // 크로스페이더 값 변경 처리
     const handleCrossFade = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = parseFloat(event.target.value)
-        controlState.crossfadeValue = value
+        store.crossfade.value = value
 
         if (crossFadeRef.current) {
             crossFadeRef.current.fade.value = value
@@ -32,12 +32,12 @@ const CrossFader = ({ crossFadeRef }: ICrossFaderProps) => {
                     min="0"
                     max="1"
                     step="0.01"
-                    value={controlSnap.crossfadeValue}
+                    value={crossfadeSnap.value}
                     onChange={handleCrossFade}
                     className="w-full"
                 />
                 <div className="text-center">
-                    <span className="text-sm">크로스페이더: {(controlSnap.crossfadeValue * 100).toFixed(0)}%</span>
+                    <span className="text-sm">크로스페이더: {(crossfadeSnap.value * 100).toFixed(0)}%</span>
                 </div>
             </div>
         </div>
