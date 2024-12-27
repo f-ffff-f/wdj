@@ -68,26 +68,6 @@ const ControlInterface = () => {
             }
         }
 
-    const handleTrackSelect =
-        (deckState: IDeck, player: React.RefObject<Tone.Player>) =>
-        async (event: React.ChangeEvent<HTMLSelectElement>) => {
-            const trackId = event.target.value
-            const selectedTrack = store.vault.library.find((track) => track.id === trackId)
-            if (selectedTrack && player.current) {
-                try {
-                    await player.current.load(selectedTrack.url)
-                    deckState.currentTrack = {
-                        ...selectedTrack,
-                        duration: player.current.buffer.duration,
-                    }
-                    deckState.playPosition = 0
-                    deckState.isPlaying = false
-                } catch (error) {
-                    console.error('오디오 파일 로드 실패:', error)
-                }
-            }
-        }
-
     const handlePlayPause = (deckState: IDeck, player: React.RefObject<Tone.Player>) => async () => {
         try {
             if (player.current) {
