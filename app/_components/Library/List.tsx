@@ -2,34 +2,19 @@
 
 import React from 'react'
 import { useSnapshot } from 'valtio'
-import * as Tone from 'tone'
 import { store } from '@/app/_lib/store'
 
-interface ILibraryListProps {
-    playerA: React.RefObject<Tone.Player>
-    playerB: React.RefObject<Tone.Player>
-}
-
-const LibraryList = ({ playerA, playerB }: ILibraryListProps) => {
+const LibraryList = () => {
     const { library } = useSnapshot(store.vault)
 
-    const handleLoadToDeck = (trackId: string) => async (deckId: 'a' | 'b') => {
+    const handleLoadToDeck = (trackId: string) => (deckId: 'a' | 'b') => {
         const track = library.find((t) => t.id === trackId)
         if (!track) return
 
-        const player = deckId === 'a' ? playerA : playerB
-        if (!player.current) return
-
-        try {
-            await player.current.load(track.url)
-            store.decks[deckId].currentTrack = {
-                ...track,
-                duration: player.current.buffer.duration,
-            }
-            store.decks[deckId].playPosition = 0
-            store.decks[deckId].isPlaying = false
-        } catch (error) {
-            console.error('오디오 파일 로드 실패:', error)
+        // store 상태만 업데이트. useToneNodes에서 이 변경을 감지하여 처리
+        store.decks[deckId].currentTrack = {
+            ...track,
+            duration: 0, // 실제 duration은 로드 완료 후 useToneNodes에서 업데이트
         }
     }
 

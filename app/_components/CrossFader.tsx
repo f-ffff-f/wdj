@@ -1,23 +1,13 @@
 import React from 'react'
 import { useSnapshot } from 'valtio'
-import * as Tone from 'tone'
 import { store } from '@/app/_lib/store'
 
-interface ICrossFaderProps {
-    crossFadeRef: React.RefObject<Tone.CrossFade>
-}
-
-const CrossFader = ({ crossFadeRef }: ICrossFaderProps) => {
+const CrossFader = () => {
     const crossfadeSnap = useSnapshot(store.crossfade)
 
-    // 크로스페이더 값 변경 처리
     const handleCrossFade = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = parseFloat(event.target.value)
         store.crossfade.value = value
-
-        if (crossFadeRef.current) {
-            crossFadeRef.current.fade.value = value
-        }
     }
 
     return (
