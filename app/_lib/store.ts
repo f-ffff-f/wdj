@@ -5,12 +5,15 @@ import { IStore } from '@/app/_lib/types'
 
 export const store = proxy<IStore>({
     vault: { library: [] },
-    decks: {
-        a: { ...DECK_CONFIG },
-        b: { ...DECK_CONFIG },
+    controller: {
+        decks: {
+            a: { ...DECK_CONFIG },
+            b: { ...DECK_CONFIG },
+        },
+        crossfade: {
+            value: CROSSFADE_NODE_DEFAULT,
+        },
     },
-    crossfade: {
-        value:CROSSFADE_NODE_DEFAULT},
 })
 
 const unsub = devtools(store, { name: 'control state', enabled: true })

@@ -24,9 +24,9 @@ export const useToneNodes = (): ToneNodes => {
     const crossFade = useRef<Tone.CrossFade | null>(null)
 
     // store의 상태 변화 감지
-    const deckASnapshot = useSnapshot(store.decks.a)
-    const deckBSnapshot = useSnapshot(store.decks.b)
-    const crossfadeSnap = useSnapshot(store.crossfade)
+    const deckASnapshot = useSnapshot(store.controller.decks.a)
+    const deckBSnapshot = useSnapshot(store.controller.decks.b)
+    const crossfadeSnapshot = useSnapshot(store.controller.crossfade)
 
     useEffect(() => {
         // CrossFade 노드 초기화 및 출력 연결
@@ -85,18 +85,18 @@ export const useToneNodes = (): ToneNodes => {
     // 크로스페이더 값 변경 감지
     useEffect(() => {
         if (crossFade.current) {
-            crossFade.current.fade.value = crossfadeSnap.value
+            crossFade.current.fade.value = crossfadeSnapshot.value
         }
-    }, [crossfadeSnap.value])
+    }, [crossfadeSnapshot.value])
 
     // 재생 위치 업데이트
     useEffect(() => {
         const updatePositions = setInterval(() => {
             if (playerA.current && deckASnapshot.isPlaying) {
-                store.decks.a.playPosition = playerA.current.now()
+                store.controller.decks.a.playPosition = playerA.current.now()
             }
             if (playerB.current && deckBSnapshot.isPlaying) {
-                store.decks.b.playPosition = playerB.current.now()
+                store.controller.decks.b.playPosition = playerB.current.now()
             }
         }, 100)
 
@@ -107,18 +107,18 @@ export const useToneNodes = (): ToneNodes => {
     useEffect(() => {
         const loadTrackToDeck = async () => {
             const player = playerA.current
-            const deckState = store.decks.a
+            const deckState = store.controller.decks.a
 
             if (!player || !deckState.currentTrack) return
 
             try {
                 await player.load(deckState.currentTrack.url)
-                store.decks.a.currentTrack = {
+                store.controller.decks.a.currentTrack = {
                     ...deckState.currentTrack,
                     duration: player.buffer.duration,
                 }
-                store.decks.a.playPosition = 0
-                store.decks.a.isPlaying = false
+                store.controller.decks.a.playPosition = 0
+                store.controller.decks.a.isPlaying = false
             } catch (error) {
                 console.error('Deck A 오디오 파일 로드 실패:', error)
             }
@@ -133,18 +133,18 @@ export const useToneNodes = (): ToneNodes => {
     useEffect(() => {
         const loadTrackToDeck = async () => {
             const player = playerB.current
-            const deckState = store.decks.b
+            const deckState = store.controller.decks.b
 
             if (!player || !deckState.currentTrack) return
 
             try {
                 await player.load(deckState.currentTrack.url)
-                store.decks.b.currentTrack = {
+                store.controller.decks.b.currentTrack = {
                     ...deckState.currentTrack,
                     duration: player.buffer.duration,
                 }
-                store.decks.b.playPosition = 0
-                store.decks.b.isPlaying = false
+                store.controller.decks.b.playPosition = 0
+                store.controller.decks.b.isPlaying = false
             } catch (error) {
                 console.error('Deck B 오디오 파일 로드 실패:', error)
             }

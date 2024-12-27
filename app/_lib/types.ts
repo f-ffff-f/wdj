@@ -1,12 +1,19 @@
-import { TDeckIds } from '@/app/_lib/constants'
+import { DECK_IDS } from '@/app/_lib/constants'
+import { snapshot } from 'valtio'
 
+export type TDeckIds = typeof DECK_IDS
 export interface IStore {
     vault: {
         library: ITrack[]
     }
-    decks: Record<TDeckIds[number], IDeck>
-    crossfade: { value: number }
+    controller: {
+        decks: Record<TDeckIds[number], IDeck>
+        crossfade: { value: number }
+    }
 }
+
+// Valtio snapshot type
+export type TSnapshot = ReturnType<typeof snapshot<IStore>>
 
 // ------------------------------
 

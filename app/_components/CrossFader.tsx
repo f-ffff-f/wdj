@@ -1,15 +1,9 @@
+import { store } from '@/app/_lib/store'
 import React from 'react'
 import { useSnapshot } from 'valtio'
-import { store } from '@/app/_lib/store'
 
-const CrossFader = () => {
-    const crossfadeSnap = useSnapshot(store.crossfade)
-
-    const handleCrossFade = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const value = parseFloat(event.target.value)
-        store.crossfade.value = value
-    }
-
+const CrossFader = ({ handleCrossFade }: { handleCrossFade: (event: React.ChangeEvent<HTMLInputElement>) => void }) => {
+    const snapshot = useSnapshot(store)
     return (
         <div className="flex flex-col items-center mt-8">
             <div className="w-64 space-y-2">
@@ -22,12 +16,14 @@ const CrossFader = () => {
                     min="0"
                     max="1"
                     step="0.01"
-                    value={crossfadeSnap.value}
+                    value={snapshot.controller.crossfade.value}
                     onChange={handleCrossFade}
                     className="w-full"
                 />
                 <div className="text-center">
-                    <span className="text-sm">크로스페이더: {(crossfadeSnap.value * 100).toFixed(0)}%</span>
+                    <span className="text-sm">
+                        크로스페이더: {(snapshot.controller.crossfade.value * 100).toFixed(0)}%
+                    </span>
                 </div>
             </div>
         </div>

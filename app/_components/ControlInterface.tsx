@@ -4,81 +4,80 @@ import { store } from '@/app/_lib/store'
 import LibraryUploader from '@/app/_components/Library/Uploader'
 import LibraryList from '@/app/_components/Library/List'
 import CrossFader from '@/app/_components/CrossFader'
-import { IDeck } from '@/app/_lib/types'
-import { useToneNodes } from '@/app/_lib/hooks/useToneNodes'
+import { useToneNodes } from '@/app/_hooks/useToneNodes'
+import { v4 as uuidv4 } from 'uuid'
+import Deck from '@/app/_components/Deck'
+import { DECK_IDS } from '@/app/_lib/constants'
+import { IStore, TDeckIds } from '@/app/_lib/types'
 
 const ControlInterface = () => {
-    const deckAState = store.decks.a
-    const deckBState = store.decks.b
-    const deckASnapshot = useSnapshot(deckAState)
-    const deckBSnapshot = useSnapshot(deckBState)
-
     useToneNodes()
 
-    const decks = [
-        {
-            id: 'a',
-            title: 'Deck A',
-            state: deckAState,
-            snapshot: deckASnapshot,
-        },
-        {
-            id: 'b',
-            title: 'Deck B',
-            state: deckBState,
-            snapshot: deckBSnapshot,
-        },
-    ] as const
-
-    const handleVolumeChange = (deckState: IDeck) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    const handleVolumeChange = (id: TDeckIds[number]) => (event: React.ChangeEvent<HTMLInputElement>) => {
         const newVolume = parseFloat(event.target.value)
-        deckState.volume = newVolume
+        store.controller.decks[id].volume = newVolume
     }
 
-    const handlePlayPause = (deckState: IDeck) => async () => {
+    /**
+     * 재생/정지 토글을 처리하는 핸들러
+     */
+    const handlePlayPause = (id: TDeckIds[number]) => async () => {
         try {
-            deckState.isPlaying = !deckState.isPlaying
+            store.controller.decks[id].isPlaying = !store.controller.decks[id].isPlaying
         } catch (error) {
             console.error('재생/정지 중 오류 발생:', error)
         }
     }
 
+    const handleCrossFade = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = parseFloat(event.target.value)
+        store.controller.crossfade.value = value
+    }
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files) {
+            const files = Array.from(event.target.files)
+            files.forEach((file) => {
+                const trackId = uuidv4()
+                const audioURL = URL.createObjectURL(file)
+                const newTrack = {
+                    id: trackId,
+                    fileName: file.name,
+                    duration: 0,
+                    url: audioURL,
+                }
+                store.vault.library.push(newTrack)
+            })
+        }
+    }
+    const handleLoadToDeck =
+        (trackId: string, snapshot: ReturnType<typeof useSnapshot<IStore>>) => (deckId: 'a' | 'b') => {
+            const track = snapshot.vault.library.find((t) => t.id === trackId)
+            if (!track) return
+
+            // store 상태만 업데이트. useToneNodes에서 이 변경을 감지하여 처리
+            store.controller.decks[deckId].currentTrack = {
+                ...track,
+                duration: 0, // 실제 duration은 로드 완료 후 useToneNodes에서 업데이트
+            }
+        }
+
     return (
         <div>
             <div className="flex flex-wrap justify-center gap-8 mb-8">
-                {decks.map(({ id, title, state, snapshot }) => (
-                    <div key={id} className="p-4 border rounded-lg">
-                        <h2 className="text-xl font-bold mb-4">{title}</h2>
-                        <div className="space-y-4">
-                            <p>트랙: {snapshot.currentTrack ? snapshot.currentTrack.fileName : '없음'}</p>
-                            <p>길이: {snapshot.currentTrack?.duration.toFixed(2) || 0}초</p>
-                            <p>재생 위치: {snapshot.playPosition.toFixed(2)}초</p>
-                            <div className="space-y-2">
-                                <p>볼륨: {snapshot.volume.toFixed(2)}</p>
-                                <input
-                                    type="range"
-                                    min="0"
-                                    max="1"
-                                    step="0.01"
-                                    value={snapshot.volume}
-                                    onChange={handleVolumeChange(state)}
-                                    className="w-full"
-                                />
-                            </div>
-                            <button
-                                onClick={handlePlayPause(state)}
-                                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                            >
-                                {snapshot.isPlaying ? '정지' : '재생'}
-                            </button>
-                        </div>
-                    </div>
+                {DECK_IDS.map((id) => (
+                    <Deck
+                        key={id}
+                        id={id}
+                        handleVolumeChange={handleVolumeChange(id)}
+                        handlePlayPause={handlePlayPause(id)}
+                    />
                 ))}
             </div>
-            <CrossFader />
+            <CrossFader handleCrossFade={handleCrossFade} />
             <div className="mt-8">
-                <LibraryUploader />
-                <LibraryList />
+                <LibraryUploader handleFileChange={handleFileChange} />
+                <LibraryList handleLoadToDeck={handleLoadToDeck} />
             </div>
         </div>
     )

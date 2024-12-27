@@ -1,6 +1,4 @@
 export const DECK_IDS = ['a', 'b'] as const
-export type TDeckIds = typeof DECK_IDS
-
 // 이름과 구조 더 훌륭하게 바꿔야됨
 
 // 오디오 초기값 설정
