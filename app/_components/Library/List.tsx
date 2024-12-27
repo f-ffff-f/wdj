@@ -1,15 +1,9 @@
-// 라이브러리 리스트 컴포넌트
-
 import { store } from '@/app/_lib/store'
-import { IStore } from '@/app/_lib/types'
+import { ITrack } from '@/app/_lib/types'
 import React from 'react'
 import { useSnapshot } from 'valtio'
 
-const LibraryList = ({
-    handleLoadToDeck,
-}: {
-    handleLoadToDeck: (trackId: string, snapshot: ReturnType<typeof useSnapshot<IStore>>) => (deckId: 'a' | 'b') => void
-}) => {
+const LibraryList = ({ handleLoadToDeck }: { handleLoadToDeck: (track: ITrack) => (deckId: 'a' | 'b') => void }) => {
     const snapshot = useSnapshot(store)
     return (
         <div className="w-full max-w-2xl mx-auto">
@@ -18,7 +12,7 @@ const LibraryList = ({
                     key={track.id}
                     id={track.id}
                     fileName={track.fileName}
-                    onLoadToDeck={handleLoadToDeck(track.id, snapshot)}
+                    onLoadToDeck={handleLoadToDeck(track)}
                 />
             ))}
         </div>

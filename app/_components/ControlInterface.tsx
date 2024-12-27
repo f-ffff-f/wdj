@@ -1,14 +1,13 @@
-import React from 'react'
-import { useSnapshot } from 'valtio'
-import { store } from '@/app/_lib/store'
-import LibraryUploader from '@/app/_components/Library/Uploader'
-import LibraryList from '@/app/_components/Library/List'
 import CrossFader from '@/app/_components/CrossFader'
-import { useToneNodes } from '@/app/_hooks/useToneNodes'
-import { v4 as uuidv4 } from 'uuid'
 import Deck from '@/app/_components/Deck'
+import LibraryList from '@/app/_components/Library/List'
+import LibraryUploader from '@/app/_components/Library/Uploader'
+import { useToneNodes } from '@/app/_hooks/useToneNodes'
 import { DECK_IDS } from '@/app/_lib/constants'
-import { IStore, TDeckIds } from '@/app/_lib/types'
+import { store } from '@/app/_lib/store'
+import { ITrack, TDeckIds } from '@/app/_lib/types'
+import React from 'react'
+import { v4 as uuidv4 } from 'uuid'
 
 const ControlInterface = () => {
     useToneNodes()
@@ -50,17 +49,13 @@ const ControlInterface = () => {
             })
         }
     }
-    const handleLoadToDeck =
-        (trackId: string, snapshot: ReturnType<typeof useSnapshot<IStore>>) => (deckId: 'a' | 'b') => {
-            const track = snapshot.vault.library.find((t) => t.id === trackId)
-            if (!track) return
-
-            // store 상태만 업데이트. useToneNodes에서 이 변경을 감지하여 처리
-            store.controller.decks[deckId].currentTrack = {
-                ...track,
-                duration: 0, // 실제 duration은 로드 완료 후 useToneNodes에서 업데이트
-            }
+    const handleLoadToDeck = (track: ITrack) => (deckId: 'a' | 'b') => {
+        // store 상태만 업데이트. useToneNodes에서 이 변경을 감지하여 처리
+        store.controller.decks[deckId].currentTrack = {
+            ...track,
+            duration: 0, // 실제 duration은 로드 완료 후 useToneNodes에서 업데이트
         }
+    }
 
     return (
         <div>
