@@ -1,20 +1,13 @@
 import { store } from '@/app/_lib/store'
-import { IDeck, TDeckIds } from '@/app/_lib/types'
+import { TDeckIds } from '@/app/_lib/types'
 import { useSnapshot } from 'valtio'
 
 interface DeckProps {
-    /**
-     * 데크의 고유 식별자 ('a' | 'b')
-     */
     id: TDeckIds[number]
     handleVolumeChange: (event: React.ChangeEvent<HTMLInputElement>) => void
     handlePlayPause: () => void
 }
 
-/**
- * 개별 데크를 표시하고 제어하는 컴포넌트
- * 볼륨 조절, 재생/정지 기능을 제공합니다.
- */
 const Deck = ({ id, handleVolumeChange, handlePlayPause }: DeckProps) => {
     const snapshot = useSnapshot(store)
 
