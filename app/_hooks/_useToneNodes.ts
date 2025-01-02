@@ -16,7 +16,7 @@ interface ToneNodes {
  * Tone.js 오디오 노드들을 초기화하고 연결하는 커스텀 훅
  * @returns 초기화된 Tone.js 노드들의 참조를 포함하는 객체
  */
-export const useToneNodes = (isInteracting: boolean): ToneNodes => {
+export const _useToneNodes = (isInteracting: boolean): ToneNodes => {
     const playerA = useRef<Tone.Player | null>(null)
     const playerB = useRef<Tone.Player | null>(null)
     const gainA = useRef<Tone.Gain | null>(null)
@@ -29,9 +29,6 @@ export const useToneNodes = (isInteracting: boolean): ToneNodes => {
     const crossfadeSnapshot = useSnapshot(store.controller.crossfade)
 
     useEffect(() => {
-        if (!isInteracting) return
-        console.log('useToneNodes')
-
         // CrossFade 노드 초기화 및 출력 연결
         crossFade.current = new Tone.CrossFade(CROSSFADE_NODE_DEFAULT).toDestination()
 
@@ -98,12 +95,10 @@ export const useToneNodes = (isInteracting: boolean): ToneNodes => {
     useEffect(() => {
         const updatePositions = setInterval(() => {
             if (playerA.current && deckASnapshot.isPlaying) {
-                console.log(playerA.current.buffer.currentTime)
-                // store.controller.decks.a.playPosition = playerA.current.now()
+                store.controller.decks.a.playPosition = playerA.current.now()
             }
             if (playerB.current && deckBSnapshot.isPlaying) {
-                console.log(playerB.current.buffer.currentTime)
-                // store.controller.decks.b.playPosition = playerB.current.now()
+                store.controller.decks.b.playPosition = playerB.current.now()
             }
         }, 100)
 
