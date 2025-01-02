@@ -3,8 +3,16 @@ import { ITrack } from '@/app/_lib/types'
 import React from 'react'
 import { useSnapshot } from 'valtio'
 
-const LibraryList = ({ handleLoadToDeck }: { handleLoadToDeck: (track: ITrack) => (deckId: 'a' | 'b') => void }) => {
+const LibraryList = () => {
     const snapshot = useSnapshot(store)
+
+    const handleLoadToDeck = (track: ITrack) => (deckId: 'a' | 'b') => {
+        // store 상태만 업데이트. useToneNodes에서 이 변경을 감지하여 처리
+        store.controller.decks[deckId].currentTrack = {
+            ...track,
+        }
+    }
+
     return (
         <div className="w-full max-w-2xl mx-auto">
             {snapshot.vault.library.map((track) => (

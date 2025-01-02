@@ -1,15 +1,30 @@
 import { store } from '@/app/_lib/store'
 import { TDeckIds } from '@/app/_lib/types'
+import React from 'react'
 import { useSnapshot } from 'valtio'
 
 interface DeckProps {
     id: TDeckIds[number]
-    handleVolumeChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-    handlePlayPause: () => void
 }
 
-const Deck = ({ id, handleVolumeChange, handlePlayPause }: DeckProps) => {
+const Deck = ({ id }: DeckProps) => {
     const snapshot = useSnapshot(store)
+
+    const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newVolume = parseFloat(event.target.value)
+        store.controller.decks[id].volume = newVolume
+    }
+
+    /**
+     * 재생/정지 토글을 처리하는 핸들러
+     */
+    const handlePlayPause = async () => {
+        try {
+            store.controller.decks[id].isPlaying = !store.controller.decks[id].isPlaying
+        } catch (error) {
+            console.error('재생/정지 중 오류 발생:', error)
+        }
+    }
 
     return (
         <div className="p-4 border rounded-lg">

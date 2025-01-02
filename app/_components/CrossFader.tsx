@@ -2,8 +2,14 @@ import { store } from '@/app/_lib/store'
 import React from 'react'
 import { useSnapshot } from 'valtio'
 
-const CrossFader = ({ handleCrossFade }: { handleCrossFade: (event: React.ChangeEvent<HTMLInputElement>) => void }) => {
+const CrossFader = () => {
     const snapshot = useSnapshot(store)
+
+    const handleCrossFade = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = parseFloat(event.target.value)
+        store.controller.crossfade.value = value
+    }
+
     return (
         <div className="flex flex-col items-center mt-8">
             <div className="w-64 space-y-2">
