@@ -16,7 +16,7 @@ interface ToneNodes {
  * Tone.js 오디오 노드들을 초기화하고 연결하는 커스텀 훅
  * @returns 초기화된 Tone.js 노드들의 참조를 포함하는 객체
  */
-export const useToneNodes = (): ToneNodes => {
+export const useToneNodes = (isInteracting: boolean): ToneNodes => {
     const playerA = useRef<Tone.Player | null>(null)
     const playerB = useRef<Tone.Player | null>(null)
     const gainA = useRef<Tone.Gain | null>(null)
@@ -29,6 +29,9 @@ export const useToneNodes = (): ToneNodes => {
     const crossfadeSnapshot = useSnapshot(store.controller.crossfade)
 
     useEffect(() => {
+        if (!isInteracting) return
+        console.log('useToneNodes')
+
         // CrossFade 노드 초기화 및 출력 연결
         crossFade.current = new Tone.CrossFade(CROSSFADE_NODE_DEFAULT).toDestination()
 
@@ -50,7 +53,7 @@ export const useToneNodes = (): ToneNodes => {
             gainB.current?.dispose()
             crossFade.current?.dispose()
         }
-    }, [])
+    }, [isInteracting])
 
     // 볼륨 변경 감지
     useEffect(() => {
@@ -66,7 +69,8 @@ export const useToneNodes = (): ToneNodes => {
         if (!playerA.current) return
 
         if (deckASnapshot.isPlaying) {
-            playerA.current.start(undefined, deckASnapshot.playPosition)
+            // playerA.current.start(undefined, deckASnapshot.playPosition)
+            playerA.current.start()
         } else {
             playerA.current.stop()
         }
@@ -76,7 +80,8 @@ export const useToneNodes = (): ToneNodes => {
         if (!playerB.current) return
 
         if (deckBSnapshot.isPlaying) {
-            playerB.current.start(undefined, deckBSnapshot.playPosition)
+            // playerB.current.start(undefined, deckBSnapshot.playPosition)
+            playerB.current.start()
         } else {
             playerB.current.stop()
         }
@@ -93,10 +98,12 @@ export const useToneNodes = (): ToneNodes => {
     useEffect(() => {
         const updatePositions = setInterval(() => {
             if (playerA.current && deckASnapshot.isPlaying) {
-                store.controller.decks.a.playPosition = playerA.current.now()
+                console.log(playerA.current.buffer.currentTime)
+                // store.controller.decks.a.playPosition = playerA.current.now()
             }
             if (playerB.current && deckBSnapshot.isPlaying) {
-                store.controller.decks.b.playPosition = playerB.current.now()
+                console.log(playerB.current.buffer.currentTime)
+                // store.controller.decks.b.playPosition = playerB.current.now()
             }
         }, 100)
 

@@ -6,11 +6,12 @@ import { useToneNodes } from '@/app/_hooks/useToneNodes'
 import { DECK_IDS } from '@/app/_lib/constants'
 import { store } from '@/app/_lib/store'
 import { ITrack, TDeckIds } from '@/app/_lib/types'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 const ControlInterface = () => {
-    useToneNodes()
+    const [isInteracting, setIsInteracting] = useState(false)
+    useToneNodes(isInteracting)
 
     const handleVolumeChange = (id: TDeckIds[number]) => (event: React.ChangeEvent<HTMLInputElement>) => {
         const newVolume = parseFloat(event.target.value)
@@ -58,7 +59,7 @@ const ControlInterface = () => {
     }
 
     return (
-        <div>
+        <div onClick={() => setIsInteracting(true)}>
             <div className="flex flex-wrap justify-center gap-8 mb-8">
                 {DECK_IDS.map((id) => (
                     <Deck

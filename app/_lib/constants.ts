@@ -1,3 +1,5 @@
+import { debug } from 'console'
+
 export const DECK_IDS = ['a', 'b'] as const
 // 이름과 구조 더 훌륭하게 바꿔야됨
 
@@ -15,6 +17,7 @@ export const PLAYER_NODE_CONFIG = {
     fadeOut: 0,
     loop: false,
     autostart: false,
+    debug: true,
 } as const
 
 // 크로스페이더 설정
