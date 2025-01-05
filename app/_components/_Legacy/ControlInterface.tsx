@@ -1,7 +1,7 @@
-import CrossFader from '@/app/_components/CrossFader'
-import Deck from '@/app/_components/Deck'
-import LibraryList from '@/app/_components/Library/List'
-import LibraryUploader from '@/app/_components/Library/Uploader'
+import CrossFader from '@/app/_components/_Legacy/CrossFader'
+import Deck from '@/app/_components/_Legacy/Deck'
+import LibraryList from '@/app/_components/_Legacy/Library/List'
+import LibraryUploader from '@/app/_components/_Legacy/Library/Uploader'
 import { DECK_IDS } from '@/app/_lib/constants'
 import React, { useEffect, useRef, useState } from 'react'
 

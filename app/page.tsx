@@ -1,13 +1,13 @@
 'use client'
 
-import ControlInterface from '@/app/_components/ControlInterface'
+import DjMultiDeckPlayer from '@/app/_components/DjMultiDeckPlayer'
 import WrapperUserGesture from '@/app/_components/WrapperUserGesture'
 
 const Home = () => {
     return (
-        <WrapperUserGesture>
-            <ControlInterface />
-        </WrapperUserGesture>
+        // <WrapperUserGesture>
+        <DjMultiDeckPlayer />
+        // </WrapperUserGesture>
     )
 }
 
