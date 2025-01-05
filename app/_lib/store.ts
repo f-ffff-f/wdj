@@ -16,4 +16,4 @@ export const store = proxy<IStore>({
     },
 })
 
-const unsub = devtools(store, { name: 'control state', enabled: true })
+const unsub = devtools(store, { name: 'store', enabled: true })

@@ -3,7 +3,7 @@ let ctx: AudioContext | undefined = undefined
 if (typeof window !== 'undefined') {
     ctx = new AudioContext()
 }
-export default function Flow() {
+const Flow = () => {
     if (!ctx) {
         return null
     }
@@ -11,3 +11,5 @@ export default function Flow() {
     // store.setup({ctx})
     // ...
 }
+
+export default Flow

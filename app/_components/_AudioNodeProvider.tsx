@@ -1,12 +1,23 @@
-import { AudioContextContext, AudioContextProvider } from '@/app/_components/AudioContextProvider'
-import CrossFader from '@/app/_components/CrossFader'
-import Deck from '@/app/_components/Deck'
-import LibraryList from '@/app/_components/Library/List'
-import LibraryUploader from '@/app/_components/Library/Uploader'
-import { DECK_IDS } from '@/app/_lib/constants'
-import React, { useContext, useEffect, useRef } from 'react'
+import { createContext, useContext, useEffect, useRef } from 'react'
+import { AudioContextContext } from './AudioContextProvider'
+import { TDeckIds } from '@/app/_lib/types'
 
-const ControlInterface = () => {
+type AudioNode = {
+    audio: React.RefObject<HTMLAudioElement>
+    source: React.RefObject<MediaElementAudioSourceNode | null>
+    gain: React.RefObject<GainNode | null>
+    crossFade: React.RefObject<GainNode | null>
+}
+
+type IAudioNodes = Record<TDeckIds[number], AudioNode>
+
+export const AudioNodeContext = createContext<IAudioNodes | null>(null)
+
+interface AudioNodeProviderProps {
+    children: React.ReactNode
+}
+
+export const AudioNodeProvider = ({ children }: AudioNodeProviderProps) => {
     const audioContext = useContext(AudioContextContext)
 
     // HTML Audio Elements
@@ -62,26 +73,22 @@ const ControlInterface = () => {
     }, [audioContext])
 
     return (
-        <AudioContextProvider>
-            <div className="flex flex-wrap justify-center gap-8 mb-8">
-                {DECK_IDS.map((id) => {
-                    const audioRef = id === 'a' ? audioA : audioB
-                    const gainRef = id === 'a' ? gainA : gainB
-                    return (
-                        <div key={`${id}_div`}>
-                            <audio key={`${id}_audio`} ref={audioRef}></audio>
-                            <Deck key={id} id={id} audioRef={audioRef} gainRef={gainRef} />
-                        </div>
-                    )
-                })}
-            </div>
-            <CrossFader />
-            <div className="mt-8">
-                <LibraryUploader />
-                <LibraryList audioRef={{ a: audioA, b: audioB }} />
-            </div>
-        </AudioContextProvider>
+        <AudioNodeContext.Provider
+            value={{
+                a: { audio: audioA, source: sourceA, gain: gainA, crossFade: crossFadeA },
+                b: { audio: audioB, source: sourceB, gain: gainB, crossFade: crossFadeB },
+            }}
+        >
+            {children}
+        </AudioNodeContext.Provider>
     )
 }
 
-export default ControlInterface
+// 커스텀 훅
+export const useAudioNodes = () => {
+    const context = useContext(AudioNodeContext)
+    if (!context) {
+        throw new Error('useAudioNodes must be used within an AudioNodeProvider')
+    }
+    return context
+}

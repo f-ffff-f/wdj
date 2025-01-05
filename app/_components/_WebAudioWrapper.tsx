@@ -1,17 +1,17 @@
-import { AudioContextContext } from '@/app/_components/AudioContextProvider'
-import { useContext, useEffect, useRef } from 'react'
+import { store } from '@/app/_lib/store'
+import React, { useEffect, useRef } from 'react'
+import { useSnapshot } from 'valtio'
 
-interface AudioNodes {
-    sourceA: MediaElementAudioSourceNode | null
-    sourceB: MediaElementAudioSourceNode | null
-    gainA: GainNode | null
-    gainB: GainNode | null
-    crossFadeA: GainNode | null
-    crossFadeB: GainNode | null
+interface WebAudioWrapperProps {
+    audioContext: AudioContext
+    children: React.ReactNode
 }
 
-export const useAudioNodes = () => {
-    const audioContext = useContext(AudioContextContext)
+const WebAudioWrapper = ({ audioContext, children }: WebAudioWrapperProps) => {
+    // store의 상태 변화 감지
+    const deckASnapshot = useSnapshot(store.controller.decks.a)
+    const deckBSnapshot = useSnapshot(store.controller.decks.b)
+    const crossfadeSnapshot = useSnapshot(store.controller.crossfade)
 
     // HTML Audio Elements
     const audioA = useRef<HTMLAudioElement>(null)
@@ -71,5 +71,32 @@ export const useAudioNodes = () => {
         }
     }, [audioContext])
 
-    return { audioA, audioB, sourceA, sourceB, gainA, gainB, crossFadeA, crossFadeB }
+    // 트랙 게인 제어
+    useEffect(() => {
+        if (!gainA.current) return
+        gainA.current.gain.value = deckASnapshot.volume
+    }, [deckASnapshot.volume])
+
+    useEffect(() => {
+        if (!gainB.current) return
+        gainB.current.gain.value = deckBSnapshot.volume
+    }, [deckBSnapshot.volume])
+
+    // 글로벌 크로스페이더 제어
+    useEffect(() => {
+        if (!crossFadeA.current || !crossFadeB.current) return
+        const value = crossfadeSnapshot.value
+        crossFadeA.current.gain.value = Math.cos((value * Math.PI) / 2)
+        crossFadeB.current.gain.value = Math.cos(((1 - value) * Math.PI) / 2)
+    }, [crossfadeSnapshot.value])
+
+    return (
+        <>
+            <audio ref={audioA} />
+            <audio ref={audioB} />
+            {children}
+        </>
+    )
 }
+
+export default WebAudioWrapper

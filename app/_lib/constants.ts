@@ -1,5 +1,3 @@
-import { debug } from 'console'
-
 export const DECK_IDS = ['a', 'b'] as const
 // 이름과 구조 더 훌륭하게 바꿔야됨
 

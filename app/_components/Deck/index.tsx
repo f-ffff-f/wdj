@@ -1,3 +1,4 @@
+import { useControl } from '@/app/_hooks/useControl'
 import { store } from '@/app/_lib/store'
 import { TDeckIds } from '@/app/_lib/types'
 import React from 'react'
@@ -5,27 +6,13 @@ import { useSnapshot } from 'valtio'
 
 interface DeckProps {
     id: TDeckIds[number]
+    audioRef: React.RefObject<HTMLAudioElement>
+    gainRef: React.RefObject<GainNode>
 }
 
-const Deck = ({ id }: DeckProps) => {
+const Deck = ({ id, audioRef, gainRef }: DeckProps) => {
     const snapshot = useSnapshot(store)
-
-    const handleVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newVolume = parseFloat(event.target.value)
-        store.controller.decks[id].volume = newVolume
-    }
-
-    /**
-     * 재생/정지 토글을 처리하는 핸들러
-     */
-    const handlePlayPause = async () => {
-        try {
-            store.controller.decks[id].isPlaying = !store.controller.decks[id].isPlaying
-        } catch (error) {
-            console.error('재생/정지 중 오류 발생:', error)
-        }
-    }
-
+    const { togglePlay, setVolume } = useControl()
     return (
         <div className="p-4 border rounded-lg">
             <h2 className="text-xl font-bold mb-4">{id}</h2>
@@ -46,12 +33,12 @@ const Deck = ({ id }: DeckProps) => {
                         max="1"
                         step="0.01"
                         value={snapshot.controller.decks[id].volume}
-                        onChange={handleVolumeChange}
+                        onChange={(e) => setVolume(id, Number(e.target.value), gainRef)}
                         className="w-full"
                     />
                 </div>
                 <button
-                    onClick={handlePlayPause}
+                    onClick={() => togglePlay(id, audioRef)}
                     className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                     {snapshot.controller.decks[id].isPlaying ? '정지' : '재생'}
