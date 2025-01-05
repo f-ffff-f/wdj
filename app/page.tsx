@@ -1,12 +1,14 @@
 'use client'
 
 import ControlInterface from '@/app/_components/ControlInterface'
-import { useState } from 'react'
+import WrapperUserGesture from '@/app/_components/WrapperUserGesture'
 
 const Home = () => {
-    const [isInteracted, setIsInteracted] = useState(false)
-
-    return <>{!isInteracted ? <button onClick={() => setIsInteracted(true)}>초기화</button> : <ControlInterface />}</>
+    return (
+        <WrapperUserGesture>
+            <ControlInterface />
+        </WrapperUserGesture>
+    )
 }
 
 export default Home

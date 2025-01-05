@@ -70,33 +70,30 @@ const ControlInterface = () => {
     const gainRef = { a: gainA, b: gainB }
     const crossFadeRef = { a: crossFadeA, b: crossFadeB }
 
+    if (!audioContext) return null
     return (
         <>
-            {audioContext && (
-                <>
-                    <div className="flex flex-wrap justify-center gap-8 mb-8">
-                        {DECK_IDS.map((id) => {
-                            return (
-                                <div key={`${id}_div`}>
-                                    <audio key={`${id}_audio`} ref={audioRef[id]}></audio>
-                                    <Deck
-                                        key={id}
-                                        id={id}
-                                        audioRef={audioRef[id]}
-                                        gainRef={gainRef[id]}
-                                        audioContext={audioContext}
-                                    />
-                                </div>
-                            )
-                        })}
-                    </div>
-                    <CrossFader crossFade={crossFadeRef} audioContext={audioContext} />
-                    <div className="mt-8">
-                        <LibraryUploader />
-                        <LibraryList audioRef={{ a: audioA, b: audioB }} audioContext={audioContext} />
-                    </div>
-                </>
-            )}
+            <div className="flex flex-wrap justify-center gap-8 mb-8">
+                {DECK_IDS.map((id) => {
+                    return (
+                        <div key={`${id}_div`}>
+                            <audio key={`${id}_audio`} ref={audioRef[id]}></audio>
+                            <Deck
+                                key={id}
+                                id={id}
+                                audioRef={audioRef[id]}
+                                gainRef={gainRef[id]}
+                                audioContext={audioContext}
+                            />
+                        </div>
+                    )
+                })}
+            </div>
+            <CrossFader crossFade={crossFadeRef} audioContext={audioContext} />
+            <div className="mt-8">
+                <LibraryUploader />
+                <LibraryList audioRef={{ a: audioA, b: audioB }} audioContext={audioContext} />
+            </div>
         </>
     )
 }

@@ -25,7 +25,10 @@ const Deck = ({ id, audioRef, gainRef, audioContext }: DeckProps) => {
                         : '없음'}
                 </p>
                 <p>길이: {snapshot.controller.decks[id].currentTrack?.duration.toFixed(2) || 0}초</p>
-                <p>재생 위치: {snapshot.controller.decks[id].playPosition.toFixed(2)}초</p>
+                <p>
+                    재생 위치:
+                    {snapshot.controller.decks[id].playPosition.toFixed(2)}초
+                </p>
                 <div className="space-y-2">
                     <p>볼륨: {snapshot.controller.decks[id].volume.toFixed(2)}</p>
                     <input
