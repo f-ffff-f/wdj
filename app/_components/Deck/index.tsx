@@ -8,11 +8,12 @@ interface DeckProps {
     id: TDeckIds[number]
     audioRef: React.RefObject<HTMLAudioElement>
     gainRef: React.RefObject<GainNode>
+    audioContext: AudioContext
 }
 
-const Deck = ({ id, audioRef, gainRef }: DeckProps) => {
+const Deck = ({ id, audioRef, gainRef, audioContext }: DeckProps) => {
     const snapshot = useSnapshot(store)
-    const { togglePlay, setVolume } = useControl()
+    const { togglePlay, setVolume } = useControl(audioContext)
     return (
         <div className="p-4 border rounded-lg">
             <h2 className="text-xl font-bold mb-4">{id}</h2>

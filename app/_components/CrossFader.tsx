@@ -1,9 +1,20 @@
+import { useControl } from '@/app/_hooks/useControl'
 import { store } from '@/app/_lib/store'
 import React from 'react'
 import { useSnapshot } from 'valtio'
 
-const CrossFader = () => {
+const CrossFader = ({
+    crossFade,
+    audioContext,
+}: {
+    crossFade: {
+        a: React.MutableRefObject<GainNode | null>
+        b: React.MutableRefObject<GainNode | null>
+    }
+    audioContext: AudioContext
+}) => {
     const snapshot = useSnapshot(store)
+    const { setCrossFade } = useControl(audioContext)
 
     const handleCrossFade = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = parseFloat(event.target.value)
@@ -23,7 +34,7 @@ const CrossFader = () => {
                     max="1"
                     step="0.01"
                     value={snapshot.controller.crossfade.value}
-                    onChange={handleCrossFade}
+                    onChange={(e) => setCrossFade(Number(e.target.value), crossFade)}
                     className="w-full"
                 />
                 <div className="text-center">

@@ -5,9 +5,15 @@ import { TDeckIds } from '@/app/_lib/types'
 import React from 'react'
 import { useSnapshot } from 'valtio'
 
-const LibraryList = ({ audioRef }: { audioRef: Record<TDeckIds[number], React.RefObject<HTMLAudioElement>> }) => {
+const LibraryList = ({
+    audioRef,
+    audioContext,
+}: {
+    audioRef: Record<TDeckIds[number], React.RefObject<HTMLAudioElement>>
+    audioContext: AudioContext
+}) => {
     const snapshot = useSnapshot(store)
-    const { loadToDeck } = useControl()
+    const { loadToDeck } = useControl(audioContext)
 
     return (
         <div className="w-full max-w-2xl mx-auto">
