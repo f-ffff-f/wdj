@@ -1,14 +1,9 @@
 'use client'
 
-import ControlInterface from '@/app/_components/ControlInterface'
-import WrapperUserGesture from '@/app/_components/WrapperUserGesture'
+import DJController from '@/app/_components/DJController'
 
 const Home = () => {
-    return (
-        <WrapperUserGesture>
-            <ControlInterface />
-        </WrapperUserGesture>
-    )
+    return <DJController />
 }
 
 export default Home
