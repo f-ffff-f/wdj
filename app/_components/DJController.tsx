@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import FileUploader from '@/app/_components/Vault/FileUploader'
 import List from '@/app/_components/Vault/List'
-import { audioManager } from '@/app/_lib/AudioManager/audioManagerSingleton'
+import { audioManager } from '@/app/_lib/audioManagerSingleton'
 
 interface IDeckUI {
     id: number
@@ -10,7 +10,6 @@ interface IDeckUI {
     currentTime: number
     duration: number
     isPlaying: boolean
-    // currentTrack: ITrack | null
 }
 
 interface IDJContollerUI {
@@ -29,7 +28,6 @@ const INITIAL_UI: IDJContollerUI = {
             currentTime: deckA.audioElement.currentTime,
             duration: deckA.audioElement.duration,
             isPlaying: false,
-            // currentTrack: null,
         },
         {
             id: deckB.id,
@@ -37,7 +35,6 @@ const INITIAL_UI: IDJContollerUI = {
             currentTime: deckB.audioElement.currentTime,
             duration: deckB.audioElement.duration,
             isPlaying: false,
-            // currentTrack: null,
         },
     ],
     crossFade: audioManager.getCrossFade(),

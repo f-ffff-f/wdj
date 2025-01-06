@@ -1,4 +1,4 @@
-import { audioManager } from '@/app/_lib/AudioManager/audioManagerSingleton'
+import { audioManager } from '@/app/_lib/audioManagerSingleton'
 import { store } from '@/app/_lib/store'
 import React from 'react'
 import { useSnapshot } from 'valtio'

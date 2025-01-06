@@ -6,10 +6,7 @@ interface Deck {
     crossFadeNode: GainNode
 }
 
-/**
- * 이 클래스는 반드시 audioManagerSingleton.ts 파일에서만 사용해야 함
- */
-export default class AudioManager {
+class AudioManager {
     private audioContext: AudioContext
     private nextId = 1
     private decks: Deck[] = []
@@ -108,3 +105,8 @@ export default class AudioManager {
         return this.decks.find((d) => d.id === deckId)
     }
 }
+
+// 자바스크립트(ES Modules)에서는 어떤 모듈을 한 번 로드하면, 해당 모듈이 캐싱되어 애플리케이션 전체에서 동일한 인스턴스를 공유함
+
+/** @Singleton */
+export const audioManager = new AudioManager()
