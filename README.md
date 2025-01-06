@@ -2,13 +2,13 @@
 
 [English](README.en.md) | 한국어
 
-브라우저에서 실행되는 현대적인 DJ 믹싱 웹 애플리케이션입니다.
+DJ 웹 애플리케이션입니다.
 
 ## 프로토타입 개발 현황
 
 - [x] 듀얼 데크 시스템
 - [x] 크로스페이더 컨트롤
-- [ ] 로컬 음악 라이브러리 관리
+- [x] 로컬 음악 라이브러리 관리
 - [ ] 실시간 웨이브폼 시각화
 - [ ] 키보드 컨트롤
 - [ ] 미디 컨트롤
@@ -45,9 +45,9 @@ bun dev
 
 -   [Next.js 14](https://nextjs.org/)
 -   [TypeScript](https://www.typescriptlang.org/)
+-   [Web Audio API](https://developer.mozilla.org/ko/docs/Web/API/Web_Audio_API)
 -   [Valtio](https://github.com/pmndrs/valtio)
 -   [TailwindCSS](https://tailwindcss.com/)
--   [Tone.js](https://tonejs.github.io) - 오디오 처리
 
 ## 라이선스
 

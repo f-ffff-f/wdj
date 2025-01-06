@@ -8,7 +8,7 @@ A modern DJ mixing web application that runs in the browser.
 
 -   [x] Dual Deck System
 -   [x] Crossfader controls
--   [ ] Local music library management
+-   [x] Local music library management
 -   [ ] Real-time waveform visualization
 -   [ ] Keyboard controls
 -   [ ] MIDI controls
@@ -45,9 +45,9 @@ Open [http://localhost:3000] in your browser to view the application.
 
 -   [Next.js 14](https://nextjs.org/)
 -   [TypeScript](https://www.typescriptlang.org/)
+-   [Web Audio API](https://developer.mozilla.org/ko/docs/Web/API/Web_Audio_API)
 -   [Valtio](https://github.com/pmndrs/valtio)
 -   [TailwindCSS](https://tailwindcss.com/)
--   [Tone.js](https://tonejs.github.io) - Audio processing
 
 ## License
 
