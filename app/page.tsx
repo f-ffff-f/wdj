@@ -1,6 +1,6 @@
 'use client'
 
-import DjMultiDeckPlayer from '@/app/_components/DjMultiDeckPlayer'
+import DjMultiDeckPlayer from '@/app/_components/DJController'
 import WrapperUserGesture from '@/app/_components/WrapperUserGesture'
 
 const Home = () => {

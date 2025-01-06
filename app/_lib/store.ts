@@ -1,37 +1,16 @@
 // 아 잘 안되네
+import { ITrack } from '@/app/_lib/types'
 import { proxy } from 'valtio'
 import { devtools } from 'valtio/utils'
-import { IStore } from '@/app/_lib/types'
-import { MediaElementAudioManager } from '@/app/_lib/AudioManager/MediaElementAudioManager'
 
-const audioManager = new MediaElementAudioManager()
-const deckA = audioManager.addDeck()
-const deckB = audioManager.addDeck()
+interface IStore {
+    vault: {
+        library: ITrack[]
+    }
+}
 
 export const store = proxy<IStore>({
     vault: { library: [] },
-    UI: {
-        decks: [
-            {
-                id: deckA.id,
-                name: 'Deck A',
-                volume: 1,
-                currentTime: 0,
-                duration: 0,
-                isPlaying: false,
-                currentTrack: null,
-            },
-            {
-                id: deckB.id,
-                name: 'Deck B',
-                volume: 1,
-                currentTime: 0,
-                duration: 0,
-                isPlaying: false,
-                currentTrack: null,
-            },
-        ],
-    },
 })
 
 const unsub = devtools(store, { name: 'store', enabled: true })

@@ -3,6 +3,7 @@ export interface Deck {
     audioElement: HTMLAudioElement
     sourceNode: MediaElementAudioSourceNode
     gainNode: GainNode
+    crossFadeNode: GainNode
 }
 
 export class MediaElementAudioManager {
@@ -19,15 +20,17 @@ export class MediaElementAudioManager {
         const audioElement = new Audio()
         const sourceNode = this.audioContext.createMediaElementSource(audioElement)
         const gainNode = this.audioContext.createGain()
-
-        // 최종 오디오 그래프: source -> gain -> destination
-        sourceNode.connect(gainNode).connect(this.audioContext.destination)
+        const crossFadeNode = this.audioContext.createGain()
+        // crossFadeNode.gain.value = 0.1 연결 확인
+        // 최종 오디오 그래프: source -> gain -> crossFade -> destination
+        sourceNode.connect(gainNode).connect(crossFadeNode).connect(this.audioContext.destination)
 
         const deck: Deck = {
             id: this.nextId++,
             audioElement,
             sourceNode,
             gainNode,
+            crossFadeNode,
         }
         this.decks.push(deck)
         return deck
@@ -63,6 +66,12 @@ export class MediaElementAudioManager {
         const deck = this.getDeck(deckId)
         if (!deck) return
         deck.gainNode.gain.value = volume
+    }
+
+    /** 크로스페이드 조절 */
+    setCrossFade(value: number) {
+        this.decks[0].crossFadeNode.gain.value = 1 - value
+        this.decks[1].crossFadeNode.gain.value = value
     }
 
     // 나머지 유틸 메서드
