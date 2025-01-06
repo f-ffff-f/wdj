@@ -1,9 +1,10 @@
-import React from 'react'
 import { store } from '@/app/_lib/store'
+import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
-const LibraryUploader: React.FC = () => {
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+const FileUploader = () => {
+    // 파일 업로드
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const files = Array.from(event.target.files)
             files.forEach((file) => {
@@ -19,12 +20,7 @@ const LibraryUploader: React.FC = () => {
             })
         }
     }
-
-    return (
-        <div className="library-uploader">
-            <input type="file" accept="audio/*" multiple onChange={handleFileChange} />
-        </div>
-    )
+    return <input type="file" accept="audio/*" onChange={(e) => handleFileUpload(e)} />
 }
 
-export default LibraryUploader
+export default FileUploader

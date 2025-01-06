@@ -1,9 +1,9 @@
 'use client'
 
-import ControlInterface from '@/app/_components/ControlInterface'
+import DJController from '@/app/_components/DJController'
 
-const Home: React.FC = () => {
-    return <ControlInterface />
+const Home = () => {
+    return <DJController />
 }
 
 export default Home
