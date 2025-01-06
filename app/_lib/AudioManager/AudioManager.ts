@@ -1,4 +1,4 @@
-export interface Deck {
+interface Deck {
     id: number
     audioElement: HTMLAudioElement
     sourceNode: MediaElementAudioSourceNode
