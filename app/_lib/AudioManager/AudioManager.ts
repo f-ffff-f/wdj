@@ -6,10 +6,11 @@ export interface Deck {
     crossFadeNode: GainNode
 }
 
-export class MediaElementAudioManager {
+export class AudioManager {
     private audioContext: AudioContext
-    private decks: Deck[] = []
     private nextId = 1
+    private decks: Deck[] = []
+    private crossFade = 0.5
 
     constructor() {
         this.audioContext = new AudioContext()
@@ -21,8 +22,8 @@ export class MediaElementAudioManager {
         const sourceNode = this.audioContext.createMediaElementSource(audioElement)
         const gainNode = this.audioContext.createGain()
         const crossFadeNode = this.audioContext.createGain()
-        // crossFadeNode.gain.value = 0.1 연결 확인
-        // 최종 오디오 그래프: source -> gain -> crossFade -> destination
+        crossFadeNode.gain.value = this.crossFade
+
         sourceNode.connect(gainNode).connect(crossFadeNode).connect(this.audioContext.destination)
 
         const deck: Deck = {
@@ -70,17 +71,29 @@ export class MediaElementAudioManager {
 
     /** 크로스페이드 조절 */
     setCrossFade(value: number) {
-        this.decks[0].crossFadeNode.gain.value = 1 - value
-        this.decks[1].crossFadeNode.gain.value = value
+        this.crossFade = value
+        // this.decks[0].crossFadeNode.gain.value = 1 - value
+        // this.decks[1].crossFadeNode.gain.value = value
+
+        // smoothing
+        this.decks[0].crossFadeNode.gain.value = Math.cos((value * Math.PI) / 2)
+        this.decks[1].crossFadeNode.gain.value = Math.cos(((1 - value) * Math.PI) / 2)
     }
 
-    // 나머지 유틸 메서드
     getCurrentTime(deckId: number): number {
         return this.getDeck(deckId)?.audioElement.currentTime ?? 0
     }
 
     getDuration(deckId: number): number {
         return this.getDeck(deckId)?.audioElement.duration ?? 0
+    }
+
+    getVolume(deckId: number): number {
+        return this.getDeck(deckId)?.gainNode.gain.value ?? 0
+    }
+
+    getCrossFade(): number {
+        return this.crossFade
     }
 
     isPlaying(deckId: number): boolean {

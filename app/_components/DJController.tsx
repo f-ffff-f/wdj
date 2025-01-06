@@ -1,6 +1,6 @@
 // DjMultiDeckPlayer.tsx
 import React, { useEffect, useState } from 'react'
-import { MediaElementAudioManager } from '@/app/_lib/AudioManager/MediaElementAudioManager'
+import { AudioManager } from '@/app/_lib/AudioManager/AudioManager'
 import { ITrack } from '@/app/_lib/types'
 
 interface IDeckUI {
@@ -9,7 +9,7 @@ interface IDeckUI {
     currentTime: number
     duration: number
     isPlaying: boolean
-    currentTrack: ITrack | null
+    // currentTrack: ITrack | null
 }
 
 interface IDJContollerUI {
@@ -17,7 +17,7 @@ interface IDJContollerUI {
     crossFade: number
 }
 
-const audioManager = new MediaElementAudioManager()
+const audioManager = new AudioManager()
 
 const deckA = audioManager.addDeck()
 const deckB = audioManager.addDeck()
@@ -26,28 +26,28 @@ const INITIAL_UI: IDJContollerUI = {
     deckList: [
         {
             id: deckA.id,
-            volume: 1,
-            currentTime: 0,
-            duration: 0,
+            volume: deckA.gainNode.gain.value,
+            currentTime: deckA.audioElement.currentTime,
+            duration: deckA.audioElement.duration,
             isPlaying: false,
-            currentTrack: null,
+            // currentTrack: null,
         },
         {
             id: deckB.id,
-            volume: 1,
-            currentTime: 0,
-            duration: 0,
+            volume: deckB.gainNode.gain.value,
+            currentTime: deckB.audioElement.currentTime,
+            duration: deckB.audioElement.duration,
             isPlaying: false,
-            currentTrack: null,
+            // currentTrack: null,
         },
     ],
-    crossFade: 0.5,
+    crossFade: audioManager.getCrossFade(),
 }
 
 export const DJController = () => {
     const [stateUI, setStateUI] = useState(INITIAL_UI)
 
-    // 매 프레임 상태 갱신 (currentTime 등)
+    // 매 프레임 인스턴스를 조회해서 상태 갱신
     useEffect(() => {
         let rafId: number
         const updateDecks = () => {
@@ -56,9 +56,11 @@ export const DJController = () => {
                 deckList: prev.deckList.map((deck) => {
                     const currentTime = audioManager.getCurrentTime(deck.id)
                     const duration = audioManager.getDuration(deck.id)
+                    const volume = audioManager.getVolume(deck.id)
                     const isPlaying = audioManager.isPlaying(deck.id)
-                    return { ...deck, currentTime, duration, isPlaying }
+                    return { ...deck, currentTime, duration, volume, isPlaying }
                 }),
+                crossFade: audioManager.getCrossFade(),
             }))
             rafId = requestAnimationFrame(updateDecks)
         }
@@ -73,22 +75,22 @@ export const DJController = () => {
         audioManager.loadTrack(deckId, URL.createObjectURL(file))
     }
 
+    const handlePlayPauseToggle = (isPlaying: boolean, deckId: number) => {
+        if (isPlaying) {
+            audioManager.pauseDeck(deckId)
+        } else {
+            audioManager.playDeck(deckId)
+        }
+    }
+
     const handleVolumeChange = (deckId: number, e: React.ChangeEvent<HTMLInputElement>) => {
         const volume = Number(e.target.value)
         audioManager.setVolume(deckId, volume)
-        setStateUI((prev) => ({
-            ...prev,
-            deckList: prev.deckList.map((deck) => (deck.id === deckId ? { ...deck, volume } : deck)),
-        }))
     }
 
     const handleCrossFadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = Number(e.target.value)
         audioManager.setCrossFade(value)
-        setStateUI((prev) => ({
-            ...prev,
-            crossFade: value,
-        }))
     }
 
     return (
@@ -103,11 +105,8 @@ export const DJController = () => {
                         </div>
 
                         <div>
-                            <button onClick={() => audioManager.playDeck(deck.id)} disabled={deck.isPlaying}>
-                                Play
-                            </button>
-                            <button onClick={() => audioManager.pauseDeck(deck.id)} disabled={!deck.isPlaying}>
-                                Pause
+                            <button onClick={() => handlePlayPauseToggle(deck.isPlaying, deck.id)}>
+                                {deck.isPlaying ? 'pause' : 'play'}
                             </button>
                         </div>
 
