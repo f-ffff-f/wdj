@@ -1,7 +1,8 @@
 // DjMultiDeckPlayer.tsx
 import React, { useEffect, useState } from 'react'
-import { AudioManager } from '@/app/_lib/AudioManager/AudioManager'
-import { ITrack } from '@/app/_lib/types'
+import FileUploader from '@/app/_components/Vault/FileUploader'
+import List from '@/app/_components/Vault/List'
+import { audioManager } from '@/app/_lib/AudioManager/audioManagerSingleton'
 
 interface IDeckUI {
     id: number
@@ -16,8 +17,6 @@ interface IDJContollerUI {
     deckList: IDeckUI[]
     crossFade: number
 }
-
-const audioManager = new AudioManager()
 
 const deckA = audioManager.addDeck()
 const deckB = audioManager.addDeck()
@@ -68,13 +67,6 @@ export const DJController = () => {
         return () => cancelAnimationFrame(rafId)
     }, [])
 
-    // 파일 로드
-    const handleFileChange = (deckId: number, e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]
-        if (!file) return
-        audioManager.loadTrack(deckId, URL.createObjectURL(file))
-    }
-
     const handlePlayPauseToggle = (isPlaying: boolean, deckId: number) => {
         if (isPlaying) {
             audioManager.pauseDeck(deckId)
@@ -94,16 +86,11 @@ export const DJController = () => {
     }
 
     return (
-        <div>
-            <div style={{ display: 'flex', gap: '2rem' }}>
+        <div className="flex flex-col gap-4">
+            <div className="flex gap-4">
                 {stateUI.deckList.map((deck) => (
-                    <div key={deck.id} style={{ border: '1px solid #ccc', padding: '1rem' }}>
+                    <div key={deck.id} className="border border-gray-300 p-4">
                         <h2>{`id: ${deck.id}`}</h2>
-
-                        <div>
-                            <input type="file" accept="audio/*" onChange={(e) => handleFileChange(deck.id, e)} />
-                        </div>
-
                         <div>
                             <button onClick={() => handlePlayPauseToggle(deck.isPlaying, deck.id)}>
                                 {deck.isPlaying ? 'pause' : 'play'}
@@ -129,16 +116,20 @@ export const DJController = () => {
                         </div>
                     </div>
                 ))}
-                <div>
-                    <input
-                        type="range"
-                        min={0}
-                        max={1}
-                        step={0.01}
-                        value={stateUI.crossFade}
-                        onChange={(e) => handleCrossFadeChange(e)}
-                    />
-                </div>
+            </div>
+            <div>
+                <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={stateUI.crossFade}
+                    onChange={(e) => handleCrossFadeChange(e)}
+                />
+            </div>
+            <div>
+                <FileUploader />
+                <List />
             </div>
         </div>
     )

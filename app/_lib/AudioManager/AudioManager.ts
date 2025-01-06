@@ -6,7 +6,10 @@ export interface Deck {
     crossFadeNode: GainNode
 }
 
-export class AudioManager {
+/**
+ * 이 클래스는 반드시 audioManagerSingleton.ts 파일에서만 사용해야 함
+ */
+export default class AudioManager {
     private audioContext: AudioContext
     private nextId = 1
     private decks: Deck[] = []
