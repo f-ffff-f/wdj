@@ -31,7 +31,6 @@ export const store = proxy<IStore>({
                 currentTrack: null,
             },
         ],
-        crossfade: { value: 0.5 },
     },
 })
 

@@ -1,4 +1,4 @@
-import { useControl } from '@/app/_hooks/useControl'
+import { useControl } from '@/app/_components/_Legacy/_hooks/useControl'
 import { store } from '@/app/_lib/store'
 import React from 'react'
 import { useSnapshot } from 'valtio'

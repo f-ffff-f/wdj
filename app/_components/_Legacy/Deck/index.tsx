@@ -1,4 +1,4 @@
-import { useControl } from '@/app/_hooks/useControl'
+import { useControl } from '@/app/_components/_Legacy/_hooks/useControl'
 import { store } from '@/app/_lib/store'
 import { TDeckIds } from '@/app/_lib/types'
 import React from 'react'

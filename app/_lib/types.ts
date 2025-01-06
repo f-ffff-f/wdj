@@ -4,7 +4,6 @@ export interface IStore {
     }
     UI: {
         decks: IDeckUI[]
-        crossfade: { value: number }
     }
 }
 
