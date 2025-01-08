@@ -9,7 +9,7 @@ A modern DJ mixing web application that runs in the browser.
 -   [x] Dual Deck System
 -   [x] Crossfader controls
 -   [x] Local music library management
--   [ ] Real-time waveform visualization
+-   [x] Real-time waveform visualization
 -   [ ] Keyboard controls
 -   [ ] MIDI controls
 
