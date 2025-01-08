@@ -46,6 +46,7 @@ Open [http://localhost:3000] in your browser to view the application.
 -   [Next.js 14](https://nextjs.org/)
 -   [TypeScript](https://www.typescriptlang.org/)
 -   [Web Audio API](https://developer.mozilla.org/ko/docs/Web/API/Web_Audio_API)
+-   [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
 -   [Valtio](https://github.com/pmndrs/valtio)
 -   [TailwindCSS](https://tailwindcss.com/)
 
