@@ -6,7 +6,7 @@ A modern DJ mixing web application that runs in the browser.
 
 ## Preview
 
-[https://wdj-q346.vercel.app](https://wdj-q346.vercel.app)
+[https://wdj-delta.vercel.app](https://wdj-delta.vercel.app)
 
 ## Prototype Development Status
 
