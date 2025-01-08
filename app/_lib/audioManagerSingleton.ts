@@ -217,6 +217,18 @@ class AudioManager {
         return this.decks.find((d) => d.id === deckId)
     }
 
+    private finalizeDeck(deck: IDeck, newPausedAt: number) {
+        if (!deck.bufferSourceNode) {
+            console.error('bufferSourceNode is not created')
+            return
+        }
+
+        deck.bufferSourceNode.stop()
+        deck.pausedAt = newPausedAt
+        deck.isPlaying = false
+        deck.bufferSourceNode = null
+    }
+
     public debugManager() {
         const _decks = this.decks.map((deck) => ({
             id: deck.id,
