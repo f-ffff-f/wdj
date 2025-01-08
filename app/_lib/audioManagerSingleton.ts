@@ -62,16 +62,6 @@ class AudioManager {
         this.playDeck(deckId)
     }
 
-    /**
-     * AudioBufferSourceNode 생성(재생 시마다 새로 생성해야 함)
-     */
-    private createSourceNode(deck: IDeck): AudioBufferSourceNode {
-        const sourceNode = this.audioContext.createBufferSource()
-        sourceNode.buffer = deck.audioBuffer
-        sourceNode.connect(deck.gainNode)
-        return sourceNode
-    }
-
     /** 재생 */
     async playDeck(deckId: number) {
         const deck = this.findDeck(deckId)
@@ -83,7 +73,7 @@ class AudioManager {
 
         if (deck.isPlaying) return
 
-        deck.bufferSourceNode = this.createSourceNode(deck)
+        deck.bufferSourceNode = this.createSourceNode(deck) // 재생 시마다 새로 생성해야 함
         deck.bufferSourceNode.start(0, deck.pausedAt)
         deck.startedAt = this.audioContext.currentTime - deck.pausedAt
         deck.isPlaying = true
@@ -126,18 +116,6 @@ class AudioManager {
         deck.isSeeking = false
     }
 
-    /** 현재 재생 위치(초 단위) */
-    getCurrentTime(deckId: number): number {
-        const deck = this.findDeck(deckId)
-        if (!deck) return 0
-        return deck.isPlaying ? this.audioContext.currentTime - deck.startedAt : deck.pausedAt
-    }
-
-    getPausedAt(deckId: number): number {
-        const deck = this.findDeck(deckId)
-        return deck ? deck.pausedAt : 0
-    }
-
     /** 개별 볼륨 조절 */
     setVolume(deckId: number, volume: number) {
         const deck = this.findDeck(deckId)
@@ -156,34 +134,61 @@ class AudioManager {
         }
     }
 
-    /** 전체 재생 길이(초 단위) */
+    /** 현재 재생 위치 */
+    getCurrentTime(deckId: number): number {
+        const deck = this.findDeck(deckId)
+        if (!deck) return 0
+        return deck.isPlaying ? this.audioContext.currentTime - deck.startedAt : deck.pausedAt
+    }
+
+    /** 전체 재생 길이 */
     getDuration(deckId: number): number {
         const deck = this.findDeck(deckId)
         return deck?.audioBuffer?.duration ?? 0
     }
 
+    /** 일시정지 시간 */
+    getPausedTime(deckId: number): number {
+        const deck = this.findDeck(deckId)
+        return deck ? deck.pausedAt : 0
+    }
+
+    /** 개별 볼륨 */
     getVolume(deckId: number): number {
         return this.findDeck(deckId)?.gainNode.gain.value ?? 0
     }
 
+    /** 크로스페이드 */
     getCrossFade(): number {
         return this.crossFadeValue
     }
 
+    /** 재생 여부 */
     isPlaying(deckId: number): boolean {
         const deck = this.findDeck(deckId)
         return deck ? deck.isPlaying : false
     }
 
+    /** 이동 여부 */
     isSeeking(deckId: number): boolean {
         const deck = this.findDeck(deckId)
         return deck ? deck.isSeeking : false
     }
 
+    /** AudioBufferSourceNode 생성 */
+    private createSourceNode(deck: IDeck): AudioBufferSourceNode {
+        const sourceNode = this.audioContext.createBufferSource()
+        sourceNode.buffer = deck.audioBuffer
+        sourceNode.connect(deck.gainNode)
+        return sourceNode
+    }
+
+    /** 데크 찾기 */
     private findDeck(deckId: number): IDeck | undefined {
         return this.decks.find((d) => d.id === deckId)
     }
 
+    /** 데크 종료 */
     private finalizeDeck(deck: IDeck, newPausedAt: number) {
         if (!deck.bufferSourceNode) {
             console.error('bufferSourceNode is not created')

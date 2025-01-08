@@ -9,7 +9,7 @@ interface IDeckUI {
     id: number
     volume: number
     currentTime: number
-    pausedAt: number
+    pausedTime: number
     duration: number
     isPlaying: boolean
     isSeeking: boolean
@@ -29,7 +29,7 @@ const INITIAL_UI: IDJContollerUI = {
             id: deckA.id,
             volume: deckA.gainNode.gain.value,
             currentTime: 0,
-            pausedAt: 0,
+            pausedTime: 0,
             duration: 0,
             isPlaying: false,
             isSeeking: false,
@@ -38,7 +38,7 @@ const INITIAL_UI: IDJContollerUI = {
             id: deckB.id,
             volume: deckB.gainNode.gain.value,
             currentTime: 0,
-            pausedAt: 0,
+            pausedTime: 0,
             duration: 0,
             isPlaying: false,
             isSeeking: false,
@@ -60,10 +60,10 @@ export const DJController = () => {
                     const currentTime = audioManager.getCurrentTime(deck.id)
                     const duration = audioManager.getDuration(deck.id)
                     const volume = audioManager.getVolume(deck.id)
-                    const pausedAt = audioManager.getPausedAt(deck.id)
+                    const pausedTime = audioManager.getPausedTime(deck.id)
                     const isPlaying = audioManager.isPlaying(deck.id)
                     const isSeeking = audioManager.isSeeking(deck.id)
-                    return { ...deck, currentTime, duration, volume, pausedAt, isPlaying, isSeeking }
+                    return { ...deck, currentTime, duration, volume, pausedTime, isPlaying, isSeeking }
                 }),
                 crossFade: audioManager.getCrossFade(),
             }))
@@ -108,7 +108,7 @@ export const DJController = () => {
                                 min={0}
                                 max={deckUI.duration}
                                 step={0.01}
-                                value={deckUI.isSeeking ? deckUI.pausedAt : deckUI.currentTime}
+                                value={deckUI.isSeeking ? deckUI.pausedTime : deckUI.currentTime}
                                 onChange={(e) => handleSeekChange(deckUI.id, e)}
                             />
                             <div>
