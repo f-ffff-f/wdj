@@ -46,7 +46,7 @@ class AudioManager {
 
     /** 특정 데크에 파일 로드 */
     async loadTrack(deckId: number, url: string) {
-        const deck = this.getDeck(deckId)
+        const deck = this.findDeck(deckId)
         if (!deck) return
 
         try {
@@ -74,7 +74,7 @@ class AudioManager {
 
     /** 재생 */
     async playDeck(deckId: number) {
-        const deck = this.getDeck(deckId)
+        const deck = this.findDeck(deckId)
         if (!deck || !deck.audioBuffer) return
 
         // AudioContext가 suspend 상태라면 resume
@@ -97,7 +97,7 @@ class AudioManager {
 
     /** 일시정지 */
     pauseDeck(deckId: number) {
-        const deck = this.getDeck(deckId)
+        const deck = this.findDeck(deckId)
         if (!deck || !deck.bufferSourceNode || !deck.isPlaying) return
 
         // AudioBufferSourceNode는 한 번 stop()하면 재사용 불가
@@ -114,7 +114,7 @@ class AudioManager {
 
     /** 데크 정지 */
     stopDeck(deckId: number) {
-        const deck = this.getDeck(deckId)
+        const deck = this.findDeck(deckId)
         if (!deck || !deck.bufferSourceNode || !deck.isPlaying) return
 
         deck.bufferSourceNode.stop()
@@ -126,7 +126,7 @@ class AudioManager {
 
     /** 데크 이동 */
     seekDeck(deckId: number, time: number) {
-        const deck = this.getDeck(deckId)
+        const deck = this.findDeck(deckId)
         if (!deck || !deck.audioBuffer) return
 
         // time 범위 조정 (0 ~ 곡 길이)
@@ -158,7 +158,7 @@ class AudioManager {
 
     /** 현재 재생 위치(초 단위) */
     getCurrentTime(deckId: number): number {
-        const deck = this.getDeck(deckId)
+        const deck = this.findDeck(deckId)
         if (!deck) return 0
 
         // 재생 중이면, (오디오컨텍스트현재시간 - startedAt) = 현재까지 재생된 시간
@@ -167,13 +167,13 @@ class AudioManager {
     }
 
     getPausedAt(deckId: number): number {
-        const deck = this.getDeck(deckId)
+        const deck = this.findDeck(deckId)
         return deck ? deck.pausedAt : 0
     }
 
     /** 개별 볼륨 조절 */
     setVolume(deckId: number, volume: number) {
-        const deck = this.getDeck(deckId)
+        const deck = this.findDeck(deckId)
         if (!deck) return
         deck.gainNode.gain.value = volume
     }
@@ -191,12 +191,12 @@ class AudioManager {
 
     /** 전체 재생 길이(초 단위) */
     getDuration(deckId: number): number {
-        const deck = this.getDeck(deckId)
+        const deck = this.findDeck(deckId)
         return deck?.audioBuffer?.duration ?? 0
     }
 
     getVolume(deckId: number): number {
-        return this.getDeck(deckId)?.gainNode.gain.value ?? 0
+        return this.findDeck(deckId)?.gainNode.gain.value ?? 0
     }
 
     getCrossFade(): number {
@@ -204,16 +204,16 @@ class AudioManager {
     }
 
     isPlaying(deckId: number): boolean {
-        const deck = this.getDeck(deckId)
+        const deck = this.findDeck(deckId)
         return deck ? deck.isPlaying : false
     }
 
     isSeeking(deckId: number): boolean {
-        const deck = this.getDeck(deckId)
+        const deck = this.findDeck(deckId)
         return deck ? deck.isSeeking : false
     }
 
-    private getDeck(deckId: number): IDeck | undefined {
+    private findDeck(deckId: number): IDeck | undefined {
         return this.decks.find((d) => d.id === deckId)
     }
 
