@@ -108,7 +108,7 @@ export const DJController = () => {
                                 min={0}
                                 max={deckUI.duration}
                                 step={0.01}
-                                value={deckUI.isSeeking ? deckUI.currentTime : deckUI.pausedAt}
+                                value={deckUI.isSeeking ? deckUI.pausedAt : deckUI.currentTime}
                                 onChange={(e) => handleSeekChange(deckUI.id, e)}
                             />
                             <div>
@@ -132,13 +132,6 @@ export const DJController = () => {
                                 onChange={(e) => handleVolumeChange(deckUI.id, e)}
                             />
                             <span> {deckUI.volume.toFixed(2)}</span>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-2"></div>
-                            <div>
-                                {formatTimeUI(deckUI.currentTime)} /{' '}
-                                {Number.isFinite(deckUI.duration) ? formatTimeUI(deckUI.duration) : '∞'}
-                            </div>
                         </div>
                     </div>
                 ))}

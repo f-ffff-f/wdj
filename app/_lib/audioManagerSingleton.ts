@@ -152,6 +152,8 @@ class AudioManager {
 
         // 그 지점부터 재생
         this.playDeck(deckId)
+
+        deck.isSeeking = false
     }
 
     /** 현재 재생 위치(초 단위) */
