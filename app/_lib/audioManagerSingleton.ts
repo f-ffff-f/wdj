@@ -1,4 +1,4 @@
-interface Deck {
+interface IDeck {
     id: number
     audioBuffer: AudioBuffer | null
     bufferSourceNode: AudioBufferSourceNode | null
@@ -12,7 +12,7 @@ interface Deck {
 class AudioManager {
     private audioContext: AudioContext
     private nextId = 1
-    private decks: Deck[] = []
+    private decks: IDeck[] = []
     private crossFade = 0.5
 
     constructor() {
@@ -20,14 +20,14 @@ class AudioManager {
     }
 
     /** 데크(Deck)를 새로 추가 */
-    addDeck(): Deck {
+    addDeck(): IDeck {
         const gainNode = this.audioContext.createGain()
         const crossFadeNode = this.audioContext.createGain()
         crossFadeNode.gain.value = this.crossFade
 
         gainNode.connect(crossFadeNode).connect(this.audioContext.destination)
 
-        const deck: Deck = {
+        const deck: IDeck = {
             id: this.nextId++,
             audioBuffer: null,
             bufferSourceNode: null,
@@ -63,11 +63,32 @@ class AudioManager {
     /**
      * AudioBufferSourceNode 생성(재생 시마다 새로 생성해야 함)
      */
-    private createSourceNode(deck: Deck): AudioBufferSourceNode {
+    private createSourceNode(deck: IDeck): AudioBufferSourceNode {
         const sourceNode = this.audioContext.createBufferSource()
         sourceNode.buffer = deck.audioBuffer!
         sourceNode.connect(deck.gainNode)
         return sourceNode
+    }
+    /** 데크 이동 */
+    seekDeck(deckId: number, time: number) {
+        const deck = this.getDeck(deckId)
+        if (!deck || !deck.audioBuffer) return
+
+        // time 범위 조정 (0 ~ 곡 길이)
+        if (time < 0) time = 0
+        if (time > deck.audioBuffer.duration) {
+            time = deck.audioBuffer.duration
+        }
+
+        // 현재 pausedAt 위치를 갱신
+        deck.pausedAt = time
+
+        // 만약 재생 중이라면 stop 후 다시 play
+        // (재생 중이 아닐 때는, 다음번 playDeck() 호출 시점부터 이 위치에서 시작)
+        if (deck.isPlaying) {
+            this.pauseDeck(deckId) // pausedAt = time 상태가 됨
+            this.playDeck(deckId) // 그 지점부터 재생
+        }
     }
 
     /** 재생 */
@@ -111,12 +132,16 @@ class AudioManager {
         deck.bufferSourceNode = null
     }
 
+    /** 데크 정지 */
     stopDeck(deckId: number) {
         const deck = this.getDeck(deckId)
-        if (!deck) return
+        if (!deck || !deck.bufferSourceNode || !deck.isPlaying) return
+
+        deck.bufferSourceNode.stop()
 
         deck.pausedAt = 0
-        this.pauseDeck(deckId)
+        deck.isPlaying = false
+        deck.bufferSourceNode = null
     }
 
     /** 개별 볼륨 조절 */
@@ -167,19 +192,26 @@ class AudioManager {
         return deck ? deck.isPlaying : false
     }
 
-    debugManager(): void {
-        const now = Date.now()
-        if (now - this.lastDebugTime >= 5000) {
-            console.log(this.decks)
-            this.lastDebugTime = now
-        }
-    }
-
-    private getDeck(deckId: number): Deck | undefined {
+    private getDeck(deckId: number): IDeck | undefined {
         return this.decks.find((d) => d.id === deckId)
     }
 
-    private lastDebugTime = 0
+    public debugManager() {
+        const _decks = this.decks.map((deck) => ({
+            id: deck.id,
+            audioBuffer: deck.audioBuffer ? 'loaded' : 'not loaded',
+            bufferSourceNode: deck.bufferSourceNode ? 'created' : 'not created',
+            isPlaying: deck.isPlaying,
+            pausedAt: deck.pausedAt.toFixed(0),
+            startTime: deck.startTime.toFixed(0),
+        }))
+
+        const stinrg = JSON.stringify(_decks, null, 2)
+            .replace(/^{|}$/g, '') // 맨 앞과 뒤의 중괄호 제거
+            .replace(/"([^"]+)":/g, '$1:')
+
+        return stinrg
+    }
 }
 
 // 자바스크립트(ES Modules)에서는 어떤 모듈을 한 번 로드하면, 해당 모듈이 캐싱되어 애플리케이션 전체에서 동일한 인스턴스를 공유함

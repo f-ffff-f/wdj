@@ -42,7 +42,6 @@ const INITIAL_UI: IDJContollerUI = {
 }
 
 export const DJController = () => {
-    audioManager.debugManager()
     const [stateUI, setStateUI] = useState(INITIAL_UI)
 
     // 매 프레임 인스턴스를 조회해서 UI 상태 갱신
@@ -65,6 +64,11 @@ export const DJController = () => {
         updateDecks()
         return () => cancelAnimationFrame(rafId)
     }, [])
+
+    const handleSeekChange = (deckId: number, e: React.ChangeEvent<HTMLInputElement>) => {
+        const newTime = Number(e.target.value)
+        audioManager.seekDeck(deckId, newTime)
+    }
 
     const handlePlayPauseToggle = (isPlaying: boolean, deckId: number) => {
         if (isPlaying) {
@@ -90,6 +94,22 @@ export const DJController = () => {
                 {stateUI.deckList.map((deckUI) => (
                     <div key={deckUI.id} className="border border-gray-300 p-4">
                         <h2>{`id: ${deckUI.id}`}</h2>
+                        {/* 시킹(Seek) 슬라이더 */}
+                        <div>
+                            <input
+                                type="range"
+                                min={0}
+                                max={deckUI.duration}
+                                step={0.01}
+                                value={deckUI.currentTime}
+                                onChange={(e) => handleSeekChange(deckUI.id, e)}
+                            />
+                            <div>
+                                {formatTimeUI(deckUI.currentTime)} /{' '}
+                                {Number.isFinite(deckUI.duration) ? formatTimeUI(deckUI.duration) : '∞'}
+                            </div>
+                        </div>
+
                         <div>
                             <button onClick={() => handlePlayPauseToggle(deckUI.isPlaying, deckUI.id)}>
                                 {deckUI.isPlaying ? 'pause' : 'play'}
