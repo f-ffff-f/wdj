@@ -53,7 +53,7 @@ class AudioManager {
             const response = await fetch(url)
             const arrayBuffer = await response.arrayBuffer()
             const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer)
-            deck.audioBuffer = await audioBuffer
+            deck.audioBuffer = audioBuffer
         } catch (error) {
             console.error('Failed to load audio file:', error)
         }
@@ -67,7 +67,7 @@ class AudioManager {
      */
     private createSourceNode(deck: IDeck): AudioBufferSourceNode {
         const sourceNode = this.audioContext.createBufferSource()
-        sourceNode.buffer = deck.audioBuffer!
+        sourceNode.buffer = deck.audioBuffer
         sourceNode.connect(deck.gainNode)
         return sourceNode
     }
@@ -77,20 +77,14 @@ class AudioManager {
         const deck = this.findDeck(deckId)
         if (!deck || !deck.audioBuffer) return
 
-        // AudioContext가 suspend 상태라면 resume
         if (this.audioContext.state === 'suspended') {
             await this.audioContext.resume()
         }
 
         if (deck.isPlaying) return
 
-        // 새 AudioBufferSourceNode 생성
         deck.bufferSourceNode = this.createSourceNode(deck)
-
-        // pausedAt 지점부터 재생 시작
         deck.bufferSourceNode.start(0, deck.pausedAt)
-
-        // 재생 시작 시간(AudioContext의 currentTime 기준)
         deck.startedAt = this.audioContext.currentTime - deck.pausedAt
         deck.isPlaying = true
     }
@@ -99,29 +93,15 @@ class AudioManager {
     pauseDeck(deckId: number) {
         const deck = this.findDeck(deckId)
         if (!deck || !deck.bufferSourceNode || !deck.isPlaying) return
-
-        // AudioBufferSourceNode는 한 번 stop()하면 재사용 불가
-        deck.bufferSourceNode.stop()
-
-        // 현재까지 재생된 시간
         const elapsed = this.audioContext.currentTime - deck.startedAt
-
-        // pausedAt을 갱신해 놓으면, 다음에 playDeck() 할 때 이어서 재생 가능
-        deck.pausedAt = elapsed
-        deck.isPlaying = false
-        deck.bufferSourceNode = null
+        this.finalizeDeck(deck, elapsed)
     }
 
     /** 데크 정지 */
     stopDeck(deckId: number) {
         const deck = this.findDeck(deckId)
         if (!deck || !deck.bufferSourceNode || !deck.isPlaying) return
-
-        deck.bufferSourceNode.stop()
-
-        deck.pausedAt = 0
-        deck.isPlaying = false
-        deck.bufferSourceNode = null
+        this.finalizeDeck(deck, 0)
     }
 
     /** 데크 이동 */
@@ -129,7 +109,6 @@ class AudioManager {
         const deck = this.findDeck(deckId)
         if (!deck || !deck.audioBuffer) return
 
-        // time 범위 조정 (0 ~ 곡 길이)
         if (time < 0) time = 0
         if (time > deck.audioBuffer.duration) {
             time = deck.audioBuffer.duration
@@ -137,21 +116,12 @@ class AudioManager {
 
         deck.isSeeking = true
 
-        // 현재 pausedAt 위치를 갱신 (재생 중이 아닐 때는, 다음번 playDeck() 호출 시점부터 이 위치에서 시작)
-        deck.pausedAt = time
-
-        // 만약 재생 중이라면 stop 후 다시 play
-        if (!deck.isPlaying || !deck.bufferSourceNode) return
-        // 현재 pausedAt 위치를 갱신
-        deck.bufferSourceNode.stop()
-
-        // pausedAt을 갱신해 놓으면, 다음에 playDeck() 할 때 이어서 재생 가능
-        deck.pausedAt = time
-        deck.isPlaying = false
-        deck.bufferSourceNode = null
-
-        // 그 지점부터 재생
-        this.playDeck(deckId)
+        if (deck.isPlaying) {
+            this.finalizeDeck(deck, time)
+            this.playDeck(deckId)
+        } else {
+            deck.pausedAt = time
+        }
 
         deck.isSeeking = false
     }
@@ -160,9 +130,6 @@ class AudioManager {
     getCurrentTime(deckId: number): number {
         const deck = this.findDeck(deckId)
         if (!deck) return 0
-
-        // 재생 중이면, (오디오컨텍스트현재시간 - startedAt) = 현재까지 재생된 시간
-        // 일시정지 상태라면 pausedAt을 그대로 반환
         return deck.isPlaying ? this.audioContext.currentTime - deck.startedAt : deck.pausedAt
     }
 
@@ -181,12 +148,12 @@ class AudioManager {
     /** 크로스페이드 조절 */
     setCrossFade(value: number) {
         this.crossFadeValue = value
-        // this.decks[0].crossFadeNode.gain.value = 1 - value
-        // this.decks[1].crossFadeNode.gain.value = value
-
-        // smoothing
-        this.decks[0].crossFadeNode.gain.value = Math.cos((value * Math.PI) / 2)
-        this.decks[1].crossFadeNode.gain.value = Math.cos(((1 - value) * Math.PI) / 2)
+        if (this.decks[0]) {
+            this.decks[0].crossFadeNode.gain.value = Math.cos((value * Math.PI) / 2)
+        }
+        if (this.decks[1]) {
+            this.decks[1].crossFadeNode.gain.value = Math.cos(((1 - value) * Math.PI) / 2)
+        }
     }
 
     /** 전체 재생 길이(초 단위) */
@@ -239,11 +206,11 @@ class AudioManager {
             startedAt: deck.startedAt.toFixed(0),
         }))
 
-        const stinrg = JSON.stringify(_decks, null, 2)
-            .replace(/^{|}$/g, '') // 맨 앞과 뒤의 중괄호 제거
+        const str = JSON.stringify(_decks, null, 2)
+            .replace(/^{|}$/g, '')
             .replace(/"([^"]+)":/g, '$1:')
 
-        return stinrg
+        return str
     }
 }
 
