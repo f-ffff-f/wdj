@@ -1,7 +1,9 @@
 'use client'
 
-import Debugger from '@/app/_components/Debugger'
-import DJController from '@/app/_components/DJController'
+import dynamic from 'next/dynamic'
+
+const Debugger = dynamic(() => import('@/app/_components/Debugger'), { ssr: false })
+const DJController = dynamic(() => import('@/app/_components/DJController'), { ssr: false })
 
 const Home = () => {
     return (
