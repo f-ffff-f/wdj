@@ -12,7 +12,7 @@ const Debugger: React.FC = () => {
         return () => clearInterval(interval)
     }, [])
 
-    return <pre className="whitespace-pre-wrap text-xs p-4 text-gray-800">{state}</pre>
+    return <pre className="whitespace-pre-wrap text-xs p-4 text-gray-500">{state}</pre>
 }
 
 export default Debugger

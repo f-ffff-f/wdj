@@ -7,6 +7,7 @@ interface IDeck {
     startedAt: number
     pausedAt: number
     isPlaying: boolean
+    isSeeking: boolean
 }
 
 class AudioManager {
@@ -36,6 +37,7 @@ class AudioManager {
             startedAt: 0,
             pausedAt: 0,
             isPlaying: false,
+            isSeeking: false,
         }
 
         this.decks.push(deck)
@@ -133,11 +135,12 @@ class AudioManager {
             time = deck.audioBuffer.duration
         }
 
-        // 현재 pausedAt 위치를 갱신
+        deck.isSeeking = true
+
+        // 현재 pausedAt 위치를 갱신 (재생 중이 아닐 때는, 다음번 playDeck() 호출 시점부터 이 위치에서 시작)
         deck.pausedAt = time
 
         // 만약 재생 중이라면 stop 후 다시 play
-        // (재생 중이 아닐 때는, 다음번 playDeck() 호출 시점부터 이 위치에서 시작)
         if (!deck.isPlaying || !deck.bufferSourceNode) return
         // 현재 pausedAt 위치를 갱신
         deck.bufferSourceNode.stop()
@@ -149,6 +152,21 @@ class AudioManager {
 
         // 그 지점부터 재생
         this.playDeck(deckId)
+    }
+
+    /** 현재 재생 위치(초 단위) */
+    getCurrentTime(deckId: number): number {
+        const deck = this.getDeck(deckId)
+        if (!deck) return 0
+
+        // 재생 중이면, (오디오컨텍스트현재시간 - startedAt) = 현재까지 재생된 시간
+        // 일시정지 상태라면 pausedAt을 그대로 반환
+        return deck.isPlaying ? this.audioContext.currentTime - deck.startedAt : deck.pausedAt
+    }
+
+    getPausedAt(deckId: number): number {
+        const deck = this.getDeck(deckId)
+        return deck ? deck.pausedAt : 0
     }
 
     /** 개별 볼륨 조절 */
@@ -169,16 +187,6 @@ class AudioManager {
         this.decks[1].crossFadeNode.gain.value = Math.cos(((1 - value) * Math.PI) / 2)
     }
 
-    /** 현재 재생 위치(초 단위) */
-    getCurrentTime(deckId: number): number {
-        const deck = this.getDeck(deckId)
-        if (!deck) return 0
-
-        // 재생 중이면, (오디오컨텍스트현재시간 - startedAt) = 현재까지 재생된 시간
-        // 일시정지 상태라면 pausedAt을 그대로 반환
-        return deck.isPlaying ? this.audioContext.currentTime - deck.startedAt : deck.pausedAt
-    }
-
     /** 전체 재생 길이(초 단위) */
     getDuration(deckId: number): number {
         const deck = this.getDeck(deckId)
@@ -193,10 +201,14 @@ class AudioManager {
         return this.crossFade
     }
 
-    /** 재생 중 여부 */
     isPlaying(deckId: number): boolean {
         const deck = this.getDeck(deckId)
         return deck ? deck.isPlaying : false
+    }
+
+    isSeeking(deckId: number): boolean {
+        const deck = this.getDeck(deckId)
+        return deck ? deck.isSeeking : false
     }
 
     private getDeck(deckId: number): IDeck | undefined {

@@ -9,8 +9,10 @@ interface IDeckUI {
     id: number
     volume: number
     currentTime: number
+    pausedAt: number
     duration: number
     isPlaying: boolean
+    isSeeking: boolean
 }
 
 interface IDJContollerUI {
@@ -27,15 +29,19 @@ const INITIAL_UI: IDJContollerUI = {
             id: deckA.id,
             volume: deckA.gainNode.gain.value,
             currentTime: 0,
+            pausedAt: 0,
             duration: 0,
             isPlaying: false,
+            isSeeking: false,
         },
         {
             id: deckB.id,
             volume: deckB.gainNode.gain.value,
             currentTime: 0,
+            pausedAt: 0,
             duration: 0,
             isPlaying: false,
+            isSeeking: false,
         },
     ],
     crossFade: audioManager.getCrossFade(),
@@ -54,8 +60,10 @@ export const DJController = () => {
                     const currentTime = audioManager.getCurrentTime(deck.id)
                     const duration = audioManager.getDuration(deck.id)
                     const volume = audioManager.getVolume(deck.id)
+                    const pausedAt = audioManager.getPausedAt(deck.id)
                     const isPlaying = audioManager.isPlaying(deck.id)
-                    return { ...deck, currentTime, duration, volume, isPlaying }
+                    const isSeeking = audioManager.isSeeking(deck.id)
+                    return { ...deck, currentTime, duration, volume, pausedAt, isPlaying, isSeeking }
                 }),
                 crossFade: audioManager.getCrossFade(),
             }))
@@ -100,6 +108,7 @@ export const DJController = () => {
                                 min={0}
                                 max={deckUI.duration}
                                 step={0.01}
+                                value={deckUI.isSeeking ? deckUI.currentTime : deckUI.pausedAt}
                                 onChange={(e) => handleSeekChange(deckUI.id, e)}
                             />
                             <div>
