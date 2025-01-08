@@ -4,12 +4,13 @@ import FileUploader from '@/app/_components/Vault/FileUploader'
 import List from '@/app/_components/Vault/List'
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
 import { formatTimeUI } from '@/app/_lib/utils'
+import WaveformVisualizer from '@/app/_components/WaveformVisualizer'
 
 interface IDeckUI {
     id: number
     volume: number
     currentTime: number
-    pausedAt: number
+    pausedTime: number
     duration: number
     isPlaying: boolean
     isSeeking: boolean
@@ -29,7 +30,7 @@ const INITIAL_UI: IDJContollerUI = {
             id: deckA.id,
             volume: deckA.gainNode.gain.value,
             currentTime: 0,
-            pausedAt: 0,
+            pausedTime: 0,
             duration: 0,
             isPlaying: false,
             isSeeking: false,
@@ -38,7 +39,7 @@ const INITIAL_UI: IDJContollerUI = {
             id: deckB.id,
             volume: deckB.gainNode.gain.value,
             currentTime: 0,
-            pausedAt: 0,
+            pausedTime: 0,
             duration: 0,
             isPlaying: false,
             isSeeking: false,
@@ -60,10 +61,10 @@ export const DJController = () => {
                     const currentTime = audioManager.getCurrentTime(deck.id)
                     const duration = audioManager.getDuration(deck.id)
                     const volume = audioManager.getVolume(deck.id)
-                    const pausedAt = audioManager.getPausedAt(deck.id)
+                    const pausedTime = audioManager.getPausedTime(deck.id)
                     const isPlaying = audioManager.isPlaying(deck.id)
                     const isSeeking = audioManager.isSeeking(deck.id)
-                    return { ...deck, currentTime, duration, volume, pausedAt, isPlaying, isSeeking }
+                    return { ...deck, currentTime, duration, volume, pausedTime, isPlaying, isSeeking }
                 }),
                 crossFade: audioManager.getCrossFade(),
             }))
@@ -72,11 +73,6 @@ export const DJController = () => {
         updateDecks()
         return () => cancelAnimationFrame(rafId)
     }, [])
-
-    const handleSeekChange = (deckId: number, e: React.ChangeEvent<HTMLInputElement>) => {
-        const newTime = Number(e.target.value)
-        audioManager.seekDeck(deckId, newTime)
-    }
 
     const handlePlayPauseToggle = (isPlaying: boolean, deckId: number) => {
         if (isPlaying) {
@@ -103,14 +99,7 @@ export const DJController = () => {
                     <div key={deckUI.id} className="border border-gray-300 p-4">
                         <h2>{`id: ${deckUI.id}`}</h2>
                         <div>
-                            <input
-                                type="range"
-                                min={0}
-                                max={deckUI.duration}
-                                step={0.01}
-                                value={deckUI.isSeeking ? deckUI.pausedAt : deckUI.currentTime}
-                                onChange={(e) => handleSeekChange(deckUI.id, e)}
-                            />
+                            <WaveformVisualizer deckId={deckUI.id} />
                             <div>
                                 {formatTimeUI(deckUI.currentTime)} /{' '}
                                 {Number.isFinite(deckUI.duration) ? formatTimeUI(deckUI.duration) : '∞'}
