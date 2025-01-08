@@ -4,6 +4,10 @@
 
 DJ 웹 애플리케이션입니다.
 
+## Preview
+
+[https://wdj-q346.vercel.app](https://wdj-q346.vercel.app)
+
 ## 프로토타입 개발 현황
 
 - [x] 듀얼 데크 시스템
@@ -12,9 +16,6 @@ DJ 웹 애플리케이션입니다.
 - [x] 실시간 웨이브폼 시각화
 - [ ] 키보드 컨트롤
 - [ ] 미디 컨트롤
-
-## Preview
-[https://wdj-q346.vercel.app](https://wdj-q346.vercel.app)
 
 ## 시작하기
 
