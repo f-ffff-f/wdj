@@ -26,15 +26,15 @@ const INITIAL_UI: IDJContollerUI = {
         {
             id: deckA.id,
             volume: deckA.gainNode.gain.value,
-            currentTime: deckA.audioElement.currentTime,
-            duration: deckA.audioElement.duration,
+            currentTime: 0,
+            duration: 0,
             isPlaying: false,
         },
         {
             id: deckB.id,
             volume: deckB.gainNode.gain.value,
-            currentTime: deckB.audioElement.currentTime,
-            duration: deckB.audioElement.duration,
+            currentTime: 0,
+            duration: 0,
             isPlaying: false,
         },
     ],
@@ -42,6 +42,7 @@ const INITIAL_UI: IDJContollerUI = {
 }
 
 export const DJController = () => {
+    audioManager.debugManager()
     const [stateUI, setStateUI] = useState(INITIAL_UI)
 
     // 매 프레임 인스턴스를 조회해서 UI 상태 갱신
@@ -109,18 +110,7 @@ export const DJController = () => {
                         </div>
 
                         <div className="flex flex-col gap-2">
-                            <div className="flex items-center gap-2">
-                                {/* <input
-                                    type="range"
-                                    min={0}
-                                    max={Number.isFinite(deckUI.duration) ? deckUI.duration : 0}
-                                    step={0.01}
-                                    value={deckUI.currentTime}
-                                    onChange={(e) => handleTimeChange(deckUI.id, e)}
-                                    className="w-full"
-                                    disabled={!Number.isFinite(deckUI.duration)}
-                                /> */}
-                            </div>
+                            <div className="flex items-center gap-2"></div>
                             <div>
                                 {formatTimeUI(deckUI.currentTime)} /{' '}
                                 {Number.isFinite(deckUI.duration) ? formatTimeUI(deckUI.duration) : '∞'}
