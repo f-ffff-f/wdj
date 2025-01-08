@@ -70,36 +70,6 @@ class AudioManager {
         return sourceNode
     }
 
-    /** 데크 이동 */
-    seekDeck(deckId: number, time: number) {
-        const deck = this.getDeck(deckId)
-        if (!deck || !deck.audioBuffer) return
-
-        // time 범위 조정 (0 ~ 곡 길이)
-        if (time < 0) time = 0
-        if (time > deck.audioBuffer.duration) {
-            time = deck.audioBuffer.duration
-        }
-
-        // 현재 pausedAt 위치를 갱신
-        deck.pausedAt = time
-
-        // 만약 재생 중이라면 stop 후 다시 play
-        // (재생 중이 아닐 때는, 다음번 playDeck() 호출 시점부터 이 위치에서 시작)
-        if (deck.isPlaying && deck.bufferSourceNode) {
-            // 현재 pausedAt 위치를 갱신
-            deck.bufferSourceNode.stop()
-
-            // pausedAt을 갱신해 놓으면, 다음에 playDeck() 할 때 이어서 재생 가능
-            deck.pausedAt = time
-            deck.isPlaying = false
-            deck.bufferSourceNode = null
-
-            // 그 지점부터 재생
-            this.playDeck(deckId)
-        }
-    }
-
     /** 재생 */
     async playDeck(deckId: number) {
         const deck = this.getDeck(deckId)
@@ -110,7 +80,6 @@ class AudioManager {
             await this.audioContext.resume()
         }
 
-        // 이미 재생 중이면 무시(또는 stop 후 다시 재생 등 원하는 로직)
         if (deck.isPlaying) return
 
         // 새 AudioBufferSourceNode 생성
@@ -151,6 +120,35 @@ class AudioManager {
         deck.pausedAt = 0
         deck.isPlaying = false
         deck.bufferSourceNode = null
+    }
+
+    /** 데크 이동 */
+    seekDeck(deckId: number, time: number) {
+        const deck = this.getDeck(deckId)
+        if (!deck || !deck.audioBuffer) return
+
+        // time 범위 조정 (0 ~ 곡 길이)
+        if (time < 0) time = 0
+        if (time > deck.audioBuffer.duration) {
+            time = deck.audioBuffer.duration
+        }
+
+        // 현재 pausedAt 위치를 갱신
+        deck.pausedAt = time
+
+        // 만약 재생 중이라면 stop 후 다시 play
+        // (재생 중이 아닐 때는, 다음번 playDeck() 호출 시점부터 이 위치에서 시작)
+        if (!deck.isPlaying || !deck.bufferSourceNode) return
+        // 현재 pausedAt 위치를 갱신
+        deck.bufferSourceNode.stop()
+
+        // pausedAt을 갱신해 놓으면, 다음에 playDeck() 할 때 이어서 재생 가능
+        deck.pausedAt = time
+        deck.isPlaying = false
+        deck.bufferSourceNode = null
+
+        // 그 지점부터 재생
+        this.playDeck(deckId)
     }
 
     /** 개별 볼륨 조절 */
