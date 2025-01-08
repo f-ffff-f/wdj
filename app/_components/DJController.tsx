@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import FileUploader from '@/app/_components/Vault/FileUploader'
 import List from '@/app/_components/Vault/List'
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
+import { formatTimeUI } from '@/app/_lib/utils'
 
 interface IDeckUI {
     id: number
@@ -43,7 +44,7 @@ const INITIAL_UI: IDJContollerUI = {
 export const DJController = () => {
     const [stateUI, setStateUI] = useState(INITIAL_UI)
 
-    // 매 프레임 인스턴스를 조회해서 상태 갱신
+    // 매 프레임 인스턴스를 조회해서 UI 상태 갱신
     useEffect(() => {
         let rafId: number
         const updateDecks = () => {
@@ -85,12 +86,12 @@ export const DJController = () => {
     return (
         <div className="flex flex-col gap-4">
             <div className="flex gap-4">
-                {stateUI.deckList.map((deck) => (
-                    <div key={deck.id} className="border border-gray-300 p-4">
-                        <h2>{`id: ${deck.id}`}</h2>
+                {stateUI.deckList.map((deckUI) => (
+                    <div key={deckUI.id} className="border border-gray-300 p-4">
+                        <h2>{`id: ${deckUI.id}`}</h2>
                         <div>
-                            <button onClick={() => handlePlayPauseToggle(deck.isPlaying, deck.id)}>
-                                {deck.isPlaying ? 'pause' : 'play'}
+                            <button onClick={() => handlePlayPauseToggle(deckUI.isPlaying, deckUI.id)}>
+                                {deckUI.isPlaying ? 'pause' : 'play'}
                             </button>
                         </div>
 
@@ -101,15 +102,29 @@ export const DJController = () => {
                                 min={0}
                                 max={1}
                                 step={0.01}
-                                value={deck.volume}
-                                onChange={(e) => handleVolumeChange(deck.id, e)}
+                                value={deckUI.volume}
+                                onChange={(e) => handleVolumeChange(deckUI.id, e)}
                             />
-                            <span> {deck.volume.toFixed(2)}</span>
+                            <span> {deckUI.volume.toFixed(2)}</span>
                         </div>
 
-                        <div>
-                            Time: {deck.currentTime.toFixed(2)} /{' '}
-                            {Number.isFinite(deck.duration) ? deck.duration.toFixed(2) : '∞'}
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                                {/* <input
+                                    type="range"
+                                    min={0}
+                                    max={Number.isFinite(deckUI.duration) ? deckUI.duration : 0}
+                                    step={0.01}
+                                    value={deckUI.currentTime}
+                                    onChange={(e) => handleTimeChange(deckUI.id, e)}
+                                    className="w-full"
+                                    disabled={!Number.isFinite(deckUI.duration)}
+                                /> */}
+                            </div>
+                            <div>
+                                {formatTimeUI(deckUI.currentTime)} /{' '}
+                                {Number.isFinite(deckUI.duration) ? formatTimeUI(deckUI.duration) : '∞'}
+                            </div>
                         </div>
                     </div>
                 ))}
