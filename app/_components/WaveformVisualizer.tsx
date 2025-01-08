@@ -78,7 +78,7 @@ const Waveform = ({ deckId }: { deckId: number }) => {
     useEffect(() => {
         drawWaveform()
         drawPlayhead()
-    }, [audioBuffer, currentTime, isDragging, dragX, drawWaveform, drawPlayhead])
+    }, [drawPlayhead, drawWaveform])
 
     const handleMouseDown = (e: React.MouseEvent) => {
         const canvas = canvasRef.current
