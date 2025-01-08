@@ -4,7 +4,7 @@ interface IDeck {
     bufferSourceNode: AudioBufferSourceNode | null
     gainNode: GainNode
     crossFadeNode: GainNode
-    startTime: number
+    startedAt: number
     pausedAt: number
     isPlaying: boolean
 }
@@ -33,7 +33,7 @@ class AudioManager {
             bufferSourceNode: null,
             gainNode,
             crossFadeNode,
-            startTime: 0,
+            startedAt: 0,
             pausedAt: 0,
             isPlaying: false,
         }
@@ -69,6 +69,7 @@ class AudioManager {
         sourceNode.connect(deck.gainNode)
         return sourceNode
     }
+
     /** 데크 이동 */
     seekDeck(deckId: number, time: number) {
         const deck = this.getDeck(deckId)
@@ -85,9 +86,17 @@ class AudioManager {
 
         // 만약 재생 중이라면 stop 후 다시 play
         // (재생 중이 아닐 때는, 다음번 playDeck() 호출 시점부터 이 위치에서 시작)
-        if (deck.isPlaying) {
-            this.pauseDeck(deckId) // pausedAt = time 상태가 됨
-            this.playDeck(deckId) // 그 지점부터 재생
+        if (deck.isPlaying && deck.bufferSourceNode) {
+            // 현재 pausedAt 위치를 갱신
+            deck.bufferSourceNode.stop()
+
+            // pausedAt을 갱신해 놓으면, 다음에 playDeck() 할 때 이어서 재생 가능
+            deck.pausedAt = time
+            deck.isPlaying = false
+            deck.bufferSourceNode = null
+
+            // 그 지점부터 재생
+            this.playDeck(deckId)
         }
     }
 
@@ -111,7 +120,7 @@ class AudioManager {
         deck.bufferSourceNode.start(0, deck.pausedAt)
 
         // 재생 시작 시간(AudioContext의 currentTime 기준)
-        deck.startTime = this.audioContext.currentTime - deck.pausedAt
+        deck.startedAt = this.audioContext.currentTime - deck.pausedAt
         deck.isPlaying = true
     }
 
@@ -124,7 +133,7 @@ class AudioManager {
         deck.bufferSourceNode.stop()
 
         // 현재까지 재생된 시간
-        const elapsed = this.audioContext.currentTime - deck.startTime
+        const elapsed = this.audioContext.currentTime - deck.startedAt
 
         // pausedAt을 갱신해 놓으면, 다음에 playDeck() 할 때 이어서 재생 가능
         deck.pausedAt = elapsed
@@ -167,9 +176,9 @@ class AudioManager {
         const deck = this.getDeck(deckId)
         if (!deck) return 0
 
-        // 재생 중이면, (오디오컨텍스트현재시간 - startTime) = 현재까지 재생된 시간
+        // 재생 중이면, (오디오컨텍스트현재시간 - startedAt) = 현재까지 재생된 시간
         // 일시정지 상태라면 pausedAt을 그대로 반환
-        return deck.isPlaying ? this.audioContext.currentTime - deck.startTime : deck.pausedAt
+        return deck.isPlaying ? this.audioContext.currentTime - deck.startedAt : deck.pausedAt
     }
 
     /** 전체 재생 길이(초 단위) */
@@ -203,7 +212,7 @@ class AudioManager {
             bufferSourceNode: deck.bufferSourceNode ? 'created' : 'not created',
             isPlaying: deck.isPlaying,
             pausedAt: deck.pausedAt.toFixed(0),
-            startTime: deck.startTime.toFixed(0),
+            startedAt: deck.startedAt.toFixed(0),
         }))
 
         const stinrg = JSON.stringify(_decks, null, 2)

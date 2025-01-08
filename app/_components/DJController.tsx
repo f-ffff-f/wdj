@@ -94,14 +94,12 @@ export const DJController = () => {
                 {stateUI.deckList.map((deckUI) => (
                     <div key={deckUI.id} className="border border-gray-300 p-4">
                         <h2>{`id: ${deckUI.id}`}</h2>
-                        {/* 시킹(Seek) 슬라이더 */}
                         <div>
                             <input
                                 type="range"
                                 min={0}
                                 max={deckUI.duration}
                                 step={0.01}
-                                value={deckUI.currentTime}
                                 onChange={(e) => handleSeekChange(deckUI.id, e)}
                             />
                             <div>
@@ -109,13 +107,11 @@ export const DJController = () => {
                                 {Number.isFinite(deckUI.duration) ? formatTimeUI(deckUI.duration) : '∞'}
                             </div>
                         </div>
-
                         <div>
                             <button onClick={() => handlePlayPauseToggle(deckUI.isPlaying, deckUI.id)}>
                                 {deckUI.isPlaying ? 'pause' : 'play'}
                             </button>
                         </div>
-
                         <div>
                             Volume:{' '}
                             <input
@@ -128,7 +124,6 @@ export const DJController = () => {
                             />
                             <span> {deckUI.volume.toFixed(2)}</span>
                         </div>
-
                         <div className="flex flex-col gap-2">
                             <div className="flex items-center gap-2"></div>
                             <div>
