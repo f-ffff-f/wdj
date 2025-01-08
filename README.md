@@ -6,7 +6,7 @@ DJ 웹 애플리케이션입니다.
 
 ## Preview
 
-[https://wdj-q346.vercel.app](https://wdj-q346.vercel.app)
+[https://wdj-delta.vercel.app](https://wdj-delta.vercel.app)
 
 ## 프로토타입 개발 현황
 
