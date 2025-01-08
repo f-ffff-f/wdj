@@ -14,7 +14,7 @@ class AudioManager {
     private audioContext: AudioContext
     private nextId = 1
     private decks: IDeck[] = []
-    private crossFade = 0.5
+    private crossFadeValue = 0.5
 
     constructor() {
         this.audioContext = new AudioContext()
@@ -24,7 +24,7 @@ class AudioManager {
     addDeck(): IDeck {
         const gainNode = this.audioContext.createGain()
         const crossFadeNode = this.audioContext.createGain()
-        crossFadeNode.gain.value = this.crossFade
+        crossFadeNode.gain.value = this.crossFadeValue
 
         gainNode.connect(crossFadeNode).connect(this.audioContext.destination)
 
@@ -180,7 +180,7 @@ class AudioManager {
 
     /** 크로스페이드 조절 */
     setCrossFade(value: number) {
-        this.crossFade = value
+        this.crossFadeValue = value
         // this.decks[0].crossFadeNode.gain.value = 1 - value
         // this.decks[1].crossFadeNode.gain.value = value
 
@@ -200,7 +200,7 @@ class AudioManager {
     }
 
     getCrossFade(): number {
-        return this.crossFade
+        return this.crossFadeValue
     }
 
     isPlaying(deckId: number): boolean {
