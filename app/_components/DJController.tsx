@@ -9,9 +9,8 @@ import WaveformVisualizer from '@/app/_components/WaveformVisualizer'
 interface IDeckUI {
     id: number
     volume: number
-    currentTime: number
-    pausedTime: number
-    duration: number
+    playbackTime: number
+    audioBufferDuration: number
     isPlaying: boolean
     isSeeking: boolean
 }
@@ -29,18 +28,16 @@ const INITIAL_UI: IDJContollerUI = {
         {
             id: deckA.id,
             volume: deckA.gainNode.gain.value,
-            currentTime: 0,
-            pausedTime: 0,
-            duration: 0,
+            playbackTime: 0,
+            audioBufferDuration: 0,
             isPlaying: false,
             isSeeking: false,
         },
         {
             id: deckB.id,
             volume: deckB.gainNode.gain.value,
-            currentTime: 0,
-            pausedTime: 0,
-            duration: 0,
+            playbackTime: 0,
+            audioBufferDuration: 0,
             isPlaying: false,
             isSeeking: false,
         },
@@ -58,13 +55,19 @@ export const DJController = () => {
             setStateUI((prev) => ({
                 ...prev,
                 deckList: prev.deckList.map((deck) => {
-                    const currentTime = audioManager.getCurrentTime(deck.id)
-                    const duration = audioManager.getDuration(deck.id)
+                    const playbackTime = audioManager.getPlaybackTime(deck.id)
+                    const audioBufferDuration = audioManager.getAudioBufferDuration(deck.id)
                     const volume = audioManager.getVolume(deck.id)
-                    const pausedTime = audioManager.getPausedTime(deck.id)
                     const isPlaying = audioManager.isPlaying(deck.id)
                     const isSeeking = audioManager.isSeeking(deck.id)
-                    return { ...deck, currentTime, duration, volume, pausedTime, isPlaying, isSeeking }
+                    return {
+                        ...deck,
+                        playbackTime,
+                        audioBufferDuration,
+                        volume,
+                        isPlaying,
+                        isSeeking,
+                    }
                 }),
                 crossFade: audioManager.getCrossFade(),
             }))
@@ -101,8 +104,10 @@ export const DJController = () => {
                         <div>
                             <WaveformVisualizer deckId={deckUI.id} />
                             <div>
-                                {formatTimeUI(deckUI.currentTime)} /{' '}
-                                {Number.isFinite(deckUI.duration) ? formatTimeUI(deckUI.duration) : '∞'}
+                                {formatTimeUI(deckUI.playbackTime)} /{' '}
+                                {Number.isFinite(deckUI.audioBufferDuration)
+                                    ? formatTimeUI(deckUI.audioBufferDuration)
+                                    : '∞'}
                             </div>
                         </div>
                         <div>

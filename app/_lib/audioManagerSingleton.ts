@@ -4,8 +4,8 @@ interface IDeck {
     bufferSourceNode: AudioBufferSourceNode | null
     gainNode: GainNode
     crossFadeNode: GainNode
-    cachedStartTime: number
-    playbackTime: number
+    prevStartTime: number
+    nextStartTime: number
     isPlaying: boolean
     isSeeking: boolean
 }
@@ -34,8 +34,8 @@ class AudioManager {
             bufferSourceNode: null,
             gainNode,
             crossFadeNode,
-            cachedStartTime: 0,
-            playbackTime: 0,
+            prevStartTime: 0,
+            nextStartTime: 0,
             isPlaying: false,
             isSeeking: false,
         }
@@ -58,7 +58,7 @@ class AudioManager {
             console.error('Failed to load audio file:', error)
         }
 
-        this.finalizeDeck(deck, 0)
+        this.releaseBuffer(deck, 0)
         this.playDeck(deckId)
     }
 
@@ -74,8 +74,8 @@ class AudioManager {
         if (deck.isPlaying) return
 
         deck.bufferSourceNode = this.createSourceNode(deck) // 재생 시마다 새로 생성해야 함
-        deck.bufferSourceNode.start(0, deck.playbackTime)
-        deck.cachedStartTime = this.calcElapsedTime(deck.playbackTime)
+        deck.bufferSourceNode.start(0, deck.nextStartTime)
+        deck.prevStartTime = this.getElapsedTime(deck.nextStartTime)
         deck.isPlaying = true
     }
 
@@ -83,8 +83,8 @@ class AudioManager {
     pauseDeck(deckId: number) {
         const deck = this.findDeck(deckId)
         if (!deck || !deck.bufferSourceNode || !deck.isPlaying) return
-        const elapsed = this.calcElapsedTime(deck.cachedStartTime)
-        this.finalizeDeck(deck, elapsed)
+        const playbackTime = this.getPlaybackTime(deckId)
+        this.releaseBuffer(deck, playbackTime)
     }
 
     /** 데크 이동 */
@@ -100,10 +100,10 @@ class AudioManager {
         deck.isSeeking = true
 
         if (deck.isPlaying) {
-            this.finalizeDeck(deck, seekTime)
+            this.releaseBuffer(deck, seekTime)
             this.playDeck(deckId)
         } else {
-            deck.playbackTime = seekTime
+            deck.nextStartTime = seekTime
         }
 
         deck.isSeeking = false
@@ -132,23 +132,18 @@ class AudioManager {
         return deck?.audioBuffer ?? null
     }
 
-    /** 현재 재생 위치 */
-    getCurrentTime(deckId: number): number {
+    /** 현재 플레이백 시간 */
+    getPlaybackTime(deckId: number): number {
         const deck = this.findDeck(deckId)
         if (!deck) return 0
-        return deck.isPlaying ? this.calcElapsedTime(deck.cachedStartTime) : deck.playbackTime
+
+        return deck.isPlaying ? this.getElapsedTime(deck.prevStartTime) : deck.nextStartTime
     }
 
     /** 전체 재생 길이 */
-    getDuration(deckId: number): number {
+    getAudioBufferDuration(deckId: number): number {
         const deck = this.findDeck(deckId)
         return deck?.audioBuffer?.duration ?? 0
-    }
-
-    /** 일시정지 시간 */
-    getPausedTime(deckId: number): number {
-        const deck = this.findDeck(deckId)
-        return deck ? deck.playbackTime : 0
     }
 
     /** 개별 볼륨 */
@@ -186,21 +181,22 @@ class AudioManager {
         return this.decks.find((d) => d.id === deckId)
     }
 
-    /** 데크 종료 */
-    private finalizeDeck(deck: IDeck, newPlaybackTime: number) {
+    /** 버퍼 해제 */
+    private releaseBuffer(deck: IDeck, nextStartTime: number) {
         if (!deck.bufferSourceNode) {
             console.error('bufferSourceNode is not created')
             return
         }
 
         deck.bufferSourceNode.stop()
-        deck.playbackTime = newPlaybackTime
-        deck.isPlaying = false
         deck.bufferSourceNode = null
+        deck.nextStartTime = nextStartTime
+        deck.isPlaying = false
     }
 
-    private calcElapsedTime(lastTime: number): number {
-        return this.audioContext.currentTime - lastTime
+    /** 기록한 시간 부터 경과된 시간 */
+    private getElapsedTime(lastRecordedTime: number): number {
+        return this.audioContext.currentTime - lastRecordedTime
     }
 
     public debugManager() {
@@ -209,15 +205,16 @@ class AudioManager {
             audioBuffer: deck.audioBuffer ? 'loaded' : 'not loaded',
             bufferSourceNode: deck.bufferSourceNode ? 'created' : 'not created',
             isPlaying: deck.isPlaying,
-            playbackTime: deck.playbackTime.toFixed(0),
-            cachedStartTime: deck.cachedStartTime.toFixed(0),
+            nextStartTime: deck.nextStartTime.toFixed(0),
+            prevStartTime: deck.prevStartTime.toFixed(0),
         }))
 
         const str = JSON.stringify(_decks, null, 2)
             .replace(/^{|}$/g, '')
             .replace(/"([^"]+)":/g, '$1:')
 
-        return str
+        return `${str}
+this.audioContext.currentTime: ${this.audioContext.currentTime.toFixed(0)}`
     }
 }
 
