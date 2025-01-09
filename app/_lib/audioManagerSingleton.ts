@@ -59,11 +59,11 @@ class AudioManager {
         }
 
         this.releaseBuffer(deck, 0)
-        this.playDeck(deckId)
+        this.playPauseDeck(deckId)
     }
 
-    /** 재생 */
-    async playDeck(deckId: number) {
+    /** 재생 정지 토글 */
+    async playPauseDeck(deckId: number) {
         const deck = this.findDeck(deckId)
         if (!deck || !deck.audioBuffer) return
 
@@ -71,20 +71,15 @@ class AudioManager {
             await this.audioContext.resume()
         }
 
-        if (deck.isPlaying) return
-
-        deck.bufferSourceNode = this.createSourceNode(deck) // 재생 시마다 새로 생성해야 함
-        deck.bufferSourceNode.start(0, deck.nextStartTime)
-        deck.prevStartTime = this.getElapsedTime(deck.nextStartTime)
-        deck.isPlaying = true
-    }
-
-    /** 일시정지 */
-    pauseDeck(deckId: number) {
-        const deck = this.findDeck(deckId)
-        if (!deck || !deck.bufferSourceNode || !deck.isPlaying) return
-        const playbackTime = this.getPlaybackTime(deckId)
-        this.releaseBuffer(deck, playbackTime)
+        if (deck.isPlaying) {
+            const playbackTime = this.getPlaybackTime(deckId)
+            this.releaseBuffer(deck, playbackTime)
+        } else {
+            deck.bufferSourceNode = this.createSourceNode(deck) // 재생 시마다 새로 생성해야 함
+            deck.bufferSourceNode.start(0, deck.nextStartTime)
+            deck.prevStartTime = this.getElapsedTime(deck.nextStartTime)
+            deck.isPlaying = true
+        }
     }
 
     /** 데크 이동 */
@@ -101,7 +96,7 @@ class AudioManager {
 
         if (deck.isPlaying) {
             this.releaseBuffer(deck, seekTime)
-            this.playDeck(deckId)
+            this.playPauseDeck(deckId)
         } else {
             deck.nextStartTime = seekTime
         }
