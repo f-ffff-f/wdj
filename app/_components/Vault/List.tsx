@@ -1,5 +1,6 @@
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
 import { store } from '@/app/_lib/store'
+import { Button } from '@/components/ui/button'
 import React from 'react'
 import { useSnapshot } from 'valtio'
 
@@ -28,21 +29,11 @@ const Item: React.FC<ITrackListItemProps> = ({ id, fileName, url }) => {
 
     return (
         <div className="flex items-center justify-between p-4 border-b">
-            <button
-                onClick={() => handleLoadToDeck(1)}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-                1
-            </button>
+            <Button onClick={() => handleLoadToDeck(1)}>load to deck 1</Button>
             <span className="flex-1 text-center px-4">
                 ({id.slice(0, 4)}..) {fileName}
             </span>
-            <button
-                onClick={() => handleLoadToDeck(2)}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-                2
-            </button>
+            <Button onClick={() => handleLoadToDeck(2)}>load to deck 2</Button>
         </div>
     )
 }
