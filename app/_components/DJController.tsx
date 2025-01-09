@@ -82,14 +82,6 @@ export const DJController = () => {
         return () => cancelAnimationFrame(rafId)
     }, [])
 
-    const handlePlayPauseToggle = (isPlaying: boolean, deckId: number) => {
-        if (isPlaying) {
-            audioManager.pauseDeck(deckId)
-        } else {
-            audioManager.playDeck(deckId)
-        }
-    }
-
     return (
         <div className="flex flex-col gap-8">
             <div className="flex gap-4">
@@ -106,8 +98,8 @@ export const DJController = () => {
                                     min={0}
                                     max={1}
                                     step={0.01}
-                                    defaultValue={[deckUI.volume]}
-                                    onValueChange={(number) => audioManager.setVolume(deckUI.id, number[0])}
+                                    value={[deckUI.volume]}
+                                    onValueChange={(numbers) => audioManager.setVolume(deckUI.id, numbers[0])}
                                 />
                             </div>
                             <div>
@@ -120,7 +112,7 @@ export const DJController = () => {
                                 deckUI.id === deckA.id ? 'flex-row-reverse' : 'flex-row',
                             )}
                         >
-                            <Button onClick={() => handlePlayPauseToggle(deckUI.isPlaying, deckUI.id)}>
+                            <Button onClick={() => audioManager.playPauseDeck(deckUI.id)}>
                                 {deckUI.isPlaying ? 'pause' : 'play'}
                             </Button>
                             <Label>
@@ -138,8 +130,8 @@ export const DJController = () => {
                     min={0}
                     max={1}
                     step={0.01}
-                    defaultValue={[stateUI.crossFade]}
-                    onValueChange={(number) => audioManager.setCrossFade(number[0])}
+                    value={[stateUI.crossFade]}
+                    onValueChange={(numbers) => audioManager.setCrossFade(numbers[0])}
                 />
                 <Label className="self-start">Crossfader</Label>
             </div>
