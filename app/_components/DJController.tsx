@@ -97,7 +97,7 @@ export const DJController = () => {
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex gap-4">
+            <div className="flex">
                 {stateUI.deckList.map((deckUI) => (
                     <div key={deckUI.id} className="border border-gray-300 p-4">
                         <h2>{`id: ${deckUI.id}`}</h2>
@@ -130,8 +130,9 @@ export const DJController = () => {
                     </div>
                 ))}
             </div>
-            <div>
+            <div className="flex justify-center">
                 <input
+                    className="w-1/3"
                     type="range"
                     min={0}
                     max={1}

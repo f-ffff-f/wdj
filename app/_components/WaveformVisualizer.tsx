@@ -118,6 +118,7 @@ const Waveform = ({ deckId }: { deckId: number }) => {
 
     return (
         <canvas
+            className="max-w-[100%]"
             ref={canvasRef}
             width={1000}
             height={200}
