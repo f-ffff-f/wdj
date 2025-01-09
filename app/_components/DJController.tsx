@@ -5,6 +5,11 @@ import List from '@/app/_components/Vault/List'
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
 import { formatTimeUI } from '@/app/_lib/utils'
 import WaveformVisualizer from '@/app/_components/WaveformVisualizer'
+import { SliderCrossfade } from '@/components/ui/sliderCrossfade'
+import { SliderVolume } from '@/components/ui/sliderVolume'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { cn } from '@/lib/utils'
 
 interface IDeckUI {
     id: number
@@ -85,64 +90,66 @@ export const DJController = () => {
         }
     }
 
-    const handleVolumeChange = (deckId: number, e: React.ChangeEvent<HTMLInputElement>) => {
-        const volume = Number(e.target.value)
-        audioManager.setVolume(deckId, volume)
-    }
-
-    const handleCrossFadeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = Number(e.target.value)
-        audioManager.setCrossFade(value)
-    }
-
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex">
+        <div className="flex flex-col gap-8">
+            <div className="flex gap-4">
                 {stateUI.deckList.map((deckUI) => (
-                    <div key={deckUI.id} className="border border-gray-300 p-4">
-                        <h2>{`id: ${deckUI.id}`}</h2>
-                        <div>
-                            <WaveformVisualizer deckId={deckUI.id} />
+                    <div key={deckUI.id} className="flex flex-col gap-4">
+                        <div
+                            className={cn(
+                                'flex items-baseline',
+                                deckUI.id === deckA.id ? 'flex-row-reverse' : 'flex-row',
+                            )}
+                        >
                             <div>
+                                <SliderVolume
+                                    min={0}
+                                    max={1}
+                                    step={0.01}
+                                    defaultValue={[deckUI.volume]}
+                                    onValueChange={(number) => audioManager.setVolume(deckUI.id, number[0])}
+                                />
+                            </div>
+                            <div>
+                                <WaveformVisualizer deckId={deckUI.id} />
+                            </div>
+                        </div>
+                        <div
+                            className={cn(
+                                'flex items-center gap-4',
+                                deckUI.id === deckA.id ? 'flex-row-reverse' : 'flex-row',
+                            )}
+                        >
+                            <Button onClick={() => handlePlayPauseToggle(deckUI.isPlaying, deckUI.id)}>
+                                {deckUI.isPlaying ? 'pause' : 'play'}
+                            </Button>
+                            <Label>
                                 {formatTimeUI(deckUI.playbackTime)} /{' '}
                                 {Number.isFinite(deckUI.audioBufferDuration)
                                     ? formatTimeUI(deckUI.audioBufferDuration)
                                     : '∞'}
-                            </div>
-                        </div>
-                        <div>
-                            <button onClick={() => handlePlayPauseToggle(deckUI.isPlaying, deckUI.id)}>
-                                {deckUI.isPlaying ? 'pause' : 'play'}
-                            </button>
-                        </div>
-                        <div>
-                            Volume:{' '}
-                            <input
-                                type="range"
-                                min={0}
-                                max={1}
-                                step={0.01}
-                                value={deckUI.volume}
-                                onChange={(e) => handleVolumeChange(deckUI.id, e)}
-                            />
-                            <span> {deckUI.volume.toFixed(2)}</span>
+                            </Label>
                         </div>
                     </div>
                 ))}
             </div>
-            <div className="flex justify-center">
-                <input
-                    className="w-1/3"
-                    type="range"
+            <div className="w-1/2 self-center">
+                <SliderCrossfade
                     min={0}
                     max={1}
                     step={0.01}
-                    value={stateUI.crossFade}
-                    onChange={(e) => handleCrossFadeChange(e)}
+                    defaultValue={[stateUI.crossFade]}
+                    onValueChange={(number) => audioManager.setCrossFade(number[0])}
                 />
+                <Label className="self-start">Crossfader</Label>
             </div>
-            <div>
-                <FileUploader />
+            <div className="flex flex-col items-center w-1/2 self-center">
+                <div>
+                    <Label className="self-start" htmlFor="file-uploader">
+                        add audio file to library
+                    </Label>
+                    <FileUploader />
+                </div>
                 <List />
             </div>
         </div>

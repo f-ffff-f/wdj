@@ -1,7 +1,7 @@
 import { store } from '@/app/_lib/store'
 import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
-
+import { InputFile } from '@/components/ui/inputFile'
 const FileUploader = () => {
     // 파일 업로드
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -20,7 +20,7 @@ const FileUploader = () => {
             })
         }
     }
-    return <input type="file" accept="audio/*" onChange={(e) => handleFileUpload(e)} />
+    return <InputFile type="file" accept="audio/*" onChange={(e) => handleFileUpload(e)} id="file-uploader" />
 }
 
 export default FileUploader
