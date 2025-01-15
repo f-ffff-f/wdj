@@ -1,5 +1,6 @@
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
 import { store } from '@/app/_lib/store'
+import { Button } from '@/components/ui/button'
 import React, { useState, useEffect, useRef } from 'react'
 import { useSnapshot } from 'valtio'
 
@@ -112,28 +113,64 @@ const KeyboardController = ({ children }: { children: React.ReactNode }) => {
     return (
         <div className="app-container" ref={ref}>
             {children}
+            {showHelp ? (
+                <Button onClick={() => setShowHelp(false)}>Hide Key Guide</Button>
+            ) : (
+                <Button onClick={() => setShowHelp(true)}>Show Key Guide</Button>
+            )}
             {showHelp && (
                 <div className="help-overlay">
                     <div className="help-content">
-                        <h2>도움말</h2>
+                        <h2>Keyboard Controls</h2>
                         <ul>
                             <li>
-                                <strong>↑</strong>: 위로 이동
+                                <strong>Volume Controls</strong>
+                                <ul>
+                                    <li>
+                                        <kbd>Q</kbd> / <kbd>A</kbd>: Increase/Decrease Deck 1 volume
+                                    </li>
+                                    <li>
+                                        <kbd>]</kbd> / <kbd>&apos;</kbd>: Increase/Decrease Deck 2 volume
+                                    </li>
+                                </ul>
                             </li>
                             <li>
-                                <strong>↓</strong>: 아래로 이동
+                                <strong>Playback Controls</strong>
+                                <ul>
+                                    <li>
+                                        <kbd>Left Shift</kbd>: Play/Pause Deck 1
+                                    </li>
+                                    <li>
+                                        <kbd>Right Shift</kbd>: Play/Pause Deck 2
+                                    </li>
+                                    <li>
+                                        <kbd>Z</kbd> / <kbd>/</kbd>: Adjust Cross-fader
+                                    </li>
+                                </ul>
                             </li>
                             <li>
-                                <strong>←</strong>: 왼쪽으로 이동
+                                <strong>Navigation</strong>
+                                <ul>
+                                    <li>
+                                        <kbd>↑</kbd> / <kbd>↓</kbd>: Navigate through tracks
+                                    </li>
+                                    <li>
+                                        <kbd>←</kbd>: Load selected track to Deck 1
+                                    </li>
+                                    <li>
+                                        <kbd>→</kbd>: Load selected track to Deck 2
+                                    </li>
+                                </ul>
                             </li>
                             <li>
-                                <strong>→</strong>: 오른쪽으로 이동
-                            </li>
-                            <li>
-                                <strong>h</strong>: 도움말 토글
+                                <strong>File Management</strong>
+                                <ul>
+                                    <li>
+                                        <kbd>Enter</kbd>: Open file upload dialog
+                                    </li>
+                                </ul>
                             </li>
                         </ul>
-                        <button onClick={() => setShowHelp(false)}>닫기</button>
                     </div>
                 </div>
             )}
