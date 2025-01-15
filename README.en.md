@@ -17,6 +17,13 @@ A modern DJ mixing web application that runs in the browser.
 -   [x] Keyboard controls
 -   [ ] MIDI controls
 
+## Getting Started
+
+1. Press Enter or click “Choose File” to upload an audio file.
+2. Load the audio file onto a deck by pressing the left or right arrow keys, or by clicking the buttons on either end of the item.
+3. Go back to Step 1.
+4. Repeat Step 2 to load a different audio file onto the other deck.
+
 ### tech stack
 
 -   [Next.js 14](https://nextjs.org/)
