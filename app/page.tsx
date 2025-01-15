@@ -9,8 +9,9 @@ const DJController = dynamic(() => import('@/app/_components/DJController'), { s
 const Home = () => {
     return (
         <div>
-            <DJController />
-            <KeyboardController />
+            <KeyboardController>
+                <DJController />
+            </KeyboardController>
             {process.env.NODE_ENV === 'development' && <Debugger />}
         </div>
     )

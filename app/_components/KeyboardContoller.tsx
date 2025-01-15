@@ -1,18 +1,39 @@
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
 import { store } from '@/app/_lib/store'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useSnapshot } from 'valtio'
 
-const KeyboardController = () => {
+const preventAllKeyDefaults = (element: HTMLElement): (() => void) => {
+    const handler = (event: KeyboardEvent) => {
+        event.preventDefault()
+        console.log(`Default action prevented for key: ${event.key}`)
+    }
+
+    element.addEventListener('keydown', handler)
+
+    return () => {
+        element.removeEventListener('keydown', handler)
+    }
+}
+
+const KeyboardController = ({ children }: { children: React.ReactNode }) => {
     const snapshot = useSnapshot(store)
+    const ref = useRef<HTMLDivElement | null>(null)
+
     const [showHelp, setShowHelp] = useState(false)
+
+    useEffect(() => {
+        if (ref.current) {
+            const cleanup = preventAllKeyDefaults(ref.current)
+            return () => cleanup()
+        }
+    }, [ref])
 
     useEffect(() => {
         const findIndex = (id: string) => {
             return snapshot.vault.library.findIndex((track) => track.id === id)
         }
         const handleKeyDown = (event: KeyboardEvent) => {
-            console.log(event.code)
             switch (event.code) {
                 case 'KeyQ':
                     audioManager.setVolume(1, audioManager.getVolume(1) + 0.05)
@@ -89,7 +110,8 @@ const KeyboardController = () => {
     }, [snapshot])
 
     return (
-        <div className="app-container">
+        <div className="app-container" ref={ref}>
+            {children}
             {showHelp && (
                 <div className="help-overlay">
                     <div className="help-content">
