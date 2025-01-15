@@ -1,8 +1,8 @@
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
-import { TDeckId } from '@/app/_lib/types'
+import { EDeckIds } from '@/app/_lib/types'
 
-const Waveform = ({ deckId }: { deckId: TDeckId }) => {
+const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const audioBuffer = audioManager.getAudioBuffer(deckId)
     const playbackTime = audioManager.getPlaybackTime(deckId)

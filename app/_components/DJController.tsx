@@ -9,10 +9,10 @@ import { SliderVolume } from '@/components/ui/sliderVolume'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import { TDeckId } from '@/app/_lib/types'
+import { EDeckIds } from '@/app/_lib/types'
 
 interface IDeckUI {
-    id: TDeckId
+    id: EDeckIds
     volume: number
     playbackTime: number
     audioBufferDuration: number
@@ -113,7 +113,10 @@ export const DJController = () => {
                                 deckUI.id === deckA.id ? 'flex-row-reverse' : 'flex-row',
                             )}
                         >
-                            <Button onClick={() => audioManager.playPauseDeck(deckUI.id)} id={`play-pause-${deckUI.id}`}>
+                            <Button
+                                onClick={() => audioManager.playPauseDeck(deckUI.id)}
+                                id={`play-pause-${deckUI.id}`}
+                            >
                                 {deckUI.isPlaying ? 'pause' : 'play'}
                             </Button>
                             <Label>

@@ -1,8 +1,8 @@
-import { TDeckId, EDeckIds } from '@/app/_lib/types'
+import { EDeckIds } from '@/app/_lib/types'
 import { clampGain } from '@/app/_lib/utils'
 
 interface IDeck {
-    id: TDeckId
+    id: EDeckIds
     audioBuffer: AudioBuffer | null
     bufferSourceNode: AudioBufferSourceNode | null
     gainNode: GainNode
@@ -36,7 +36,7 @@ class AudioManager {
         gainNode.connect(crossFadeNode).connect(this.audioContext.destination)
 
         const deck: IDeck = {
-            id: this.nextId++ as TDeckId,
+            id: this.nextId++ as EDeckIds,
             audioBuffer: null,
             bufferSourceNode: null,
             gainNode,
@@ -52,7 +52,7 @@ class AudioManager {
     }
 
     /** 특정 데크에 파일 로드 */
-    async loadTrack(deckId: TDeckId, url: string) {
+    async loadTrack(deckId: EDeckIds, url: string) {
         const deck = this.findDeck(deckId)
         if (!deck) return
 
@@ -70,7 +70,7 @@ class AudioManager {
     }
 
     /** 재생 정지 토글 */
-    async playPauseDeck(deckId: TDeckId) {
+    async playPauseDeck(deckId: EDeckIds) {
         const deck = this.findDeck(deckId)
         if (!deck || !deck.audioBuffer) return
 
@@ -90,7 +90,7 @@ class AudioManager {
     }
 
     /** 데크 이동 */
-    seekDeck(deckId: TDeckId, seekTime: number) {
+    seekDeck(deckId: EDeckIds, seekTime: number) {
         const deck = this.findDeck(deckId)
         if (!deck || !deck.audioBuffer) return
 
@@ -112,7 +112,7 @@ class AudioManager {
     }
 
     /** 개별 볼륨 조절 */
-    setVolume(deckId: TDeckId, volume: number) {
+    setVolume(deckId: EDeckIds, volume: number) {
         const deck = this.findDeck(deckId)
         if (!deck) return
         deck.gainNode.gain.value = clampGain(volume)
@@ -129,13 +129,13 @@ class AudioManager {
         }
     }
 
-    getAudioBuffer(deckId: TDeckId): AudioBuffer | null {
+    getAudioBuffer(deckId: EDeckIds): AudioBuffer | null {
         const deck = this.findDeck(deckId)
         return deck?.audioBuffer ?? null
     }
 
     /** 현재 플레이백 시간 */
-    getPlaybackTime(deckId: TDeckId): number {
+    getPlaybackTime(deckId: EDeckIds): number {
         const deck = this.findDeck(deckId)
         if (!deck) return 0
 
@@ -143,13 +143,13 @@ class AudioManager {
     }
 
     /** 전체 재생 길이 */
-    getAudioBufferDuration(deckId: TDeckId): number {
+    getAudioBufferDuration(deckId: EDeckIds): number {
         const deck = this.findDeck(deckId)
         return deck?.audioBuffer?.duration ?? 0
     }
 
     /** 개별 볼륨 */
-    getVolume(deckId: TDeckId): number {
+    getVolume(deckId: EDeckIds): number {
         return this.findDeck(deckId)?.gainNode.gain.value ?? 0
     }
 
@@ -159,13 +159,13 @@ class AudioManager {
     }
 
     /** 재생 여부 */
-    isPlaying(deckId: TDeckId): boolean {
+    isPlaying(deckId: EDeckIds): boolean {
         const deck = this.findDeck(deckId)
         return deck ? deck.isPlaying : false
     }
 
     /** 이동 여부 */
-    isSeeking(deckId: TDeckId): boolean {
+    isSeeking(deckId: EDeckIds): boolean {
         const deck = this.findDeck(deckId)
         return deck ? deck.isSeeking : false
     }
@@ -179,7 +179,7 @@ class AudioManager {
     }
 
     /** 데크 찾기 */
-    private findDeck(deckId: TDeckId): IDeck | undefined {
+    private findDeck(deckId: EDeckIds): IDeck | undefined {
         return this.decks.find((d) => d.id === deckId)
     }
 

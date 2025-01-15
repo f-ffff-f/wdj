@@ -5,13 +5,13 @@ import { cn } from '@/lib/utils'
 import React from 'react'
 import { useSnapshot } from 'valtio'
 import { Card } from '@/components/ui/card'
-import { EDeckIds, TDeckId } from '@/app/_lib/types'
+import { EDeckIds } from '@/app/_lib/types'
 
 const List = () => {
     const snapshot = useSnapshot(store)
     const focusedId = snapshot.vault.UI.focusedId
 
-    const handleLoadToDeck = (deckId: TDeckId, url: string) => {
+    const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
         audioManager.loadTrack(deckId, url)
     }
     const handleClick = (id: string) => {
@@ -40,28 +40,18 @@ interface ITrackListItemProps {
     fileName: string
     url: string
     isFocused: boolean
-    handleLoadToDeck: (deckId: TDeckId, url: string) => void
+    handleLoadToDeck: (deckId: EDeckIds, url: string) => void
     handleClick: (id: string) => void
 }
 
 const Item: React.FC<ITrackListItemProps> = ({ id, fileName, url, isFocused, handleLoadToDeck, handleClick }) => {
     return (
         <Card className={cn('flex items-center justify-between p-4', isFocused && 'outline outline-2 outline-primary')}>
-            <Button
-                onClick={() => handleLoadToDeck(EDeckIds.DECK_1, url)}
-                className={`load-to-deck-${EDeckIds.DECK_1}`}
-            >
-                load to deck 1
-            </Button>
+            <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, url)}>load to deck 1</Button>
             <span className="flex-1 text-center px-4">
                 ({id.slice(0, 4)}..) {fileName}
             </span>
-            <Button
-                onClick={() => handleLoadToDeck(EDeckIds.DECK_2, url)}
-                className={`load-to-deck-${EDeckIds.DECK_2}`}
-            >
-                load to deck 2
-            </Button>
+            <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, url)}>load to deck 2</Button>
         </Card>
     )
 }
