@@ -17,34 +17,6 @@ DJ 웹 애플리케이션입니다.
 - [ ] 키보드 컨트롤
 - [ ] 미디 컨트롤
 
-## 시작하기
-
-### 필수 요구사항
-
--   [Bun](https://bun.sh) 1.0.0 이상
--   Node.js 18.0.0 이상
-
-### 설치
-
-```bash
-# 저장소 클론
-git clone https://github.com/yourusername/your-repo-name.git
-
-# 프로젝트 디렉토리로 이동
-cd your-repo-name
-
-# 의존성 설치
-bun install
-```
-
-### 개발 서버 실행
-
-```bash
-bun dev
-```
-
-브라우저에서 [http://localhost:3000](http://localhost:3000)을 열어 애플리케이션을 확인하세요.
-
 ## 기술 스택
 
 -   [Next.js 14](https://nextjs.org/)

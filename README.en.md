@@ -17,35 +17,7 @@ A modern DJ mixing web application that runs in the browser.
 -   [ ] Keyboard controls
 -   [ ] MIDI controls
 
-## Getting Started
-
-### Prerequisites
-
--   [Bun](https://bun.sh) 1.0.0 or later
--   Node.js 18.0.0 or later
-
-### Install
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/your-repo-name.git
-
-# Navigate to your project directory
-cd your-repo-name
-
-# Install dependencies
-bun install
-```
-
-### Run the development server
-
-```bash
-bun dev
-```
-
-Open [http://localhost:3000] in your browser to view the application.
-
-### Technology stack
+### tech stack
 
 -   [Next.js 14](https://nextjs.org/)
 -   [TypeScript](https://www.typescriptlang.org/)
