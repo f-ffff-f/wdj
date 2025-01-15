@@ -19,7 +19,7 @@ const List = () => {
     }
 
     return (
-        <div className="w-full max-w-2xl mx-auto">
+        <div className="w-full max-w-2xl mx-auto min-h-10" id="vault-list">
             {snapshot.vault.library.map((track) => (
                 <Item
                     key={track.id}
@@ -46,15 +46,22 @@ interface ITrackListItemProps {
 
 const Item: React.FC<ITrackListItemProps> = ({ id, fileName, url, isFocused, handleLoadToDeck, handleClick }) => {
     return (
-        <Card
-            className={cn('flex items-center justify-between p-4', isFocused && 'bg-accent/50')}
-            onClick={() => handleClick(id)}
-        >
-            <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, url)}>load to deck 1</Button>
+        <Card className={cn('flex items-center justify-between p-4', isFocused && 'outline outline-2 outline-primary')}>
+            <Button
+                onClick={() => handleLoadToDeck(EDeckIds.DECK_1, url)}
+                className={`load-to-deck-${EDeckIds.DECK_1}`}
+            >
+                load to deck 1
+            </Button>
             <span className="flex-1 text-center px-4">
                 ({id.slice(0, 4)}..) {fileName}
             </span>
-            <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, url)}>load to deck 2</Button>
+            <Button
+                onClick={() => handleLoadToDeck(EDeckIds.DECK_2, url)}
+                className={`load-to-deck-${EDeckIds.DECK_2}`}
+            >
+                load to deck 2
+            </Button>
         </Card>
     )
 }

@@ -1,4 +1,3 @@
-// DjMultiDeckPlayer.tsx
 import React, { useEffect, useState } from 'react'
 import FileUploader from '@/app/_components/Vault/FileUploader'
 import List from '@/app/_components/Vault/List'
@@ -96,6 +95,7 @@ export const DJController = () => {
                         >
                             <div>
                                 <SliderVolume
+                                    id={`gain-${deckUI.id}`}
                                     min={0}
                                     max={1}
                                     step={0.01}
@@ -113,7 +113,7 @@ export const DJController = () => {
                                 deckUI.id === deckA.id ? 'flex-row-reverse' : 'flex-row',
                             )}
                         >
-                            <Button onClick={() => audioManager.playPauseDeck(deckUI.id)}>
+                            <Button onClick={() => audioManager.playPauseDeck(deckUI.id)} id={`play-pause-${deckUI.id}`}>
                                 {deckUI.isPlaying ? 'pause' : 'play'}
                             </Button>
                             <Label>
@@ -128,6 +128,7 @@ export const DJController = () => {
             </div>
             <div className="w-1/2 self-center">
                 <SliderCrossfade
+                    id="crossfader"
                     min={0}
                     max={1}
                     step={0.01}

@@ -1,3 +1,5 @@
+import { EShortcut } from '@/app/_components/Shortcuts/constants'
+import Overlay from '@/app/_components/Shortcuts/Overlay'
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
 import { store } from '@/app/_lib/store'
 import { EDeckIds } from '@/app/_lib/types'
@@ -5,69 +7,66 @@ import { Button } from '@/components/ui/button'
 import React, { useState, useEffect, useRef } from 'react'
 import { useSnapshot } from 'valtio'
 
-const preventAllKeyDefaults = (element: HTMLElement): (() => void) => {
-    const handler = (event: KeyboardEvent) => {
-        event.preventDefault()
-        console.log(`Default action prevented for key: ${event.key}`)
-    }
-
-    element.addEventListener('keydown', handler)
-
-    return () => {
-        element.removeEventListener('keydown', handler)
-    }
-}
-
-const KeyboardController = ({ children }: { children: React.ReactNode }) => {
+const Shortcuts = ({ children }: { children: React.ReactNode }) => {
     const snapshot = useSnapshot(store)
-    const ref = useRef<HTMLDivElement | null>(null)
-
     const [showHelp, setShowHelp] = useState(false)
+
+    const ref = useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
         if (ref.current) {
-            const cleanup = preventAllKeyDefaults(ref.current)
-            return () => cleanup()
+            const handler = (event: KeyboardEvent) => {
+                // EShortcut에 정의된 값일때만 키보드 막음
+                if (Object.values(EShortcut).includes(event.code as EShortcut)) {
+                    event.preventDefault()
+                    console.log(`Default action prevented for key: ${event.key}`)
+                }
+            }
+
+            const element = ref.current
+            element.addEventListener('keydown', handler)
+            return () => element.removeEventListener('keydown', handler)
         }
-    }, [ref])
+    }, [])
 
     useEffect(() => {
         const findIndex = (id: string) => {
             return snapshot.vault.library.findIndex((track) => track.id === id)
         }
+
         const handleKeyDown = (event: KeyboardEvent) => {
-            switch (event.code) {
-                case 'KeyQ':
+            switch (event.code as EShortcut) {
+                case EShortcut.KeyQ:
                     audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) + 0.05)
                     break
-                case 'KeyA':
+                case EShortcut.KeyA:
                     audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) - 0.05)
                     break
-                case 'BracketRight':
+                case EShortcut.BracketRight:
                     audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) + 0.05)
                     break
-                case 'Quote':
+                case EShortcut.Quote:
                     audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) - 0.05)
                     break
-                case 'KeyZ':
+                case EShortcut.KeyZ:
                     audioManager.setCrossFade(audioManager.getCrossFade() - 0.05)
                     break
-                case 'Slash':
+                case EShortcut.Slash:
                     audioManager.setCrossFade(audioManager.getCrossFade() + 0.05)
                     break
-                case 'ShiftLeft':
+                case EShortcut.ShiftLeft:
                     audioManager.playPauseDeck(EDeckIds.DECK_1)
                     break
-                case 'ShiftRight':
+                case EShortcut.ShiftRight:
                     audioManager.playPauseDeck(EDeckIds.DECK_2)
                     break
-                case 'Enter':
+                case EShortcut.Enter:
                     const fileInput = document.getElementById('file-uploader')
                     if (fileInput) {
                         fileInput.click()
                     }
                     break
-                case 'ArrowUp':
+                case EShortcut.ArrowUp:
                     if (snapshot.vault.UI.focusedId) {
                         const index = findIndex(snapshot.vault.UI.focusedId)
                         if (index > 0) {
@@ -75,7 +74,7 @@ const KeyboardController = ({ children }: { children: React.ReactNode }) => {
                         }
                     }
                     break
-                case 'ArrowDown':
+                case EShortcut.ArrowDown:
                     if (snapshot.vault.UI.focusedId) {
                         const index = findIndex(snapshot.vault.UI.focusedId)
                         if (index < snapshot.vault.library.length - 1) {
@@ -83,7 +82,7 @@ const KeyboardController = ({ children }: { children: React.ReactNode }) => {
                         }
                     }
                     break
-                case 'ArrowLeft':
+                case EShortcut.ArrowLeft:
                     if (snapshot.vault.UI.focusedId) {
                         const index = findIndex(snapshot.vault.UI.focusedId)
                         if (index >= 0) {
@@ -91,7 +90,7 @@ const KeyboardController = ({ children }: { children: React.ReactNode }) => {
                         }
                     }
                     break
-                case 'ArrowRight':
+                case EShortcut.ArrowRight:
                     if (snapshot.vault.UI.focusedId) {
                         const index = findIndex(snapshot.vault.UI.focusedId)
                         if (index <= snapshot.vault.library.length - 1) {
@@ -119,8 +118,15 @@ const KeyboardController = ({ children }: { children: React.ReactNode }) => {
             ) : (
                 <Button onClick={() => setShowHelp(true)}>Show Key Guide</Button>
             )}
-            {showHelp && (
-                <div className="help-overlay">
+            <Overlay visible={showHelp} />
+        </div>
+    )
+}
+
+export default Shortcuts
+
+{
+    /* <div className="help-overlay">
                     <div className="help-content">
                         <h2>Keyboard Controls</h2>
                         <ul>
@@ -173,10 +179,5 @@ const KeyboardController = ({ children }: { children: React.ReactNode }) => {
                             </li>
                         </ul>
                     </div>
-                </div>
-            )}
-        </div>
-    )
+                </div> */
 }
-
-export default KeyboardController
