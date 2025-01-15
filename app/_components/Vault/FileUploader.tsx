@@ -3,7 +3,6 @@ import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { InputFile } from '@/components/ui/inputFile'
 const FileUploader = () => {
-    // 파일 업로드
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const files = Array.from(event.target.files)
@@ -17,6 +16,7 @@ const FileUploader = () => {
                     url: audioURL,
                 }
                 store.vault.library.push(newTrack)
+                store.vault.UI.focusedId = trackId
             })
         }
     }

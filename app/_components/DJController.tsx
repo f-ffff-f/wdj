@@ -1,4 +1,3 @@
-// DjMultiDeckPlayer.tsx
 import React, { useEffect, useState } from 'react'
 import FileUploader from '@/app/_components/Vault/FileUploader'
 import List from '@/app/_components/Vault/List'
@@ -10,9 +9,10 @@ import { SliderVolume } from '@/components/ui/sliderVolume'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { EDeckIds } from '@/app/_lib/types'
 
 interface IDeckUI {
-    id: number
+    id: EDeckIds
     volume: number
     playbackTime: number
     audioBufferDuration: number
@@ -82,14 +82,6 @@ export const DJController = () => {
         return () => cancelAnimationFrame(rafId)
     }, [])
 
-    const handlePlayPauseToggle = (isPlaying: boolean, deckId: number) => {
-        if (isPlaying) {
-            audioManager.pauseDeck(deckId)
-        } else {
-            audioManager.playDeck(deckId)
-        }
-    }
-
     return (
         <div className="flex flex-col gap-8">
             <div className="flex gap-4">
@@ -103,11 +95,12 @@ export const DJController = () => {
                         >
                             <div>
                                 <SliderVolume
+                                    id={`gain-${deckUI.id}`}
                                     min={0}
                                     max={1}
                                     step={0.01}
-                                    defaultValue={[deckUI.volume]}
-                                    onValueChange={(number) => audioManager.setVolume(deckUI.id, number[0])}
+                                    value={[deckUI.volume]}
+                                    onValueChange={(numbers) => audioManager.setVolume(deckUI.id, numbers[0])}
                                 />
                             </div>
                             <div>
@@ -120,7 +113,10 @@ export const DJController = () => {
                                 deckUI.id === deckA.id ? 'flex-row-reverse' : 'flex-row',
                             )}
                         >
-                            <Button onClick={() => handlePlayPauseToggle(deckUI.isPlaying, deckUI.id)}>
+                            <Button
+                                onClick={() => audioManager.playPauseDeck(deckUI.id)}
+                                id={`play-pause-${deckUI.id}`}
+                            >
                                 {deckUI.isPlaying ? 'pause' : 'play'}
                             </Button>
                             <Label>
@@ -135,15 +131,16 @@ export const DJController = () => {
             </div>
             <div className="w-1/2 self-center">
                 <SliderCrossfade
+                    id="crossfader"
                     min={0}
                     max={1}
                     step={0.01}
-                    defaultValue={[stateUI.crossFade]}
-                    onValueChange={(number) => audioManager.setCrossFade(number[0])}
+                    value={[stateUI.crossFade]}
+                    onValueChange={(numbers) => audioManager.setCrossFade(numbers[0])}
                 />
                 <Label className="self-start">Crossfader</Label>
             </div>
-            <div className="flex flex-col items-center w-1/2 self-center">
+            <div className="flex flex-col items-center w-1/2 self-center gap-4">
                 <div>
                     <Label className="self-start" htmlFor="file-uploader">
                         add audio file to library
