@@ -4,3 +4,10 @@ export interface ITrack {
     duration: number
     url: string
 }
+
+export enum EDeckIds {
+    DECK_1 = 1,
+    DECK_2 = 2,
+}
+
+export type TDeckId = (typeof EDeckIds)[keyof typeof EDeckIds]

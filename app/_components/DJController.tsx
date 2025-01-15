@@ -10,9 +10,10 @@ import { SliderVolume } from '@/components/ui/sliderVolume'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
+import { TDeckId } from '@/app/_lib/types'
 
 interface IDeckUI {
-    id: number
+    id: TDeckId
     volume: number
     playbackTime: number
     audioBufferDuration: number

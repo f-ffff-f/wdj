@@ -1,5 +1,6 @@
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
 import { store } from '@/app/_lib/store'
+import { EDeckIds } from '@/app/_lib/types'
 import { Button } from '@/components/ui/button'
 import React, { useState, useEffect, useRef } from 'react'
 import { useSnapshot } from 'valtio'
@@ -37,22 +38,22 @@ const KeyboardController = ({ children }: { children: React.ReactNode }) => {
         const handleKeyDown = (event: KeyboardEvent) => {
             switch (event.code) {
                 case 'KeyQ':
-                    audioManager.setVolume(1, audioManager.getVolume(1) + 0.05)
+                    audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) + 0.05)
                     break
                 case 'KeyA':
-                    audioManager.setVolume(1, audioManager.getVolume(1) - 0.05)
+                    audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) - 0.05)
                     break
                 case 'BracketRight':
-                    audioManager.setVolume(2, audioManager.getVolume(2) + 0.05)
+                    audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) + 0.05)
                     break
                 case 'Quote':
-                    audioManager.setVolume(2, audioManager.getVolume(2) - 0.05)
+                    audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) - 0.05)
                     break
                 case 'ShiftLeft':
-                    audioManager.playPauseDeck(1)
+                    audioManager.playPauseDeck(EDeckIds.DECK_1)
                     break
                 case 'ShiftRight':
-                    audioManager.playPauseDeck(2)
+                    audioManager.playPauseDeck(EDeckIds.DECK_2)
                     break
                 case 'KeyZ':
                     audioManager.setCrossFade(audioManager.getCrossFade() - 0.05)
@@ -86,7 +87,7 @@ const KeyboardController = ({ children }: { children: React.ReactNode }) => {
                     if (snapshot.vault.UI.focusedId) {
                         const index = findIndex(snapshot.vault.UI.focusedId)
                         if (index >= 0) {
-                            audioManager.loadTrack(1, snapshot.vault.library[index].url)
+                            audioManager.loadTrack(EDeckIds.DECK_1, snapshot.vault.library[index].url)
                         }
                     }
                     break
@@ -94,7 +95,7 @@ const KeyboardController = ({ children }: { children: React.ReactNode }) => {
                     if (snapshot.vault.UI.focusedId) {
                         const index = findIndex(snapshot.vault.UI.focusedId)
                         if (index <= snapshot.vault.library.length - 1) {
-                            audioManager.loadTrack(2, snapshot.vault.library[index].url)
+                            audioManager.loadTrack(EDeckIds.DECK_2, snapshot.vault.library[index].url)
                         }
                     }
                     break
