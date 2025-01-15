@@ -1,10 +1,11 @@
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
+import { EDeckIds } from '@/app/_lib/types'
 
-const Waveform = ({ deckId }: { deckId: number }) => {
+const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const audioBuffer = audioManager.getAudioBuffer(deckId)
-    const currentTime = audioManager.getCurrentTime(deckId)
+    const playbackTime = audioManager.getPlaybackTime(deckId)
 
     const [isDragging, setIsDragging] = useState(false)
     const [dragX, setDragX] = useState<number | null>(null)
@@ -64,7 +65,7 @@ const Waveform = ({ deckId }: { deckId: number }) => {
         const duration = audioBuffer.duration
 
         // x 좌표 계산 (currentTime 기반 또는 드래그 중이면 dragX 사용)
-        const x = isDragging && dragX !== null ? dragX : (currentTime / duration) * width
+        const x = isDragging && dragX !== null ? dragX : (playbackTime / duration) * width
 
         // 플레이 헤드 그리기
         ctx.beginPath()
@@ -73,7 +74,7 @@ const Waveform = ({ deckId }: { deckId: number }) => {
         ctx.strokeStyle = 'white'
         ctx.lineWidth = 2
         ctx.stroke()
-    }, [audioBuffer, currentTime, isDragging, dragX])
+    }, [audioBuffer, playbackTime, isDragging, dragX])
 
     useEffect(() => {
         drawWaveform()
@@ -118,6 +119,7 @@ const Waveform = ({ deckId }: { deckId: number }) => {
 
     return (
         <canvas
+            className="max-w-[100%]"
             ref={canvasRef}
             width={1000}
             height={200}
