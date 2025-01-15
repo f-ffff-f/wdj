@@ -17,6 +17,7 @@ const FileUploader = () => {
                     url: audioURL,
                 }
                 store.vault.library.push(newTrack)
+                store.vault.UI.focusedId = trackId
             })
         }
     }

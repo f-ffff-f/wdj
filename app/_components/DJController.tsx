@@ -135,7 +135,7 @@ export const DJController = () => {
                 />
                 <Label className="self-start">Crossfader</Label>
             </div>
-            <div className="flex flex-col items-center w-1/2 self-center">
+            <div className="flex flex-col items-center w-1/2 self-center gap-4">
                 <div>
                     <Label className="self-start" htmlFor="file-uploader">
                         add audio file to library

@@ -1,10 +1,16 @@
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
+import { store } from '@/app/_lib/store'
 import React, { useState, useEffect } from 'react'
+import { useSnapshot } from 'valtio'
 
 const KeyboardController = () => {
+    const snapshot = useSnapshot(store)
     const [showHelp, setShowHelp] = useState(false)
 
     useEffect(() => {
+        const findIndex = (id: string) => {
+            return snapshot.vault.library.findIndex((track) => track.id === id)
+        }
         const handleKeyDown = (event: KeyboardEvent) => {
             console.log(event.code)
             switch (event.code) {
@@ -38,6 +44,38 @@ const KeyboardController = () => {
                         fileInput.click()
                     }
                     break
+                case 'ArrowUp':
+                    if (snapshot.vault.UI.focusedId) {
+                        const index = findIndex(snapshot.vault.UI.focusedId)
+                        if (index > 0) {
+                            store.vault.UI.focusedId = snapshot.vault.library[index - 1].id
+                        }
+                    }
+                    break
+                case 'ArrowDown':
+                    if (snapshot.vault.UI.focusedId) {
+                        const index = findIndex(snapshot.vault.UI.focusedId)
+                        if (index < snapshot.vault.library.length - 1) {
+                            store.vault.UI.focusedId = snapshot.vault.library[index + 1].id
+                        }
+                    }
+                    break
+                case 'ArrowLeft':
+                    if (snapshot.vault.UI.focusedId) {
+                        const index = findIndex(snapshot.vault.UI.focusedId)
+                        if (index >= 0) {
+                            audioManager.loadTrack(1, snapshot.vault.library[index].url)
+                        }
+                    }
+                    break
+                case 'ArrowRight':
+                    if (snapshot.vault.UI.focusedId) {
+                        const index = findIndex(snapshot.vault.UI.focusedId)
+                        if (index <= snapshot.vault.library.length - 1) {
+                            audioManager.loadTrack(2, snapshot.vault.library[index].url)
+                        }
+                    }
+                    break
                 default:
                     break
             }
@@ -48,7 +86,7 @@ const KeyboardController = () => {
         return () => {
             window.removeEventListener('keydown', handleKeyDown)
         }
-    }, [])
+    }, [snapshot])
 
     return (
         <div className="app-container">
