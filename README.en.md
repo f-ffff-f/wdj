@@ -14,7 +14,7 @@ A modern DJ mixing web application that runs in the browser.
 -   [x] Crossfader controls
 -   [x] Local music library management
 -   [x] Real-time waveform visualization
--   [ ] Keyboard controls
+-   [x] Keyboard controls
 -   [ ] MIDI controls
 
 ## Getting Started
