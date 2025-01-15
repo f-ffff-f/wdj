@@ -1,4 +1,5 @@
 import { TDeckId, EDeckIds } from '@/app/_lib/types'
+import { clampGain } from '@/app/_lib/utils'
 
 interface IDeck {
     id: TDeckId
@@ -114,12 +115,12 @@ class AudioManager {
     setVolume(deckId: TDeckId, volume: number) {
         const deck = this.findDeck(deckId)
         if (!deck) return
-        deck.gainNode.gain.value = volume
+        deck.gainNode.gain.value = clampGain(volume)
     }
 
     /** 크로스페이드 조절 */
     setCrossFade(value: number) {
-        this.crossFadeValue = value
+        this.crossFadeValue = clampGain(value)
         if (this.decks[0]) {
             this.decks[0].crossFadeNode.gain.value = Math.cos((value * Math.PI) / 2)
         }

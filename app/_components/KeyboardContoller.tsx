@@ -49,17 +49,17 @@ const KeyboardController = ({ children }: { children: React.ReactNode }) => {
                 case 'Quote':
                     audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) - 0.05)
                     break
-                case 'ShiftLeft':
-                    audioManager.playPauseDeck(EDeckIds.DECK_1)
-                    break
-                case 'ShiftRight':
-                    audioManager.playPauseDeck(EDeckIds.DECK_2)
-                    break
                 case 'KeyZ':
                     audioManager.setCrossFade(audioManager.getCrossFade() - 0.05)
                     break
                 case 'Slash':
                     audioManager.setCrossFade(audioManager.getCrossFade() + 0.05)
+                    break
+                case 'ShiftLeft':
+                    audioManager.playPauseDeck(EDeckIds.DECK_1)
+                    break
+                case 'ShiftRight':
+                    audioManager.playPauseDeck(EDeckIds.DECK_2)
                     break
                 case 'Enter':
                     const fileInput = document.getElementById('file-uploader')
