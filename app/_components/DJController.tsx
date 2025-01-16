@@ -86,7 +86,7 @@ export const DJController = () => {
         <div className="flex flex-col gap-8">
             <div className="flex gap-4">
                 {stateUI.deckList.map((deckUI) => (
-                    <div key={deckUI.id} className="flex flex-col gap-4">
+                    <div key={deckUI.id} className="flex flex-col gap-4 flex-1">
                         <div
                             className={cn(
                                 'flex items-baseline',
@@ -103,9 +103,8 @@ export const DJController = () => {
                                     onValueChange={(numbers) => audioManager.setVolume(deckUI.id, numbers[0])}
                                 />
                             </div>
-                            <div>
+                            
                                 <WaveformVisualizer deckId={deckUI.id} />
-                            </div>
                         </div>
                         <div
                             className={cn(
