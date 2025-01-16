@@ -2,11 +2,23 @@
 
 [English](README.en.md) | 한국어
 
-DJ 웹 애플리케이션입니다.
+DJ 웹 애플리케이션입니다
 
 ## Preview
 
 [https://wdj-delta.vercel.app](https://wdj-delta.vercel.app)
+
+## 시작하기
+
+1. Enter를 누르거나 파일 선택을 클릭하여 오디오 파일을 업로드합니다
+2. 왼쪽,오른쪽 화살표를 누르거나 아이템의 양쪽 끝 버튼을 눌러서 덱에 오디오 파일을 로드합니다
+3. 스텝 1으로 돌아갑니다
+4. 스텝 2로 돌아가서 다른쪽 덱에 오디오 파일을 로드합니다
+
+## 로컬 개발 서버 시작하기
+
+1. docker를 설치합니다
+2. 프로젝트 루트에서 `docker-compose up app-dev`를 실행합니다
 
 ## 프로토타입 개발 현황
 
@@ -15,14 +27,8 @@ DJ 웹 애플리케이션입니다.
 - [x] 로컬 음악 라이브러리 관리
 - [x] 실시간 웨이브폼 시각화
 - [x] 키보드 컨트롤
+- [ ] 오디오 이펙트
 - [ ] 미디 컨트롤
-
-## 시작하기
-
-1. Enter를 누르거나 파일 선택을 클릭하여 오디오 파일을 업로드 합니다
-2. 왼쪽,오른쪽 화살표를 누르거나 아이템의 양쪽 끝 버튼을 눌러서 덱에 오디오 파일을 로드합니다.
-3. 스텝 1으로 돌아갑니다
-4. 스텝 2로 돌아가서 다른쪽 덱에 오디오 파일을 로드합니다
 
 ## 기술 스택
 
@@ -47,4 +53,4 @@ GPL (GNU General Public License) - 자세한 내용은 [LICENSE](LICENSE) 파일
 
 ## 크레딧
 
-이 프로젝트는 [create-next-app](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)을 기반으로 제작되었습니다.
+이 프로젝트는 [create-next-app](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)을 기반으로 제작되었습니다

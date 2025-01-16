@@ -8,6 +8,18 @@ A modern DJ mixing web application that runs in the browser.
 
 [https://wdj-delta.vercel.app](https://wdj-delta.vercel.app)
 
+## Getting Started
+
+1. Press Enter or click “Choose File” to upload an audio file.
+2. Load the audio file onto a deck by pressing the left or right arrow keys, or by clicking the buttons on either end of the item.
+3. Go back to Step 1.
+4. Repeat Step 2 to load a different audio file onto the other deck.
+
+## Start the Local Development Server
+
+1. Install Docker.
+2. Run `docker-compose up app-dev` in the project root directory.
+
 ## Prototype Development Status
 
 -   [x] Dual Deck System
@@ -15,14 +27,8 @@ A modern DJ mixing web application that runs in the browser.
 -   [x] Local music library management
 -   [x] Real-time waveform visualization
 -   [x] Keyboard controls
+-   [ ] Audio Effects
 -   [ ] MIDI controls
-
-## Getting Started
-
-1. Press Enter or click “Choose File” to upload an audio file.
-2. Load the audio file onto a deck by pressing the left or right arrow keys, or by clicking the buttons on either end of the item.
-3. Go back to Step 1.
-4. Repeat Step 2 to load a different audio file onto the other deck.
 
 ### tech stack
 
