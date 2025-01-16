@@ -1,0 +1,18 @@
+# Bun 이미지를 사용 (최신 안정 버전)
+FROM oven/bun:1.1.29
+
+# 작업 디렉토리 설정
+WORKDIR /app
+
+# 의존성 설치
+COPY bun.lockb package.json ./
+RUN bun install
+
+# 전체 프로젝트 복사
+COPY . .
+
+# 개발 서버 실행 포트 설정
+EXPOSE 3000
+
+# 개발 서버 실행
+CMD ["bun", "run", "dev"]
