@@ -18,7 +18,7 @@ DJ 웹 애플리케이션입니다
 ## 로컬 개발 서버 시작하기
 
 1. docker를 설치합니다
-2. 프로젝트 루트에서 `docker-compose up app-dev`를 실행합니다
+2. 프로젝트 루트 디렉토리에서 `docker-compose up app-dev` 커맨드를 실행합니다
 
 ## 프로토타입 개발 현황
 
