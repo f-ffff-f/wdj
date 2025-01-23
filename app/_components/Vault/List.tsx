@@ -1,5 +1,5 @@
 import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
-import { state } from '@/app/_lib/state'
+import { deleteTrackFromLibrary, state } from '@/app/_lib/state'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import React from 'react'
@@ -48,16 +48,20 @@ const Item: React.FC<ITrackListItemProps> = ({ id, fileName, url, isFocused, han
     if (!url) return null
 
     return (
-        <Card
-            className={cn('flex items-center justify-between p-4', isFocused && 'outline outline-2 outline-primary')}
-            onClick={() => handleClick(id)}
-        >
-            <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, url)}>load to deck 1</Button>
-            <span className="flex-1 text-center px-4">
-                ({id.slice(0, 4)}..) {fileName}
-            </span>
-            <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, url)}>load to deck 2</Button>
-        </Card>
+        <div className="flex">
+            <Card
+                className={cn(
+                    'flex flex-1 items-center justify-between p-4',
+                    isFocused && 'outline outline-2 outline-primary',
+                )}
+                onClick={() => handleClick(id)}
+            >
+                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, url)}>load to deck 1</Button>
+                <span className="flex-1 text-center px-4">{fileName}</span>
+                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, url)}>load to deck 2</Button>
+            </Card>
+            <Card onClick={() => deleteTrackFromLibrary(id)}>삭제</Card>
+        </div>
     )
 }
 

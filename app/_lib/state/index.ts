@@ -19,19 +19,17 @@ export const state = proxy<IState>({
     },
 })
 
-export const loadTracksFromDB = async () => {
+const loadTracksFromDB = async () => {
     const tracks = await db.getAllTracks()
     state.vault.library = tracks
 }
 
 // IndexedDB와 상태에서 ID 중복 확인
-export const isDuplicateTrack = async (trackId: string): Promise<boolean> => {
-    // 상태에서 중복 확인
+const isDuplicateTrack = async (trackId: string): Promise<boolean> => {
     if (state.vault.library.some((track) => track.id === trackId)) {
         return true
     }
 
-    // IndexedDB에서 중복 확인
     const allTracks = await db.getAllTracks()
     return allTracks.some((track) => track.id === trackId)
 }
@@ -50,13 +48,19 @@ export const addTrackToLibrary = async (file: File) => {
         id: trackId,
         fileName: file.name,
         duration: 0,
-        url: URL.createObjectURL(file), // Blob URL 생성
     }
 
-    state.vault.library.push(track) // 상태 업데이트
-    await db.addTrack(track, file) // IndexedDB에 저장
+    state.vault.library.push({ ...track, url: URL.createObjectURL(file) })
+
+    await db.addTrack(track, file)
 
     state.vault.UI.focusedId = trackId // 새로 추가된 트랙을 포커스
+}
+
+// 트랙 삭제 함수
+export const deleteTrackFromLibrary = async (trackId: string) => {
+    state.vault.library = state.vault.library.filter((track) => track.id !== trackId)
+    await db.deleteTrack(trackId)
 }
 
 const unsub = devtools(state, { name: 'state', enabled: true })
