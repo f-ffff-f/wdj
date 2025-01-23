@@ -1,8 +1,8 @@
 import { proxy } from 'valtio'
 import { devtools } from 'valtio/utils'
 import { db } from './db'
-import { ITrack } from '@/app/_lib/types'
-import { generateTrackId } from '@/app/_lib/utils'
+import { ITrack } from '@/app/_lib/state/types'
+import { generateTrackId } from '@/app/_lib/state/utils'
 interface IState {
     vault: {
         UI: {

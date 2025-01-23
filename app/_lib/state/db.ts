@@ -1,6 +1,5 @@
 import { openDB, DBSchema } from 'idb'
-import { ITrack } from '@/app/_lib/types'
-
+import { ITrack } from '@/app/_lib/state/types'
 // IndexedDB 스키마 정의
 interface MyDB extends DBSchema {
     tracks: {

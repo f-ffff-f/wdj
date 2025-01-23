@@ -1,11 +1,11 @@
-import { audioManager } from '@/app/_lib/audioManagerSingleton'
-import { state } from '@/app/_state'
+import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
+import { state } from '@/app/_lib/state'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import React from 'react'
 import { useSnapshot } from 'valtio'
 import { Card } from '@/components/ui/card'
-import { EDeckIds } from '@/app/_lib/types'
+import { EDeckIds } from '@/app/_lib/constants'
 
 const List = () => {
     const snapshot = useSnapshot(state)

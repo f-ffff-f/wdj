@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { audioManager } from '@/app/_lib/audioManagerSingleton'
+import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
 
 const Debugger: React.FC = () => {
     const [state, setState] = useState<string>('')
