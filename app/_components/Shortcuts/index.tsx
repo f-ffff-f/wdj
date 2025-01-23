@@ -1,5 +1,5 @@
 import { EShortcut } from '@/app/_components/Shortcuts/constants'
-import Overlay from '@/app/_components/Shortcuts/Overlay'
+import OverlayGuide from '@/app/_components/Shortcuts/OverlayGuide'
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
 import { store } from '@/app/_lib/store'
 import { EDeckIds } from '@/app/_lib/types'
@@ -16,7 +16,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         if (ref.current) {
             const handler = (event: KeyboardEvent) => {
-                // EShortcut에 정의된 값일때만 키보드 막음
+                // EShortcut에 정의된 값일때만 키보드 기본동작 막음
                 if (Object.values(EShortcut).includes(event.code as EShortcut)) {
                     event.preventDefault()
                     console.log(`Default action prevented for key: ${event.key}`)
@@ -34,72 +34,69 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             return snapshot.vault.library.findIndex((track) => track.id === id)
         }
 
+        const shortcutHandlers: Record<EShortcut, () => void> = {
+            [EShortcut.KeyQ]: () =>
+                audioManager.setSpeed(EDeckIds.DECK_1, audioManager.getSpeed(EDeckIds.DECK_1) + 0.05),
+            [EShortcut.KeyA]: () =>
+                audioManager.setSpeed(EDeckIds.DECK_1, audioManager.getSpeed(EDeckIds.DECK_1) - 0.05),
+            [EShortcut.BracketRight]: () =>
+                audioManager.setSpeed(EDeckIds.DECK_2, audioManager.getSpeed(EDeckIds.DECK_2) + 0.05),
+            [EShortcut.Quote]: () =>
+                audioManager.setSpeed(EDeckIds.DECK_2, audioManager.getSpeed(EDeckIds.DECK_2) - 0.05),
+            [EShortcut.KeyW]: () =>
+                audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) + 0.05),
+            [EShortcut.KeyS]: () =>
+                audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) - 0.05),
+            [EShortcut.BracketLeft]: () =>
+                audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) + 0.05),
+            [EShortcut.Semicolon]: () =>
+                audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) - 0.05),
+            [EShortcut.KeyZ]: () => audioManager.setCrossFade(audioManager.getCrossFade() - 0.05),
+            [EShortcut.Slash]: () => audioManager.setCrossFade(audioManager.getCrossFade() + 0.05),
+            [EShortcut.ShiftLeft]: () => audioManager.playPauseDeck(EDeckIds.DECK_1),
+            [EShortcut.ShiftRight]: () => audioManager.playPauseDeck(EDeckIds.DECK_2),
+            [EShortcut.Enter]: () => {
+                const fileInput = document.getElementById('file-uploader')
+                if (fileInput) fileInput.click()
+            },
+            [EShortcut.ArrowUp]: () => {
+                if (snapshot.vault.UI.focusedId) {
+                    const index = findIndex(snapshot.vault.UI.focusedId)
+                    if (index > 0) {
+                        store.vault.UI.focusedId = snapshot.vault.library[index - 1].id
+                    }
+                }
+            },
+            [EShortcut.ArrowDown]: () => {
+                if (snapshot.vault.UI.focusedId) {
+                    const index = findIndex(snapshot.vault.UI.focusedId)
+                    if (index < snapshot.vault.library.length - 1) {
+                        store.vault.UI.focusedId = snapshot.vault.library[index + 1].id
+                    }
+                }
+            },
+            [EShortcut.ArrowLeft]: () => {
+                if (snapshot.vault.UI.focusedId) {
+                    const index = findIndex(snapshot.vault.UI.focusedId)
+                    if (index >= 0) {
+                        audioManager.loadTrack(EDeckIds.DECK_1, snapshot.vault.library[index].url)
+                    }
+                }
+            },
+            [EShortcut.ArrowRight]: () => {
+                if (snapshot.vault.UI.focusedId) {
+                    const index = findIndex(snapshot.vault.UI.focusedId)
+                    if (index <= snapshot.vault.library.length - 1) {
+                        audioManager.loadTrack(EDeckIds.DECK_2, snapshot.vault.library[index].url)
+                    }
+                }
+            },
+        }
+
         const handleKeyDown = (event: KeyboardEvent) => {
-            switch (event.code as EShortcut) {
-                case EShortcut.KeyQ:
-                    audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) + 0.05)
-                    break
-                case EShortcut.KeyA:
-                    audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) - 0.05)
-                    break
-                case EShortcut.BracketRight:
-                    audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) + 0.05)
-                    break
-                case EShortcut.Quote:
-                    audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) - 0.05)
-                    break
-                case EShortcut.KeyZ:
-                    audioManager.setCrossFade(audioManager.getCrossFade() - 0.05)
-                    break
-                case EShortcut.Slash:
-                    audioManager.setCrossFade(audioManager.getCrossFade() + 0.05)
-                    break
-                case EShortcut.ShiftLeft:
-                    audioManager.playPauseDeck(EDeckIds.DECK_1)
-                    break
-                case EShortcut.ShiftRight:
-                    audioManager.playPauseDeck(EDeckIds.DECK_2)
-                    break
-                case EShortcut.Enter:
-                    const fileInput = document.getElementById('file-uploader')
-                    if (fileInput) {
-                        fileInput.click()
-                    }
-                    break
-                case EShortcut.ArrowUp:
-                    if (snapshot.vault.UI.focusedId) {
-                        const index = findIndex(snapshot.vault.UI.focusedId)
-                        if (index > 0) {
-                            store.vault.UI.focusedId = snapshot.vault.library[index - 1].id
-                        }
-                    }
-                    break
-                case EShortcut.ArrowDown:
-                    if (snapshot.vault.UI.focusedId) {
-                        const index = findIndex(snapshot.vault.UI.focusedId)
-                        if (index < snapshot.vault.library.length - 1) {
-                            store.vault.UI.focusedId = snapshot.vault.library[index + 1].id
-                        }
-                    }
-                    break
-                case EShortcut.ArrowLeft:
-                    if (snapshot.vault.UI.focusedId) {
-                        const index = findIndex(snapshot.vault.UI.focusedId)
-                        if (index >= 0) {
-                            audioManager.loadTrack(EDeckIds.DECK_1, snapshot.vault.library[index].url)
-                        }
-                    }
-                    break
-                case EShortcut.ArrowRight:
-                    if (snapshot.vault.UI.focusedId) {
-                        const index = findIndex(snapshot.vault.UI.focusedId)
-                        if (index <= snapshot.vault.library.length - 1) {
-                            audioManager.loadTrack(EDeckIds.DECK_2, snapshot.vault.library[index].url)
-                        }
-                    }
-                    break
-                default:
-                    break
+            const handler = shortcutHandlers[event.code as EShortcut]
+            if (handler) {
+                handler()
             }
         }
 
@@ -118,7 +115,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             ) : (
                 <Button onClick={() => setShowHelp(true)}>Show Key Guide</Button>
             )}
-            <Overlay visible={showHelp} />
+            <OverlayGuide visible={showHelp} />
         </div>
     )
 }

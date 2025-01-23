@@ -1,17 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { SHORTCUTS } from '@/app/_components/Shortcuts/constants'
+import { UI_SHORTCUTS } from '@/app/_components/Shortcuts/constants'
 
-interface OverlayProps {
+interface OverlayGuideProps {
     visible: boolean
 }
 
-const Overlay: React.FC<OverlayProps> = ({ visible }) => {
+const OverlayGuide: React.FC<OverlayGuideProps> = ({ visible }) => {
     const [positions, setPositions] = useState<Record<string, DOMRect>>({})
 
     useEffect(() => {
         if (visible) {
             const positionsMap: Record<string, DOMRect> = {}
-            SHORTCUTS.forEach(({ target }) => {
+            Object.entries(UI_SHORTCUTS).forEach(([, { target }]) => {
                 const element = document.querySelector(target)
                 if (element) {
                     positionsMap[target] = element.getBoundingClientRect()
@@ -25,7 +25,7 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
 
     return (
         <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-50" style={{ position: 'fixed' }}>
-            {SHORTCUTS.map(({ code, label, target, position }) => {
+            {Object.entries(UI_SHORTCUTS).map(([code, { label, target, position }]) => {
                 const rect = positions[target]
                 if (!rect) return null
 
@@ -75,4 +75,4 @@ const Overlay: React.FC<OverlayProps> = ({ visible }) => {
     )
 }
 
-export default Overlay
+export default OverlayGuide
