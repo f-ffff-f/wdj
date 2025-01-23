@@ -1,5 +1,5 @@
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
-import { store } from '@/app/_lib/store'
+import { state } from '@/app/_state'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import React from 'react'
@@ -8,14 +8,14 @@ import { Card } from '@/components/ui/card'
 import { EDeckIds } from '@/app/_lib/types'
 
 const List = () => {
-    const snapshot = useSnapshot(store)
+    const snapshot = useSnapshot(state)
     const focusedId = snapshot.vault.UI.focusedId
 
     const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
         audioManager.loadTrack(deckId, url)
     }
     const handleClick = (id: string) => {
-        store.vault.UI.focusedId = id
+        state.vault.UI.focusedId = id
     }
 
     return (

@@ -2,7 +2,7 @@ import { ITrack } from '@/app/_lib/types'
 import { proxy } from 'valtio'
 import { devtools } from 'valtio/utils'
 
-interface IStore {
+interface IState {
     vault: {
         UI: {
             focusedId: string
@@ -11,8 +11,8 @@ interface IStore {
     }
 }
 
-export const store = proxy<IStore>({
+export const state = proxy<IState>({
     vault: { UI: { focusedId: '' }, library: [] },
 })
 
-const unsub = devtools(store, { name: 'store', enabled: true })
+const unsub = devtools(state, { name: 'state', enabled: true })

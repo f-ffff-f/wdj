@@ -1,4 +1,4 @@
-import { store } from '@/app/_lib/store'
+import { state } from '@/app/_state'
 import React from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import { InputFile } from '@/components/ui/inputFile'
@@ -15,8 +15,8 @@ const FileUploader = () => {
                     duration: 0,
                     url: audioURL,
                 }
-                store.vault.library.push(newTrack)
-                store.vault.UI.focusedId = trackId
+                state.vault.library.push(newTrack)
+                state.vault.UI.focusedId = trackId
             })
         }
     }

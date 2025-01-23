@@ -1,14 +1,14 @@
 import { EShortcut } from '@/app/_components/Shortcuts/constants'
 import OverlayGuide from '@/app/_components/Shortcuts/OverlayGuide'
 import { audioManager } from '@/app/_lib/audioManagerSingleton'
-import { store } from '@/app/_lib/store'
+import { state } from '@/app/_state'
 import { EDeckIds } from '@/app/_lib/types'
 import { Button } from '@/components/ui/button'
 import React, { useState, useEffect, useRef } from 'react'
 import { useSnapshot } from 'valtio'
 
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {
-    const snapshot = useSnapshot(store)
+    const snapshot = useSnapshot(state)
     const [showHelp, setShowHelp] = useState(false)
 
     const ref = useRef<HTMLDivElement | null>(null)
@@ -63,7 +63,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                 if (snapshot.vault.UI.focusedId) {
                     const index = findIndex(snapshot.vault.UI.focusedId)
                     if (index > 0) {
-                        store.vault.UI.focusedId = snapshot.vault.library[index - 1].id
+                        state.vault.UI.focusedId = snapshot.vault.library[index - 1].id
                     }
                 }
             },
@@ -71,7 +71,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                 if (snapshot.vault.UI.focusedId) {
                     const index = findIndex(snapshot.vault.UI.focusedId)
                     if (index < snapshot.vault.library.length - 1) {
-                        store.vault.UI.focusedId = snapshot.vault.library[index + 1].id
+                        state.vault.UI.focusedId = snapshot.vault.library[index + 1].id
                     }
                 }
             },
