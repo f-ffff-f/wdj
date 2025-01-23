@@ -5,6 +5,7 @@ import { audioManager } from '@/app/_lib/audioManagerSingleton'
 import { formatTimeUI } from '@/app/_lib/utils'
 import WaveformVisualizer from '@/app/_components/WaveformVisualizer'
 import { SliderCrossfade } from '@/components/ui/sliderCrossfade'
+import { SliderSpeed } from '@/components/ui/sliderSpeed'
 import { SliderVolume } from '@/components/ui/sliderVolume'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
@@ -14,6 +15,7 @@ import { EDeckIds } from '@/app/_lib/types'
 interface IDeckUI {
     id: EDeckIds
     volume: number
+    speed: number
     playbackTime: number
     audioBufferDuration: number
     isPlaying: boolean
@@ -25,26 +27,25 @@ interface IDJContollerUI {
     crossFade: number
 }
 
-const deckA = audioManager.addDeck()
-const deckB = audioManager.addDeck()
-
 const INITIAL_UI: IDJContollerUI = {
     deckList: [
         {
-            id: deckA.id,
-            volume: deckA.gainNode.gain.value,
+            id: audioManager.getDeck(EDeckIds.DECK_1)?.id ?? EDeckIds.DECK_1,
+            volume: audioManager.getDeck(EDeckIds.DECK_1)?.gainNode.gain.value ?? 0,
+            speed: audioManager.getDeck(EDeckIds.DECK_1)?.speed ?? 1,
             playbackTime: 0,
             audioBufferDuration: 0,
-            isPlaying: false,
-            isSeeking: false,
+            isPlaying: audioManager.getDeck(EDeckIds.DECK_1)?.isPlaying ?? false,
+            isSeeking: audioManager.getDeck(EDeckIds.DECK_1)?.isSeeking ?? false,
         },
         {
-            id: deckB.id,
-            volume: deckB.gainNode.gain.value,
+            id: audioManager.getDeck(EDeckIds.DECK_2)?.id ?? EDeckIds.DECK_2,
+            volume: audioManager.getDeck(EDeckIds.DECK_2)?.gainNode.gain.value ?? 0,
+            speed: audioManager.getDeck(EDeckIds.DECK_2)?.speed ?? 1,
             playbackTime: 0,
             audioBufferDuration: 0,
-            isPlaying: false,
-            isSeeking: false,
+            isPlaying: audioManager.getDeck(EDeckIds.DECK_2)?.isPlaying ?? false,
+            isSeeking: audioManager.getDeck(EDeckIds.DECK_2)?.isSeeking ?? false,
         },
     ],
     crossFade: audioManager.getCrossFade(),
@@ -63,6 +64,7 @@ export const DJController = () => {
                     const playbackTime = audioManager.getPlaybackTime(deck.id)
                     const audioBufferDuration = audioManager.getAudioBufferDuration(deck.id)
                     const volume = audioManager.getVolume(deck.id)
+                    const speed = audioManager.getSpeed(deck.id)
                     const isPlaying = audioManager.isPlaying(deck.id)
                     const isSeeking = audioManager.isSeeking(deck.id)
                     return {
@@ -70,6 +72,7 @@ export const DJController = () => {
                         playbackTime,
                         audioBufferDuration,
                         volume,
+                        speed,
                         isPlaying,
                         isSeeking,
                     }
@@ -79,7 +82,9 @@ export const DJController = () => {
             rafId = requestAnimationFrame(updateDecks)
         }
         updateDecks()
-        return () => cancelAnimationFrame(rafId)
+        return () => {
+            cancelAnimationFrame(rafId)
+        }
     }, [])
 
     return (
@@ -89,11 +94,11 @@ export const DJController = () => {
                     <div key={deckUI.id} className="flex flex-col gap-4 flex-1">
                         <div
                             className={cn(
-                                'flex items-baseline',
-                                deckUI.id === deckA.id ? 'flex-row-reverse' : 'flex-row',
+                                'flex items-baseline gap-1',
+                                deckUI.id === EDeckIds.DECK_1 ? 'flex-row-reverse' : 'flex-row',
                             )}
                         >
-                            <div>
+                            <div className="flex flex-col items-center gap-2">
                                 <SliderVolume
                                     id={`gain-${deckUI.id}`}
                                     min={0}
@@ -102,14 +107,25 @@ export const DJController = () => {
                                     value={[deckUI.volume]}
                                     onValueChange={(numbers) => audioManager.setVolume(deckUI.id, numbers[0])}
                                 />
+                                <Label>Volume</Label>
                             </div>
-                            
-                                <WaveformVisualizer deckId={deckUI.id} />
+                            <div className="flex flex-col items-center gap-2">
+                                <SliderSpeed
+                                    id={`speed-${deckUI.id}`}
+                                    min={0.5}
+                                    max={1.5}
+                                    step={0.01}
+                                    value={[deckUI.speed]}
+                                    onValueChange={(numbers) => audioManager.setSpeed(deckUI.id, numbers[0])}
+                                />
+                                <Label>Speed</Label>
+                            </div>
+                            <WaveformVisualizer deckId={deckUI.id} />
                         </div>
                         <div
                             className={cn(
                                 'flex items-center gap-4',
-                                deckUI.id === deckA.id ? 'flex-row-reverse' : 'flex-row',
+                                deckUI.id === EDeckIds.DECK_1 ? 'flex-row-reverse' : 'flex-row',
                             )}
                         >
                             <Button
@@ -128,7 +144,7 @@ export const DJController = () => {
                     </div>
                 ))}
             </div>
-            <div className="w-1/2 self-center">
+            <div className="w-1/2 self-center flex flex-col gap-2">
                 <SliderCrossfade
                     id="crossfader"
                     min={0}
@@ -137,7 +153,7 @@ export const DJController = () => {
                     value={[stateUI.crossFade]}
                     onValueChange={(numbers) => audioManager.setCrossFade(numbers[0])}
                 />
-                <Label className="self-start">Crossfader</Label>
+                <Label className="self-center">Crossfader</Label>
             </div>
             <div className="flex flex-col items-center w-1/2 self-center gap-4">
                 <div>
