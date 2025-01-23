@@ -3,6 +3,7 @@ import React, { useRef, useEffect, useState, useCallback } from 'react'
 import { EDeckIds } from '@/app/_lib/types'
 
 const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
+    const containerRef = useRef<HTMLDivElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const audioBuffer = audioManager.getAudioBuffer(deckId)
     const playbackTime = audioManager.getPlaybackTime(deckId)
@@ -14,6 +15,8 @@ const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
         if (!canvasRef.current || !audioBuffer) return
 
         const canvas = canvasRef.current
+        canvas.width = containerRef.current?.offsetWidth ?? 0
+        canvas.height = containerRef.current?.offsetHeight ?? 0
         const ctx = canvas.getContext('2d')
         if (!ctx) return
 
@@ -118,16 +121,18 @@ const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
     }
 
     return (
-        <canvas
-            className="max-w-[100%]"
-            ref={canvasRef}
-            width={1000}
-            height={200}
-            onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp} // 드래그 중 캔버스 벗어나도 정리
-        />
+        <div ref={containerRef} className="flex-1">
+            <canvas
+                ref={canvasRef}
+                // className="max-w-[100%]"
+                // width={1000}
+                // height={200}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp} // 드래그 중 캔버스 벗어나도 정리
+            />
+        </div>
     )
 }
 

@@ -10,7 +10,7 @@ A modern DJ mixing web application that runs in the browser.
 
 ## Getting Started
 
-1. Press Enter or click “Choose File” to upload an audio file.
+1. Press Enter or click "Choose File" to upload an audio file.
 2. Load the audio file onto a deck by pressing the left or right arrow keys, or by clicking the buttons on either end of the item.
 3. Go back to Step 1.
 4. Repeat Step 2 to load a different audio file onto the other deck.
@@ -24,10 +24,13 @@ A modern DJ mixing web application that runs in the browser.
 
 -   [x] Dual Deck System
 -   [x] Crossfader controls
--   [x] Local music library management
+-   [ ] Local music library management
+    -   [ ] Advanced features
 -   [x] Real-time waveform visualization
 -   [x] Keyboard controls
 -   [ ] Audio Effects
+    -   [x] Speed control
+-   [ ] Server Development
 -   [ ] MIDI controls
 
 ### tech stack
