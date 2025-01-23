@@ -38,15 +38,20 @@ const List = () => {
 interface ITrackListItemProps {
     id: string
     fileName: string
-    url: string
+    url?: string
     isFocused: boolean
     handleLoadToDeck: (deckId: EDeckIds, url: string) => void
     handleClick: (id: string) => void
 }
 
 const Item: React.FC<ITrackListItemProps> = ({ id, fileName, url, isFocused, handleLoadToDeck, handleClick }) => {
+    if (!url) return null
+
     return (
-        <Card className={cn('flex items-center justify-between p-4', isFocused && 'outline outline-2 outline-primary')}>
+        <Card
+            className={cn('flex items-center justify-between p-4', isFocused && 'outline outline-2 outline-primary')}
+            onClick={() => handleClick(id)}
+        >
             <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, url)}>load to deck 1</Button>
             <span className="flex-1 text-center px-4">
                 ({id.slice(0, 4)}..) {fileName}

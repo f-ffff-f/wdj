@@ -1,22 +1,13 @@
-import { state } from '@/app/_state'
+import { addTrackToLibrary } from '@/app/_state'
 import React from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import { InputFile } from '@/components/ui/inputFile'
+
 const FileUploader = () => {
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const files = Array.from(event.target.files)
             files.forEach((file) => {
-                const trackId = uuidv4()
-                const audioURL = URL.createObjectURL(file)
-                const newTrack = {
-                    id: trackId,
-                    fileName: file.name,
-                    duration: 0,
-                    url: audioURL,
-                }
-                state.vault.library.push(newTrack)
-                state.vault.UI.focusedId = trackId
+                addTrackToLibrary(file)
             })
         }
     }
