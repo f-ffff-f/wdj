@@ -7,6 +7,7 @@ interface IDeck {
     bufferSourceNode: AudioBufferSourceNode | null
     gainNode: GainNode
     crossFadeNode: GainNode
+    speed: number
     prevStartTime: number
     nextStartTime: number
     isPlaying: boolean
@@ -18,17 +19,14 @@ class AudioManager {
     private nextId = EDeckIds.DECK_1
     private decks: IDeck[] = []
     private crossFadeValue = 0.5
-
     constructor() {
         this.audioContext = new AudioContext()
+        this.addDeck()
+        this.addDeck()
     }
 
     /** 데크(Deck)를 새로 추가 */
-    addDeck(): IDeck {
-        if (this.nextId > EDeckIds.DECK_2) {
-            throw new Error('Deck limit reached')
-        }
-
+    addDeck() {
         const gainNode = this.audioContext.createGain()
         const crossFadeNode = this.audioContext.createGain()
         crossFadeNode.gain.value = this.crossFadeValue
@@ -41,6 +39,7 @@ class AudioManager {
             bufferSourceNode: null,
             gainNode,
             crossFadeNode,
+            speed: 1,
             prevStartTime: 0,
             nextStartTime: 0,
             isPlaying: false,
@@ -83,6 +82,7 @@ class AudioManager {
             this.releaseBuffer(deck, playbackTime)
         } else {
             deck.bufferSourceNode = this.createSourceNode(deck) // 재생 시마다 새로 생성해야 함
+            deck.bufferSourceNode.playbackRate.value = deck.speed
             deck.bufferSourceNode.start(0, deck.nextStartTime)
             deck.prevStartTime = this.getElapsedTime(deck.nextStartTime)
             deck.isPlaying = true
@@ -118,6 +118,16 @@ class AudioManager {
         deck.gainNode.gain.value = clampGain(volume)
     }
 
+    /** 개별 속도 조절 */
+    setSpeed(deckId: EDeckIds, speed: number) {
+        const deck = this.findDeck(deckId)
+        if (!deck) return
+        deck.speed = speed
+
+        if (!deck.bufferSourceNode) return
+        deck.bufferSourceNode.playbackRate.value = speed
+    }
+
     /** 크로스페이드 조절 */
     setCrossFade(value: number) {
         this.crossFadeValue = clampGain(value)
@@ -127,6 +137,10 @@ class AudioManager {
         if (this.decks[1]) {
             this.decks[1].crossFadeNode.gain.value = Math.cos(((1 - value) * Math.PI) / 2)
         }
+    }
+
+    getDeck(deckId: EDeckIds): IDeck | undefined {
+        return this.findDeck(deckId)
     }
 
     getAudioBuffer(deckId: EDeckIds): AudioBuffer | null {
@@ -151,6 +165,11 @@ class AudioManager {
     /** 개별 볼륨 */
     getVolume(deckId: EDeckIds): number {
         return this.findDeck(deckId)?.gainNode.gain.value ?? 0
+    }
+
+    /** 개별 속도 */
+    getSpeed(deckId: EDeckIds): number {
+        return this.findDeck(deckId)?.speed ?? 1
     }
 
     /** 크로스페이드 */

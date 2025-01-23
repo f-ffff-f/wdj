@@ -20,7 +20,7 @@ const FileUploader = () => {
             })
         }
     }
-    return <InputFile type="file" accept="audio/*" onChange={(e) => handleFileUpload(e)} id="file-uploader" />
+    return <InputFile type="file" accept="audio/mp3" onChange={(e) => handleFileUpload(e)} id="file-uploader" />
 }
 
 export default FileUploader

@@ -3,8 +3,12 @@ import { EDeckIds } from '@/app/_lib/types'
 export enum EShortcut {
     KeyQ = 'KeyQ',
     KeyA = 'KeyA',
+    KeyW = 'KeyW',
+    KeyS = 'KeyS',
     BracketRight = 'BracketRight',
     Quote = 'Quote',
+    BracketLeft = 'BracketLeft',
+    Semicolon = 'Semicolon',
     KeyZ = 'KeyZ',
     Slash = 'Slash',
     ShiftLeft = 'ShiftLeft',
@@ -16,24 +20,30 @@ export enum EShortcut {
     ArrowRight = 'ArrowRight',
 }
 
-export const SHORTCUTS: { code: EShortcut; label: string; target: string; position?: 'center' | 'bottom' | 'right' }[] =
-    [
-        { code: EShortcut.KeyQ, label: 'Q', target: `#gain-${EDeckIds.DECK_1}` },
-        { code: EShortcut.KeyA, label: 'A', target: `#gain-${EDeckIds.DECK_1}`, position: 'bottom' },
-        { code: EShortcut.BracketRight, label: ']', target: `#gain-${EDeckIds.DECK_2}` },
-        { code: EShortcut.Quote, label: "'", target: `#gain-${EDeckIds.DECK_2}`, position: 'bottom' },
-        { code: EShortcut.KeyZ, label: 'Z', target: `#crossfader` },
-        { code: EShortcut.Slash, label: '/', target: `#crossfader`, position: 'right' },
-        { code: EShortcut.ShiftLeft, label: 'Shift Left', target: `#play-pause-${EDeckIds.DECK_1}` },
-        {
-            code: EShortcut.ShiftRight,
-            label: 'Shift Right',
-            target: `#play-pause-${EDeckIds.DECK_2}`,
-            position: 'right',
-        },
-        { code: EShortcut.Enter, label: 'Enter', target: `#file-uploader` },
-        { code: EShortcut.ArrowUp, label: '↑', target: `#vault-list`, position: 'center' },
-        { code: EShortcut.ArrowDown, label: '↓', target: `#vault-list`, position: 'bottom' },
-        { code: EShortcut.ArrowLeft, label: '←', target: `#vault-list` },
-        { code: EShortcut.ArrowRight, label: '→', target: `#vault-list`, position: 'right' },
-    ]
+type ShortcutConfig = {
+    label: string
+    target: string
+    position?: 'center' | 'bottom' | 'right'
+}
+
+type AllShortcutsCheck = Record<EShortcut, ShortcutConfig>
+
+export const UI_SHORTCUTS: AllShortcutsCheck = {
+    [EShortcut.KeyQ]: { label: 'Q', target: `#speed-${EDeckIds.DECK_1}` },
+    [EShortcut.KeyA]: { label: 'A', target: `#speed-${EDeckIds.DECK_1}`, position: 'bottom' },
+    [EShortcut.KeyW]: { label: 'W', target: `#gain-${EDeckIds.DECK_1}` },
+    [EShortcut.KeyS]: { label: 'S', target: `#gain-${EDeckIds.DECK_1}`, position: 'bottom' },
+    [EShortcut.BracketRight]: { label: ']', target: `#speed-${EDeckIds.DECK_2}` },
+    [EShortcut.Quote]: { label: '"', target: `#speed-${EDeckIds.DECK_2}`, position: 'bottom' },
+    [EShortcut.BracketLeft]: { label: '[', target: `#gain-${EDeckIds.DECK_2}` },
+    [EShortcut.Semicolon]: { label: ';', target: `#gain-${EDeckIds.DECK_2}`, position: 'bottom' },
+    [EShortcut.KeyZ]: { label: 'Z', target: `#crossfader` },
+    [EShortcut.Slash]: { label: '/', target: `#crossfader`, position: 'right' },
+    [EShortcut.ShiftLeft]: { label: 'Shift Left', target: `#play-pause-${EDeckIds.DECK_1}` },
+    [EShortcut.ShiftRight]: { label: 'Shift Right', target: `#play-pause-${EDeckIds.DECK_2}`, position: 'right' },
+    [EShortcut.Enter]: { label: 'Enter', target: `#file-uploader` },
+    [EShortcut.ArrowUp]: { label: '↑', target: `#vault-list`, position: 'center' },
+    [EShortcut.ArrowDown]: { label: '↓', target: `#vault-list`, position: 'bottom' },
+    [EShortcut.ArrowLeft]: { label: '←', target: `#vault-list` },
+    [EShortcut.ArrowRight]: { label: '→', target: `#vault-list`, position: 'right' },
+}
