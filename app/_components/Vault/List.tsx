@@ -59,8 +59,10 @@ const Item: React.FC<ITrackListItemProps> = ({ id, fileName, url, isFocused, han
                 <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, url)}>load to deck 1</Button>
                 <span className="flex-1 text-center px-4">{fileName}</span>
                 <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, url)}>load to deck 2</Button>
+                <Card>
+                    <Button onClick={() => deleteTrackFromLibrary(id)}>삭제</Button>
+                </Card>
             </Card>
-            <Card onClick={() => deleteTrackFromLibrary(id)}>삭제</Card>
         </div>
     )
 }
