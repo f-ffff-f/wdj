@@ -2,31 +2,29 @@ import { proxy } from 'valtio'
 import { devtools } from 'valtio/utils'
 import { db } from './db'
 import { ITrack } from '@/app/_lib/state/types'
-import { generateTrackId } from '@/app/_lib/state/utils'
+import { generateId } from '@/app/_lib/state/utils'
 interface IState {
     vault: {
-        UI: {
-            focusedTrackId: string
-        }
-        library: ITrack[]
+        focusedTrackId: string
+        tracks: ITrack[]
     }
 }
 
 export const state = proxy<IState>({
     vault: {
-        UI: { focusedTrackId: '' },
-        library: [],
+        focusedTrackId: '',
+        tracks: [],
     },
 })
 
 const loadTracksFromDB = async () => {
     const tracks = await db.getAllTracks()
-    state.vault.library = tracks
+    state.vault.tracks = tracks
 }
 
 // IndexedDB와 상태에서 ID 중복 확인
 const isDuplicateTrack = async (trackId: string): Promise<boolean> => {
-    if (state.vault.library.some((track) => track.id === trackId)) {
+    if (state.vault.tracks.some((track) => track.id === trackId)) {
         return true
     }
 
@@ -36,7 +34,7 @@ const isDuplicateTrack = async (trackId: string): Promise<boolean> => {
 
 // 트랙 추가 함수
 export const addTrackToLibrary = async (file: File) => {
-    const trackId = generateTrackId(file.name)
+    const trackId = generateId(file.name)
     const duplicate = await isDuplicateTrack(trackId)
 
     if (duplicate) {
@@ -49,16 +47,16 @@ export const addTrackToLibrary = async (file: File) => {
         fileName: file.name,
     }
 
-    state.vault.library.push({ ...track, url: URL.createObjectURL(file) })
+    state.vault.tracks.push({ ...track, url: URL.createObjectURL(file) })
 
     await db.addTrack(track, file)
 
-    state.vault.UI.focusedTrackId = trackId // 새로 추가된 트랙을 포커스
+    state.vault.focusedTrackId = trackId // 새로 추가된 트랙을 포커스
 }
 
 // 트랙 삭제 함수
 export const deleteTrackFromLibrary = async (trackId: string) => {
-    state.vault.library = state.vault.library.filter((track) => track.id !== trackId)
+    state.vault.tracks = state.vault.tracks.filter((track) => track.id !== trackId)
     await db.deleteTrack(trackId)
 }
 

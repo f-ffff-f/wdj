@@ -9,18 +9,18 @@ import { EDeckIds } from '@/app/_lib/constants'
 
 const List = () => {
     const snapshot = useSnapshot(state)
-    const focusedTrackId = snapshot.vault.UI.focusedTrackId
+    const focusedTrackId = snapshot.vault.focusedTrackId
 
     const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
         audioManager.loadTrack(deckId, url)
     }
     const handleClick = (id: string) => {
-        state.vault.UI.focusedTrackId = id
+        state.vault.focusedTrackId = id
     }
 
     return (
         <div className="w-full max-w-2xl mx-auto min-h-10" id="vault-list">
-            {snapshot.vault.library.map((track) => (
+            {snapshot.vault.tracks.map((track) => (
                 <Item
                     key={track.id}
                     id={track.id}

@@ -31,7 +31,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
 
     useEffect(() => {
         const findIndex = (id: string) => {
-            return snapshot.vault.library.findIndex((track) => track.id === id)
+            return snapshot.vault.tracks.findIndex((track) => track.id === id)
         }
 
         const shortcutHandlers: Record<EShortcut, () => void> = {
@@ -60,34 +60,34 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                 if (fileInput) fileInput.click()
             },
             [EShortcut.ArrowUp]: () => {
-                if (snapshot.vault.UI.focusedTrackId) {
-                    const index = findIndex(snapshot.vault.UI.focusedTrackId)
+                if (snapshot.vault.focusedTrackId) {
+                    const index = findIndex(snapshot.vault.focusedTrackId)
                     if (index > 0) {
-                        state.vault.UI.focusedTrackId = snapshot.vault.library[index - 1].id
+                        state.vault.focusedTrackId = snapshot.vault.tracks[index - 1].id
                     }
                 }
             },
             [EShortcut.ArrowDown]: () => {
-                if (snapshot.vault.UI.focusedTrackId) {
-                    const index = findIndex(snapshot.vault.UI.focusedTrackId)
-                    if (index < snapshot.vault.library.length - 1) {
-                        state.vault.UI.focusedTrackId = snapshot.vault.library[index + 1].id
+                if (snapshot.vault.focusedTrackId) {
+                    const index = findIndex(snapshot.vault.focusedTrackId)
+                    if (index < snapshot.vault.tracks.length - 1) {
+                        state.vault.focusedTrackId = snapshot.vault.tracks[index + 1].id
                     }
                 }
             },
             [EShortcut.ArrowLeft]: () => {
-                if (snapshot.vault.UI.focusedTrackId) {
-                    const index = findIndex(snapshot.vault.UI.focusedTrackId)
+                if (snapshot.vault.focusedTrackId) {
+                    const index = findIndex(snapshot.vault.focusedTrackId)
                     if (index >= 0) {
-                        audioManager.loadTrack(EDeckIds.DECK_1, snapshot.vault.library[index].url!)
+                        audioManager.loadTrack(EDeckIds.DECK_1, snapshot.vault.tracks[index].url!)
                     }
                 }
             },
             [EShortcut.ArrowRight]: () => {
-                if (snapshot.vault.UI.focusedTrackId) {
-                    const index = findIndex(snapshot.vault.UI.focusedTrackId)
-                    if (index <= snapshot.vault.library.length - 1) {
-                        audioManager.loadTrack(EDeckIds.DECK_2, snapshot.vault.library[index].url!)
+                if (snapshot.vault.focusedTrackId) {
+                    const index = findIndex(snapshot.vault.focusedTrackId)
+                    if (index <= snapshot.vault.tracks.length - 1) {
+                        audioManager.loadTrack(EDeckIds.DECK_2, snapshot.vault.tracks[index].url!)
                     }
                 }
             },
