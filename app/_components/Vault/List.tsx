@@ -6,6 +6,9 @@ import React from 'react'
 import { useSnapshot } from 'valtio'
 import { Card } from '@/components/ui/card'
 import { EDeckIds } from '@/app/_lib/constants'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { SidebarMenuAction } from '@/components/ui/sidebar'
+import { MoreVertical } from 'lucide-react'
 
 const List = () => {
     const snapshot = useSnapshot(state)
@@ -46,12 +49,11 @@ interface ITrackListItemProps {
 
 const Item: React.FC<ITrackListItemProps> = ({ id, fileName, url, isFocused, handleLoadToDeck, handleClick }) => {
     if (!url) return null
-
     return (
         <div className="flex">
             <Card
                 className={cn(
-                    'flex flex-1 items-center justify-between p-4',
+                    'relative flex flex-1 items-center justify-between p-4',
                     isFocused && 'outline outline-2 outline-primary',
                 )}
                 onClick={() => handleClick(id)}
@@ -59,9 +61,18 @@ const Item: React.FC<ITrackListItemProps> = ({ id, fileName, url, isFocused, han
                 <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, url)}>load to deck 1</Button>
                 <span className="flex-1 text-center px-4">{fileName}</span>
                 <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, url)}>load to deck 2</Button>
-                <Card>
-                    <Button onClick={() => deleteTrackFromLibrary(id)}>삭제</Button>
-                </Card>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-0 ">
+                        <SidebarMenuAction>
+                            <MoreVertical />
+                        </SidebarMenuAction>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent side="right" align="center">
+                        <DropdownMenuItem onClick={() => deleteTrackFromLibrary(id)}>
+                            <span>Delete Track</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </Card>
         </div>
     )
