@@ -25,7 +25,7 @@ prisma/dev.db-journal
 /build
 
 # misc
-.DS_Store
+.DS_state
 *.pem
 
 # debug
@@ -42,3 +42,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.DS_Store

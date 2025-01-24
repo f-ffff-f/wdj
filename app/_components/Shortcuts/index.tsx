@@ -1,14 +1,14 @@
 import { EShortcut } from '@/app/_components/Shortcuts/constants'
 import OverlayGuide from '@/app/_components/Shortcuts/OverlayGuide'
-import { audioManager } from '@/app/_lib/audioManagerSingleton'
-import { store } from '@/app/_lib/store'
-import { EDeckIds } from '@/app/_lib/types'
+import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
+import { state } from '@/app/_lib/state'
+import { EDeckIds } from '@/app/_lib/constants'
 import { Button } from '@/components/ui/button'
 import React, { useState, useEffect, useRef } from 'react'
 import { useSnapshot } from 'valtio'
 
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {
-    const snapshot = useSnapshot(store)
+    const snapshot = useSnapshot(state)
     const [showHelp, setShowHelp] = useState(false)
 
     const ref = useRef<HTMLDivElement | null>(null)
@@ -60,34 +60,34 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                 if (fileInput) fileInput.click()
             },
             [EShortcut.ArrowUp]: () => {
-                if (snapshot.vault.UI.focusedId) {
-                    const index = findIndex(snapshot.vault.UI.focusedId)
+                if (snapshot.vault.UI.focusedTrackId) {
+                    const index = findIndex(snapshot.vault.UI.focusedTrackId)
                     if (index > 0) {
-                        store.vault.UI.focusedId = snapshot.vault.library[index - 1].id
+                        state.vault.UI.focusedTrackId = snapshot.vault.library[index - 1].id
                     }
                 }
             },
             [EShortcut.ArrowDown]: () => {
-                if (snapshot.vault.UI.focusedId) {
-                    const index = findIndex(snapshot.vault.UI.focusedId)
+                if (snapshot.vault.UI.focusedTrackId) {
+                    const index = findIndex(snapshot.vault.UI.focusedTrackId)
                     if (index < snapshot.vault.library.length - 1) {
-                        store.vault.UI.focusedId = snapshot.vault.library[index + 1].id
+                        state.vault.UI.focusedTrackId = snapshot.vault.library[index + 1].id
                     }
                 }
             },
             [EShortcut.ArrowLeft]: () => {
-                if (snapshot.vault.UI.focusedId) {
-                    const index = findIndex(snapshot.vault.UI.focusedId)
+                if (snapshot.vault.UI.focusedTrackId) {
+                    const index = findIndex(snapshot.vault.UI.focusedTrackId)
                     if (index >= 0) {
-                        audioManager.loadTrack(EDeckIds.DECK_1, snapshot.vault.library[index].url)
+                        audioManager.loadTrack(EDeckIds.DECK_1, snapshot.vault.library[index].url!)
                     }
                 }
             },
             [EShortcut.ArrowRight]: () => {
-                if (snapshot.vault.UI.focusedId) {
-                    const index = findIndex(snapshot.vault.UI.focusedId)
+                if (snapshot.vault.UI.focusedTrackId) {
+                    const index = findIndex(snapshot.vault.UI.focusedTrackId)
                     if (index <= snapshot.vault.library.length - 1) {
-                        audioManager.loadTrack(EDeckIds.DECK_2, snapshot.vault.library[index].url)
+                        audioManager.loadTrack(EDeckIds.DECK_2, snapshot.vault.library[index].url!)
                     }
                 }
             },

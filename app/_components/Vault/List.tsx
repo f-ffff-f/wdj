@@ -1,21 +1,21 @@
-import { audioManager } from '@/app/_lib/audioManagerSingleton'
-import { store } from '@/app/_lib/store'
+import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
+import { deleteTrackFromLibrary, state } from '@/app/_lib/state'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import React from 'react'
 import { useSnapshot } from 'valtio'
 import { Card } from '@/components/ui/card'
-import { EDeckIds } from '@/app/_lib/types'
+import { EDeckIds } from '@/app/_lib/constants'
 
 const List = () => {
-    const snapshot = useSnapshot(store)
-    const focusedId = snapshot.vault.UI.focusedId
+    const snapshot = useSnapshot(state)
+    const focusedTrackId = snapshot.vault.UI.focusedTrackId
 
     const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
         audioManager.loadTrack(deckId, url)
     }
     const handleClick = (id: string) => {
-        store.vault.UI.focusedId = id
+        state.vault.UI.focusedTrackId = id
     }
 
     return (
@@ -26,7 +26,7 @@ const List = () => {
                     id={track.id}
                     fileName={track.fileName}
                     url={track.url}
-                    isFocused={focusedId === track.id}
+                    isFocused={focusedTrackId === track.id}
                     handleLoadToDeck={handleLoadToDeck}
                     handleClick={handleClick}
                 />
@@ -38,21 +38,32 @@ const List = () => {
 interface ITrackListItemProps {
     id: string
     fileName: string
-    url: string
+    url?: string
     isFocused: boolean
     handleLoadToDeck: (deckId: EDeckIds, url: string) => void
     handleClick: (id: string) => void
 }
 
 const Item: React.FC<ITrackListItemProps> = ({ id, fileName, url, isFocused, handleLoadToDeck, handleClick }) => {
+    if (!url) return null
+
     return (
-        <Card className={cn('flex items-center justify-between p-4', isFocused && 'outline outline-2 outline-primary')}>
-            <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, url)}>load to deck 1</Button>
-            <span className="flex-1 text-center px-4">
-                ({id.slice(0, 4)}..) {fileName}
-            </span>
-            <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, url)}>load to deck 2</Button>
-        </Card>
+        <div className="flex">
+            <Card
+                className={cn(
+                    'flex flex-1 items-center justify-between p-4',
+                    isFocused && 'outline outline-2 outline-primary',
+                )}
+                onClick={() => handleClick(id)}
+            >
+                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, url)}>load to deck 1</Button>
+                <span className="flex-1 text-center px-4">{fileName}</span>
+                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, url)}>load to deck 2</Button>
+                <Card>
+                    <Button onClick={() => deleteTrackFromLibrary(id)}>삭제</Button>
+                </Card>
+            </Card>
+        </div>
     )
 }
 
