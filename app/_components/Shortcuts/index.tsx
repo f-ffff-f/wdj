@@ -60,32 +60,32 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                 if (fileInput) fileInput.click()
             },
             [EShortcut.ArrowUp]: () => {
-                if (snapshot.vault.UI.focusedId) {
-                    const index = findIndex(snapshot.vault.UI.focusedId)
+                if (snapshot.vault.UI.focusedTrackId) {
+                    const index = findIndex(snapshot.vault.UI.focusedTrackId)
                     if (index > 0) {
-                        state.vault.UI.focusedId = snapshot.vault.library[index - 1].id
+                        state.vault.UI.focusedTrackId = snapshot.vault.library[index - 1].id
                     }
                 }
             },
             [EShortcut.ArrowDown]: () => {
-                if (snapshot.vault.UI.focusedId) {
-                    const index = findIndex(snapshot.vault.UI.focusedId)
+                if (snapshot.vault.UI.focusedTrackId) {
+                    const index = findIndex(snapshot.vault.UI.focusedTrackId)
                     if (index < snapshot.vault.library.length - 1) {
-                        state.vault.UI.focusedId = snapshot.vault.library[index + 1].id
+                        state.vault.UI.focusedTrackId = snapshot.vault.library[index + 1].id
                     }
                 }
             },
             [EShortcut.ArrowLeft]: () => {
-                if (snapshot.vault.UI.focusedId) {
-                    const index = findIndex(snapshot.vault.UI.focusedId)
+                if (snapshot.vault.UI.focusedTrackId) {
+                    const index = findIndex(snapshot.vault.UI.focusedTrackId)
                     if (index >= 0) {
                         audioManager.loadTrack(EDeckIds.DECK_1, snapshot.vault.library[index].url!)
                     }
                 }
             },
             [EShortcut.ArrowRight]: () => {
-                if (snapshot.vault.UI.focusedId) {
-                    const index = findIndex(snapshot.vault.UI.focusedId)
+                if (snapshot.vault.UI.focusedTrackId) {
+                    const index = findIndex(snapshot.vault.UI.focusedTrackId)
                     if (index <= snapshot.vault.library.length - 1) {
                         audioManager.loadTrack(EDeckIds.DECK_2, snapshot.vault.library[index].url!)
                     }

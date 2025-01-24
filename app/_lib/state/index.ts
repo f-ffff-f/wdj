@@ -6,7 +6,7 @@ import { generateTrackId } from '@/app/_lib/state/utils'
 interface IState {
     vault: {
         UI: {
-            focusedId: string
+            focusedTrackId: string
         }
         library: ITrack[]
     }
@@ -14,7 +14,7 @@ interface IState {
 
 export const state = proxy<IState>({
     vault: {
-        UI: { focusedId: '' },
+        UI: { focusedTrackId: '' },
         library: [],
     },
 })
@@ -53,7 +53,7 @@ export const addTrackToLibrary = async (file: File) => {
 
     await db.addTrack(track, file)
 
-    state.vault.UI.focusedId = trackId // 새로 추가된 트랙을 포커스
+    state.vault.UI.focusedTrackId = trackId // 새로 추가된 트랙을 포커스
 }
 
 // 트랙 삭제 함수

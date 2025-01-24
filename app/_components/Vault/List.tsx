@@ -9,13 +9,13 @@ import { EDeckIds } from '@/app/_lib/constants'
 
 const List = () => {
     const snapshot = useSnapshot(state)
-    const focusedId = snapshot.vault.UI.focusedId
+    const focusedTrackId = snapshot.vault.UI.focusedTrackId
 
     const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
         audioManager.loadTrack(deckId, url)
     }
     const handleClick = (id: string) => {
-        state.vault.UI.focusedId = id
+        state.vault.UI.focusedTrackId = id
     }
 
     return (
@@ -26,7 +26,7 @@ const List = () => {
                     id={track.id}
                     fileName={track.fileName}
                     url={track.url}
-                    isFocused={focusedId === track.id}
+                    isFocused={focusedTrackId === track.id}
                     handleLoadToDeck={handleLoadToDeck}
                     handleClick={handleClick}
                 />
