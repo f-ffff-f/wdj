@@ -47,7 +47,6 @@ export const addTrackToLibrary = async (file: File) => {
     const track: ITrack = {
         id: trackId,
         fileName: file.name,
-        duration: 0,
     }
 
     state.vault.library.push({ ...track, url: URL.createObjectURL(file) })
