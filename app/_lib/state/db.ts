@@ -14,7 +14,8 @@ interface MyDB extends DBSchema {
         value: {
             id: string
             fileName: string
-            fileData: ArrayBuffer // 파일 데이터를 저장
+            playlistId?: string
+            fileData: ArrayBuffer
         }
     }
 }
@@ -36,6 +37,7 @@ export const db = {
         return storedTracks.map((track) => ({
             id: track.id,
             fileName: track.fileName,
+            playlistId: track.playlistId,
             url: URL.createObjectURL(new Blob([track.fileData])), // Blob URL 생성
         }))
     },
@@ -44,6 +46,7 @@ export const db = {
         await db.put('tracks', {
             id: track.id,
             fileName: track.fileName,
+            playlistId: track.playlistId,
             fileData: await file.arrayBuffer(), // 파일 데이터를 저장
         })
     },

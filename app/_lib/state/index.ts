@@ -1,10 +1,11 @@
 import { proxy } from 'valtio'
 import { devtools } from 'valtio/utils'
 import { db } from './db'
-import { ITrack } from '@/app/_lib/state/types'
+import { IPlaylist, ITrack } from '@/app/_lib/state/types'
 import { generateId } from '@/app/_lib/state/utils'
 interface IState {
     vault: {
+        playlists: IPlaylist[]
         focusedTrackId: string
         tracks: ITrack[]
     }
@@ -12,6 +13,7 @@ interface IState {
 
 export const state = proxy<IState>({
     vault: {
+        playlists: [],
         focusedTrackId: '',
         tracks: [],
     },
@@ -33,7 +35,7 @@ const isDuplicateTrack = async (trackId: string): Promise<boolean> => {
 }
 
 // 트랙 추가 함수
-export const addTrackToLibrary = async (file: File) => {
+export const addTrack = async (file: File) => {
     const trackId = generateId(file.name)
     const duplicate = await isDuplicateTrack(trackId)
 
@@ -45,6 +47,7 @@ export const addTrackToLibrary = async (file: File) => {
     const track: ITrack = {
         id: trackId,
         fileName: file.name,
+        playlistId: '',
     }
 
     state.vault.tracks.push({ ...track, url: URL.createObjectURL(file) })

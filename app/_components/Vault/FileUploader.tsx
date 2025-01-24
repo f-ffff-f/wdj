@@ -1,4 +1,4 @@
-import { addTrackToLibrary } from '@/app/_lib/state'
+import { addTrack } from '@/app/_lib/state'
 import React from 'react'
 import { InputFile } from '@/components/ui/inputFile'
 
@@ -7,7 +7,7 @@ const FileUploader = () => {
         if (event.target.files) {
             const files = Array.from(event.target.files)
             files.forEach((file) => {
-                addTrackToLibrary(file)
+                addTrack(file)
             })
         }
     }
