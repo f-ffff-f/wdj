@@ -1,5 +1,6 @@
 import { openDB, DBSchema } from 'idb'
-import { ITrack } from '@/app/_lib/state/types'
+import { IPlaylist, ITrack } from '@/app/_lib/state/types'
+import { defaultPlaylistId, defaultPlaylistName } from '@/app/_lib/constants'
 // IndexedDB 스키마 정의
 interface MyDB extends DBSchema {
     playlists: {
@@ -21,8 +22,14 @@ interface MyDB extends DBSchema {
 }
 
 // IndexedDB 초기화
-const dbPromise = openDB<MyDB>('track-database', 1, {
+const dbPromise = openDB<MyDB>('vault-database', 1, {
     upgrade(db) {
+        if (!db.objectStoreNames.contains('playlists')) {
+            db.createObjectStore('playlists', { keyPath: 'id' }).add({
+                id: defaultPlaylistId,
+                name: defaultPlaylistName,
+            })
+        }
         if (!db.objectStoreNames.contains('tracks')) {
             db.createObjectStore('tracks', { keyPath: 'id' })
         }
@@ -31,6 +38,22 @@ const dbPromise = openDB<MyDB>('track-database', 1, {
 
 // IndexedDB 헬퍼 함수들
 export const db = {
+    async getAllPlaylists(): Promise<IPlaylist[]> {
+        const db = await dbPromise
+        return await db.getAll('playlists')
+    },
+    async getPlaylistById(playlistId: string): Promise<IPlaylist | undefined> {
+        const db = await dbPromise
+        return await db.get('playlists', playlistId)
+    },
+    async savePlaylist(playlist: IPlaylist): Promise<void> {
+        const db = await dbPromise
+        await db.put('playlists', playlist)
+    },
+    async deletePlaylist(playlistId: string): Promise<void> {
+        const db = await dbPromise
+        await db.delete('playlists', playlistId)
+    },
     async getAllTracks(): Promise<ITrack[]> {
         const db = await dbPromise
         const storedTracks = await db.getAll('tracks')

@@ -3,18 +3,21 @@ import { devtools } from 'valtio/utils'
 import { db } from './db'
 import { IPlaylist, ITrack } from '@/app/_lib/state/types'
 import { generateId } from '@/app/_lib/state/utils'
+import { defaultPlaylistName, defaultPlaylistId } from '@/app/_lib/constants'
 interface IState {
     vault: {
-        playlists: IPlaylist[]
+        currentPlaylistId: string
         focusedTrackId: string
+        playlists: IPlaylist[]
         tracks: ITrack[]
     }
 }
 
 export const state = proxy<IState>({
     vault: {
-        playlists: [],
+        currentPlaylistId: defaultPlaylistId,
         focusedTrackId: '',
+        playlists: [{ id: defaultPlaylistId, name: defaultPlaylistName }],
         tracks: [],
     },
 })
@@ -47,7 +50,7 @@ export const addTrack = async (file: File) => {
     const track: ITrack = {
         id: trackId,
         fileName: file.name,
-        playlistId: '',
+        playlistId: state.vault.currentPlaylistId,
     }
 
     state.vault.tracks.push({ ...track, url: URL.createObjectURL(file) })
@@ -59,8 +62,12 @@ export const addTrack = async (file: File) => {
 
 // 트랙 삭제 함수
 export const deleteTrackFromLibrary = async (trackId: string) => {
-    state.vault.tracks = state.vault.tracks.filter((track) => track.id !== trackId)
-    await db.deleteTrack(trackId)
+    if (state.vault.currentPlaylistId === defaultPlaylistId) {
+        state.vault.tracks = state.vault.tracks.filter((track) => track.id !== trackId)
+        await db.deleteTrack(trackId)
+    } else {
+        console.log('아직 안했다')
+    }
 }
 
 const unsub = devtools(state, { name: 'state', enabled: true })
