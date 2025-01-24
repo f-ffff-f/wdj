@@ -79,7 +79,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                 if (snapshot.vault.UI.focusedId) {
                     const index = findIndex(snapshot.vault.UI.focusedId)
                     if (index >= 0) {
-                        audioManager.loadTrack(EDeckIds.DECK_1, snapshot.vault.library[index].url)
+                        audioManager.loadTrack(EDeckIds.DECK_1, snapshot.vault.library[index].url!)
                     }
                 }
             },
@@ -87,7 +87,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                 if (snapshot.vault.UI.focusedId) {
                     const index = findIndex(snapshot.vault.UI.focusedId)
                     if (index <= snapshot.vault.library.length - 1) {
-                        audioManager.loadTrack(EDeckIds.DECK_2, snapshot.vault.library[index].url)
+                        audioManager.loadTrack(EDeckIds.DECK_2, snapshot.vault.library[index].url!)
                     }
                 }
             },
