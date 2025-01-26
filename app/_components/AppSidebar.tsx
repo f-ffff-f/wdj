@@ -119,6 +119,7 @@ const AppSidebar = () => {
                                 ) : (
                                     <div className="flex w-full mb-1 items-center space-x-2" key={playlist.id}>
                                         <Input
+                                            autoFocus
                                             type="text"
                                             placeholder="바꿀 플레이리스트 이름"
                                             value={editingPlaylistName}
