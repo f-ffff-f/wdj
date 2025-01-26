@@ -53,7 +53,7 @@ const AppSidebar = () => {
                     <div className="flex w-full mb-1 items-center space-x-2">
                         <Input
                             type="text"
-                            placeholder="새 플레이리스트 이름"
+                            placeholder="New Playlist Name"
                             value={newPlaylistName}
                             onChange={(e) => setNewPlaylistName(e.target.value)}
                             className="h-8"
@@ -63,10 +63,10 @@ const AppSidebar = () => {
                             variant="ghost"
                             className="h-8 w-8"
                             onClick={handleAddPlaylist}
-                            title="플레이리스트 추가"
+                            title="Add Playlist"
                         >
                             <Plus className="h-4 w-4" />
-                            <span className="sr-only">플레이리스트 추가</span>
+                            <span className="sr-only">Add Playlist</span>
                         </Button>
                     </div>
                     <SidebarGroupContent>
@@ -121,7 +121,7 @@ const AppSidebar = () => {
                                         <Input
                                             autoFocus
                                             type="text"
-                                            placeholder="바꿀 플레이리스트 이름"
+                                            placeholder="Change Playlist Name"
                                             value={editingPlaylistName}
                                             onChange={(e) => setEditingPlaylistName(e.target.value)}
                                             className="h-8"
@@ -131,20 +131,20 @@ const AppSidebar = () => {
                                             variant="ghost"
                                             className="h-8 w-8"
                                             onClick={() => setEditingPlaylistId(null)}
-                                            title="플레이리스트 이름 변경 취소"
+                                            title="Cancel Playlist Name Change"
                                         >
                                             <X className="h-4 w-4" />
-                                            <span className="sr-only">플레이리스트 이름 변경 취소</span>
+                                            <span className="sr-only">Cancel Playlist Name Change</span>
                                         </Button>
                                         <Button
                                             size="icon"
                                             variant="ghost"
                                             className="h-8 w-8"
                                             onClick={() => handleRenamePlaylist(playlist.id)}
-                                            title="플레이리스트 이름 변경"
+                                            title="Change Playlist Name"
                                         >
                                             <Check className="h-4 w-4" />
-                                            <span className="sr-only">플레이리스트 이름 변경</span>
+                                            <span className="sr-only">Change Playlist Name</span>
                                         </Button>
                                     </div>
                                 )
