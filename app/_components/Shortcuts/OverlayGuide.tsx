@@ -24,7 +24,7 @@ const OverlayGuide: React.FC<OverlayGuideProps> = ({ visible }) => {
     if (!visible) return null
 
     return (
-        <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-50" style={{ position: 'fixed' }}>
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none z-50" style={{ position: 'absolute' }}>
             {Object.entries(UI_SHORTCUTS).map(([code, { label, target, position }]) => {
                 const rect = positions[target]
                 if (!rect) return null
