@@ -58,7 +58,7 @@ export const addTrackToLibrary = async (file: File) => {
     const track: ITrack = {
         id: trackId,
         fileName: file.name,
-        playlistIds: [state.vault.currentPlaylistId],
+        playlistIds: state.vault.currentPlaylistId ? [state.vault.currentPlaylistId] : [],
     }
 
     state.vault.tracks.push({ ...track, url: URL.createObjectURL(file) })
