@@ -24,11 +24,11 @@ A modern DJ mixing web application that runs in the browser.
 
 -   [x] Dual Deck System
 -   [x] Crossfader controls
--   [ ] Local music library management
-    -   [ ] Advanced features
+-   [x] Local music library management
+    -   [x] Advanced features
 -   [x] Real-time waveform visualization
 -   [x] Keyboard controls
--   [ ] Audio Effects
+-   [x] Audio Effects
     -   [x] Speed control
 -   [ ] Server Development
 -   [ ] MIDI controls
