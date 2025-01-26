@@ -1,6 +1,5 @@
 import { openDB, DBSchema } from 'idb'
 import { IPlaylist, ITrack } from '@/app/_lib/state/types'
-import { defaultPlaylistId, defaultPlaylistName } from '@/app/_lib/constants'
 // IndexedDB 스키마 정의
 interface MyDB extends DBSchema {
     playlists: {
@@ -15,7 +14,7 @@ interface MyDB extends DBSchema {
         value: {
             id: string
             fileName: string
-            playlistId?: string
+            playlistId: string[]
             fileData: ArrayBuffer
         }
     }
@@ -25,10 +24,7 @@ interface MyDB extends DBSchema {
 const dbPromise = openDB<MyDB>('vault-database', 1, {
     upgrade(db) {
         if (!db.objectStoreNames.contains('playlists')) {
-            db.createObjectStore('playlists', { keyPath: 'id' }).add({
-                id: defaultPlaylistId,
-                name: defaultPlaylistName,
-            })
+            db.createObjectStore('playlists', { keyPath: 'id' })
         }
         if (!db.objectStoreNames.contains('tracks')) {
             db.createObjectStore('tracks', { keyPath: 'id' })
@@ -41,10 +37,6 @@ export const db = {
     async getAllPlaylists(): Promise<IPlaylist[]> {
         const db = await dbPromise
         return await db.getAll('playlists')
-    },
-    async getPlaylistById(playlistId: string): Promise<IPlaylist | undefined> {
-        const db = await dbPromise
-        return await db.get('playlists', playlistId)
     },
     async savePlaylist(playlist: IPlaylist): Promise<void> {
         const db = await dbPromise
@@ -64,7 +56,7 @@ export const db = {
             url: URL.createObjectURL(new Blob([track.fileData])), // Blob URL 생성
         }))
     },
-    async addTrack(track: ITrack, file: File): Promise<void> {
+    async addTrackToLibrary(track: ITrack, file: File): Promise<void> {
         const db = await dbPromise
         await db.put('tracks', {
             id: track.id,
@@ -73,7 +65,7 @@ export const db = {
             fileData: await file.arrayBuffer(), // 파일 데이터를 저장
         })
     },
-    async deleteTrack(id: string): Promise<void> {
+    async deleteTrackFromLibrary(id: string): Promise<void> {
         const db = await dbPromise
         await db.delete('tracks', id)
     },

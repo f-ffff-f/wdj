@@ -3,7 +3,6 @@ import { devtools } from 'valtio/utils'
 import { db } from './db'
 import { IPlaylist, ITrack } from '@/app/_lib/state/types'
 import { generateId } from '@/app/_lib/state/utils'
-import { defaultPlaylistName, defaultPlaylistId } from '@/app/_lib/constants'
 interface IState {
     vault: {
         currentPlaylistId: string
@@ -15,9 +14,9 @@ interface IState {
 
 export const state = proxy<IState>({
     vault: {
-        currentPlaylistId: defaultPlaylistId,
+        currentPlaylistId: '',
         focusedTrackId: '',
-        playlists: [{ id: defaultPlaylistId, name: defaultPlaylistName }],
+        playlists: [],
         tracks: [],
     },
 })
@@ -37,8 +36,8 @@ const isDuplicateTrack = async (trackId: string): Promise<boolean> => {
     return allTracks.some((track) => track.id === trackId)
 }
 
-// 트랙 추가 함수
-export const addTrack = async (file: File) => {
+// 라이브러리에 트랙 추가 함수
+export const addTrackToLibrary = async (file: File) => {
     const trackId = generateId(file.name)
     const duplicate = await isDuplicateTrack(trackId)
 
@@ -50,24 +49,20 @@ export const addTrack = async (file: File) => {
     const track: ITrack = {
         id: trackId,
         fileName: file.name,
-        playlistId: state.vault.currentPlaylistId,
+        playlistId: [],
     }
 
     state.vault.tracks.push({ ...track, url: URL.createObjectURL(file) })
 
-    await db.addTrack(track, file)
+    await db.addTrackToLibrary(track, file)
 
     state.vault.focusedTrackId = trackId // 새로 추가된 트랙을 포커스
 }
 
-// 트랙 삭제 함수
+// 라이브러리에서 트랙 삭제 함수
 export const deleteTrackFromLibrary = async (trackId: string) => {
-    if (state.vault.currentPlaylistId === defaultPlaylistId) {
-        state.vault.tracks = state.vault.tracks.filter((track) => track.id !== trackId)
-        await db.deleteTrack(trackId)
-    } else {
-        console.log('아직 안했다')
-    }
+    state.vault.tracks = state.vault.tracks.filter((track) => track.id !== trackId)
+    await db.deleteTrackFromLibrary(trackId)
 }
 
 const unsub = devtools(state, { name: 'state', enabled: true })
