@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import FileUploader from '@/app/_components/Vault/FileUploader'
 import List from '@/app/_components/Vault/List'
-import { audioManager } from '@/app/_lib/audioManagerSingleton'
+import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
 import { formatTimeUI } from '@/app/_lib/utils'
 import WaveformVisualizer from '@/app/_components/WaveformVisualizer'
 import { SliderCrossfade } from '@/components/ui/sliderCrossfade'
@@ -10,7 +10,7 @@ import { SliderVolume } from '@/components/ui/sliderVolume'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import { EDeckIds } from '@/app/_lib/types'
+import { EDeckIds } from '@/app/_lib/constants'
 
 interface IDeckUI {
     id: EDeckIds
@@ -158,7 +158,7 @@ export const DJController = () => {
             <div className="flex flex-col items-center w-1/2 self-center gap-4">
                 <div>
                     <Label className="self-start" htmlFor="file-uploader">
-                        add audio file to library
+                        add audio file
                     </Label>
                     <FileUploader />
                 </div>
