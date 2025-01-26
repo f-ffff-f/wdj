@@ -9,7 +9,6 @@ import {
     SidebarMenuAction,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarSeparator,
 } from '@/components/ui/sidebar'
 import { useSnapshot } from 'valtio'
 import { Check, MoreHorizontal, Plus, X } from 'lucide-react'
@@ -18,7 +17,7 @@ import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
-export const AppSidebar = () => {
+const AppSidebar = () => {
     const snapshot = useSnapshot(state)
     const [newPlaylistName, setNewPlaylistName] = useState('')
     const [editingPlaylistName, setEditingPlaylistName] = useState('')
@@ -156,3 +155,5 @@ export const AppSidebar = () => {
         </Sidebar>
     )
 }
+
+export default AppSidebar

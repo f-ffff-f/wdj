@@ -1,10 +1,10 @@
 'use client'
 
-import { AppSidebar } from '@/app/_components/AppSidebar'
-import Shortcuts from '@/app/_components/Shortcuts'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import dynamic from 'next/dynamic'
 
+const Shortcuts = dynamic(() => import('@/app/_components/Shortcuts'), { ssr: false })
+const AppSidebar = dynamic(() => import('@/app/_components/AppSidebar'), { ssr: false })
 const Debugger = dynamic(() => import('@/app/_components/Debugger'), { ssr: false })
 const DJController = dynamic(() => import('@/app/_components/DJController'), { ssr: false })
 
