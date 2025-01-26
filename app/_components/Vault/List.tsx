@@ -88,7 +88,7 @@ const Item: React.FC<ITrackListItemProps> = ({
         <div className="flex">
             <Card
                 className={cn(
-                    'relative flex flex-1 items-center justify-between p-4',
+                    'relative flex flex-1 items-center justify-between p-4 pr-6',
                     isFocused && 'outline outline-1 outline-primary',
                 )}
                 onClick={() => handleClick(id)}
@@ -107,7 +107,7 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-0 ">
+            <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-1">
                 <SidebarMenuAction>
                     <MoreVertical />
                 </SidebarMenuAction>
@@ -138,7 +138,7 @@ const PlaylistDropdownMenu = ({ id }: { id: string }) => {
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-0 ">
+            <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-1">
                 <SidebarMenuAction>
                     <MoreVertical />
                 </SidebarMenuAction>

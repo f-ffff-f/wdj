@@ -106,9 +106,13 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         <div>
             {children}
             {showHelp ? (
-                <Button onClick={() => setShowHelp(false)}>Hide Key Guide</Button>
+                <Button className="absolute bottom-4 left-4 z-50" onClick={() => setShowHelp(false)}>
+                    Hide Key Guide
+                </Button>
             ) : (
-                <Button onClick={() => setShowHelp(true)}>Show Key Guide</Button>
+                <Button className="absolute bottom-4 left-4 z-50" onClick={() => setShowHelp(true)}>
+                    Show Key Guide
+                </Button>
             )}
             <OverlayGuide visible={showHelp} />
         </div>
