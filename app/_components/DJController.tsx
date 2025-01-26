@@ -158,7 +158,7 @@ export const DJController = () => {
             <div className="flex flex-col items-center w-1/2 self-center gap-4">
                 <div>
                     <Label className="self-start" htmlFor="file-uploader">
-                        add audio file to library
+                        add audio file
                     </Label>
                     <FileUploader />
                 </div>
