@@ -5,6 +5,6 @@ export interface IPlaylist {
 export interface ITrack {
     id: string
     fileName: string
-    playlistId: string[]
+    playlistIds: string[]
     url?: string
 }

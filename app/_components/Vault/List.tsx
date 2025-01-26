@@ -22,18 +22,32 @@ const List = () => {
     }
 
     return (
-        <div className="w-full max-w-2xl mx-auto min-h-10" id="vault-list">
-            {snapshot.vault.tracks.map((track) => (
-                <Item
-                    key={track.id}
-                    id={track.id}
-                    fileName={track.fileName}
-                    url={track.url}
-                    isFocused={focusedTrackId === track.id}
-                    handleLoadToDeck={handleLoadToDeck}
-                    handleClick={handleClick}
-                />
-            ))}
+        <div className="w-full max-w-2xl mx-auto min-h-10 flex flex-col gap-1" id="vault-list">
+            {!snapshot.vault.currentPlaylistId
+                ? snapshot.vault.tracks.map((track) => (
+                      <Item
+                          key={track.id}
+                          id={track.id}
+                          fileName={track.fileName}
+                          url={track.url}
+                          isFocused={focusedTrackId === track.id}
+                          handleLoadToDeck={handleLoadToDeck}
+                          handleClick={handleClick}
+                      />
+                  ))
+                : snapshot.vault.tracks
+                      .filter((track) => track.playlistIds.includes(snapshot.vault.currentPlaylistId))
+                      .map((track) => (
+                          <Item
+                              key={track.id}
+                              id={track.id}
+                              fileName={track.fileName}
+                              url={track.url}
+                              isFocused={focusedTrackId === track.id}
+                              handleLoadToDeck={handleLoadToDeck}
+                              handleClick={handleClick}
+                          />
+                      ))}
         </div>
     )
 }
@@ -54,7 +68,7 @@ const Item: React.FC<ITrackListItemProps> = ({ id, fileName, url, isFocused, han
             <Card
                 className={cn(
                     'relative flex flex-1 items-center justify-between p-4',
-                    isFocused && 'outline outline-2 outline-primary',
+                    isFocused && 'outline outline-1 outline-primary',
                 )}
                 onClick={() => handleClick(id)}
             >

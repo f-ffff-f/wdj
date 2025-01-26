@@ -34,7 +34,7 @@ export function AppSidebar() {
     }
 
     return (
-        <Sidebar>
+        <Sidebar variant="floating">
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupLabel>Playlists</SidebarGroupLabel>
@@ -85,6 +85,10 @@ export function AppSidebar() {
                                         asChild
                                         onClick={() => {
                                             state.vault.currentPlaylistId = playlist.id
+                                            state.vault.focusedTrackId =
+                                                snapshot.vault.tracks.filter((track) =>
+                                                    track.playlistIds.includes(playlist.id),
+                                                )?.[0]?.id ?? state.vault.focusedTrackId
                                         }}
                                     >
                                         <span>{playlist.name}</span>

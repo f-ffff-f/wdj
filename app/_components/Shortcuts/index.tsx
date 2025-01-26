@@ -11,22 +11,17 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
     const snapshot = useSnapshot(state)
     const [showHelp, setShowHelp] = useState(false)
 
-    const ref = useRef<HTMLDivElement | null>(null)
-
     useEffect(() => {
-        if (ref.current) {
-            const handler = (event: KeyboardEvent) => {
-                // EShortcut에 정의된 값일때만 키보드 기본동작 막음
-                if (Object.values(EShortcut).includes(event.code as EShortcut)) {
-                    event.preventDefault()
-                    console.log(`Default action prevented for key: ${event.key}`)
-                }
+        const handler = (event: KeyboardEvent) => {
+            // EShortcut에 정의된 값일때만 키보드 기본동작 막음
+            if (Object.values(EShortcut).includes(event.code as EShortcut)) {
+                event.preventDefault()
+                console.log(`Default action prevented for key: ${event.key}`)
             }
-
-            const element = ref.current
-            element.addEventListener('keydown', handler)
-            return () => element.removeEventListener('keydown', handler)
         }
+
+        window.addEventListener('keydown', handler)
+        return () => window.removeEventListener('keydown', handler)
     }, [])
 
     useEffect(() => {
@@ -108,7 +103,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
     }, [snapshot])
 
     return (
-        <div className="app-container" ref={ref}>
+        <div>
             {children}
             {showHelp ? (
                 <Button onClick={() => setShowHelp(false)}>Hide Key Guide</Button>
