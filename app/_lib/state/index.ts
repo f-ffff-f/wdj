@@ -44,6 +44,10 @@ const isDuplicatePlaylist = async (playlistId: string): Promise<boolean> => {
     const allPlaylists = await db.getAllPlaylists()
     return allPlaylists.some((playlist) => playlist.id === playlistId)
 }
+const isDuplicateTrackInPlaylist = async (trackId: string, playlistId: string): Promise<boolean> => {
+    const track = state.vault.tracks.find((track) => track.id === trackId)
+    return track?.playlistIds.includes(playlistId) ?? false
+}
 
 // 라이브러리에 트랙 추가 함수
 export const addTrackToLibrary = async (file: File) => {
@@ -52,7 +56,7 @@ export const addTrackToLibrary = async (file: File) => {
 
     if (duplicate) {
         alert('이미 동일한 파일이 라이브러리에 존재합니다: ' + file.name)
-        return // 중복된 경우 실행하지 않음
+        return
     }
 
     const track: ITrack = {
@@ -85,7 +89,7 @@ export const addPlaylist = async (newPlaylistName: string) => {
 
     if (duplicate) {
         alert('이미 동일한 플레이리스트가 존재합니다: ' + newPlaylistName)
-        return // 중복된 경우 실행하지 않음
+        return
     }
 
     const playlist: IPlaylist = {
@@ -96,9 +100,56 @@ export const addPlaylist = async (newPlaylistName: string) => {
     await db.savePlaylist(playlist)
 }
 
+export const renamePlaylist = async (prevPlaylistId: string, newName: string) => {
+    const newPlaylistId = generateId(newName)
+    const duplicate = await isDuplicatePlaylist(newPlaylistId)
+
+    if (duplicate) {
+        alert('이미 동일한 플레이리스트가 존재합니다: ' + newName)
+        return
+    }
+
+    const playlist = state.vault.playlists.find((playlist) => playlist.id === prevPlaylistId)
+    if (playlist) {
+        playlist.id = newPlaylistId
+        playlist.name = newName
+
+        state.vault.tracks.forEach((track) => {
+            if (track.playlistIds.includes(prevPlaylistId)) {
+                track.playlistIds = track.playlistIds.filter((id) => id !== prevPlaylistId).concat(newPlaylistId)
+            }
+        })
+
+        await db.updatePlaylistName(prevPlaylistId, newPlaylistId,newName)
+    }
+    state.vault.currentPlaylistId = newPlaylistId
+}
+
 export const deletePlaylist = async (playlistId: string) => {
     state.vault.playlists = state.vault.playlists.filter((playlist) => playlist.id !== playlistId)
+    state.vault.tracks.forEach((track) => {
+        track.playlistIds = track.playlistIds.filter((id) => id !== playlistId)
+    })
     await db.deletePlaylist(playlistId)
+}
+
+export const addTrackToPlaylist = async (trackId: string, playlistId: string) => {
+    const duplicate = await isDuplicateTrackInPlaylist(trackId, playlistId)
+    if (duplicate) {
+        alert('이미 동일한 트랙이 플레이리스트에 존재합니다: ' + trackId)
+        return
+    }
+    state.vault.tracks.find((track) => track.id === trackId)?.playlistIds.push(playlistId)
+    await db.addTrackToPlaylist(trackId, playlistId)
+}
+
+export const deleteTrackFromPlaylist = async (trackId: string, playlistId: string) => {
+    const track = state.vault.tracks.find((track) => track.id === trackId)
+
+    if (track) {
+        track.playlistIds = track.playlistIds.filter((id) => id !== playlistId)
+        await db.deleteTrackFromPlaylist(trackId, playlistId)
+    }
 }
 
 const unsub = devtools(state, { name: 'state', enabled: true })
