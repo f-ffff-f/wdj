@@ -3,6 +3,13 @@ import { devtools } from 'valtio/utils'
 import { IPlaylist, ITrack } from '@/app/_lib/state/types'
 import { generateId } from '@/app/_lib/state/utils'
 interface IState {
+    auth: {
+        isAuthenticated: boolean
+        user: {
+            id: string
+            email: string
+        } | null
+    }
     vault: {
         currentPlaylistId: string
         focusedTrackId: string
@@ -12,6 +19,10 @@ interface IState {
 }
 
 export const state = proxy<IState>({
+    auth: {
+        isAuthenticated: false,
+        user: null,
+    },
     vault: {
         currentPlaylistId: '',
         focusedTrackId: '',
@@ -20,7 +31,6 @@ export const state = proxy<IState>({
     },
 })
 
-// IndexedDB와 상태에서 ID 중복 확인
 const isDuplicateTrack = async (trackId: string): Promise<boolean> => {
     if (state.vault.tracks.some((track) => track.id === trackId)) {
         return true
@@ -63,7 +73,6 @@ export const addTrackToLibrary = async (file: File) => {
     state.vault.focusedTrackId = trackId // 새로 추가된 트랙을 포커스
 }
 
-// 라이브러리에서 트랙 삭제 함수
 export const deleteTrackFromLibrary = async (trackId: string) => {
     state.vault.tracks = state.vault.tracks.filter((track) => track.id !== trackId)
 }
