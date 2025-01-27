@@ -1,5 +1,6 @@
 import { proxy } from 'valtio'
 import { devtools } from 'valtio/utils'
+import { db } from './db'
 import { IPlaylist, ITrack } from '@/app/_lib/state/types'
 import { generateId } from '@/app/_lib/state/utils'
 interface IState {
@@ -20,23 +21,29 @@ export const state = proxy<IState>({
     },
 })
 
+const loadTracksFromDB = async () => {
+    const tracks = await db.getAllTracks()
+    state.vault.tracks = tracks
+}
+
 // IndexedDB와 상태에서 ID 중복 확인
 const isDuplicateTrack = async (trackId: string): Promise<boolean> => {
     if (state.vault.tracks.some((track) => track.id === trackId)) {
         return true
-    } else {
-        return false
     }
+
+    const allTracks = await db.getAllTracks()
+    return allTracks.some((track) => track.id === trackId)
 }
 
 const isDuplicatePlaylist = async (playlistId: string): Promise<boolean> => {
     if (state.vault.playlists.some((playlist) => playlist.id === playlistId)) {
         return true
-    } else {
-        return false
     }
-}
 
+    const allPlaylists = await db.getAllPlaylists()
+    return allPlaylists.some((playlist) => playlist.id === playlistId)
+}
 const isDuplicateTrackInPlaylist = async (trackId: string, playlistId: string): Promise<boolean> => {
     const track = state.vault.tracks.find((track) => track.id === trackId)
     return track?.playlistIds.includes(playlistId) ?? false
@@ -60,12 +67,20 @@ export const addTrackToLibrary = async (file: File) => {
 
     state.vault.tracks.push({ ...track, url: URL.createObjectURL(file) })
 
+    await db.addTrackToLibrary(track, file)
+
     state.vault.focusedTrackId = trackId // 새로 추가된 트랙을 포커스
 }
 
 // 라이브러리에서 트랙 삭제 함수
 export const deleteTrackFromLibrary = async (trackId: string) => {
     state.vault.tracks = state.vault.tracks.filter((track) => track.id !== trackId)
+    await db.deleteTrackFromLibrary(trackId)
+}
+
+const loadPlaylistsFromDB = async () => {
+    const playlists = await db.getAllPlaylists()
+    state.vault.playlists = playlists
 }
 
 export const addPlaylist = async (newPlaylistName: string) => {
@@ -82,6 +97,7 @@ export const addPlaylist = async (newPlaylistName: string) => {
         name: newPlaylistName,
     }
     state.vault.playlists.push(playlist)
+    await db.savePlaylist(playlist)
 }
 
 export const renamePlaylist = async (prevPlaylistId: string, newName: string) => {
@@ -103,6 +119,8 @@ export const renamePlaylist = async (prevPlaylistId: string, newName: string) =>
                 track.playlistIds = track.playlistIds.filter((id) => id !== prevPlaylistId).concat(newPlaylistId)
             }
         })
+
+        await db.updatePlaylistName(prevPlaylistId, newPlaylistId,newName)
     }
     state.vault.currentPlaylistId = newPlaylistId
 }
@@ -112,6 +130,7 @@ export const deletePlaylist = async (playlistId: string) => {
     state.vault.tracks.forEach((track) => {
         track.playlistIds = track.playlistIds.filter((id) => id !== playlistId)
     })
+    await db.deletePlaylist(playlistId)
 }
 
 export const addTrackToPlaylist = async (trackId: string, playlistId: string) => {
@@ -121,6 +140,7 @@ export const addTrackToPlaylist = async (trackId: string, playlistId: string) =>
         return
     }
     state.vault.tracks.find((track) => track.id === trackId)?.playlistIds.push(playlistId)
+    await db.addTrackToPlaylist(trackId, playlistId)
 }
 
 export const deleteTrackFromPlaylist = async (trackId: string, playlistId: string) => {
@@ -128,7 +148,12 @@ export const deleteTrackFromPlaylist = async (trackId: string, playlistId: strin
 
     if (track) {
         track.playlistIds = track.playlistIds.filter((id) => id !== playlistId)
+        await db.deleteTrackFromPlaylist(trackId, playlistId)
     }
 }
 
 const unsub = devtools(state, { name: 'state', enabled: true })
+
+// 초기 데이터 로드
+loadTracksFromDB()
+loadPlaylistsFromDB()
