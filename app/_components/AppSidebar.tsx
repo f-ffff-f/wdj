@@ -14,6 +14,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import LoginForm from '@/app/_components/Auth/LoginForm'
+import { Separator } from '@/components/ui/separator'
+import Auth from '@/app/_components/Auth'
 
 const AppSidebar = () => {
     // const snapshot = useSnapshot(state)
@@ -45,6 +48,10 @@ const AppSidebar = () => {
     return (
         <Sidebar variant="floating">
             <SidebarContent>
+                <SidebarGroup>
+                    <Auth />
+                </SidebarGroup>
+                <Separator />
                 <SidebarGroup>
                     <SidebarGroupLabel>Playlists</SidebarGroupLabel>
 

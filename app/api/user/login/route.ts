@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 
 export async function POST(request: Request) {
     try {
@@ -19,8 +20,21 @@ export async function POST(request: Request) {
         }
 
         // 3) 로그인 성공
-        // 실제 서비스라면 여기서 세션 쿠키 or JWT 발급 등 추가 로직
-        return NextResponse.json({ message: 'Login success', user })
+        if (!process.env.JWT_SECRET) {
+            throw new Error('JWT_SECRET is not defined')
+        }
+
+        const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+            expiresIn: '7d',
+        })
+
+        return NextResponse.json({
+            message: 'Login success',
+            id: user.id,
+            email: user.email,
+            createdAt: user.createdAt,
+            token,
+        })
     } catch (err) {
         console.error('Login error:', err)
         return NextResponse.json({ error: 'Server error' }, { status: 500 })
