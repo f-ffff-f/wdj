@@ -1,4 +1,3 @@
-import { addPlaylist, deletePlaylist, renamePlaylist, state } from '@/app/_lib/state'
 import {
     Sidebar,
     SidebarContent,
@@ -10,7 +9,6 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { useSnapshot } from 'valtio'
 import { Check, MoreHorizontal, Plus, X } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useState } from 'react'
@@ -18,7 +16,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
 const AppSidebar = () => {
-    const snapshot = useSnapshot(state)
+    // const snapshot = useSnapshot(state)
     const [newPlaylistName, setNewPlaylistName] = useState('')
     const [editingPlaylistName, setEditingPlaylistName] = useState('')
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null)
@@ -26,7 +24,7 @@ const AppSidebar = () => {
     const handleAddPlaylist = () => {
         if (!newPlaylistName.trim()) return
 
-        addPlaylist(newPlaylistName)
+        // addPlaylist(newPlaylistName)
         setNewPlaylistName('') // 입력창 초기화
     }
 
@@ -35,13 +33,13 @@ const AppSidebar = () => {
     }
 
     const handleRenamePlaylist = (playlistId: string) => {
-        renamePlaylist(playlistId, editingPlaylistName)
+        // renamePlaylist(playlistId, editingPlaylistName)
         setEditingPlaylistId(null)
         setEditingPlaylistName('')
     }
 
     const handleDeletePlaylist = (playlistId: string) => {
-        deletePlaylist(playlistId)
+        // deletePlaylist(playlistId)
     }
 
     return (
@@ -74,16 +72,16 @@ const AppSidebar = () => {
                             <SidebarMenuItem>
                                 <SidebarMenuButton
                                     className="cursor-pointer"
-                                    isActive={snapshot.vault.currentPlaylistId === ''}
+                                    // isActive={snapshot.vault.currentPlaylistId === ''}
                                     asChild
                                     onClick={() => {
-                                        state.vault.currentPlaylistId = ''
+                                        // state.vault.currentPlaylistId = ''
                                     }}
                                 >
                                     <a>Library</a>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-                            {snapshot.vault.playlists.map((playlist) => {
+                            {/* {snapshot.vault.playlists.map((playlist) => {
                                 return editingPlaylistId !== playlist.id ? (
                                     <SidebarMenuItem key={playlist.id}>
                                         <SidebarMenuButton
@@ -148,7 +146,7 @@ const AppSidebar = () => {
                                         </Button>
                                     </div>
                                 )
-                            })}
+                            })} */}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>

@@ -1,5 +1,5 @@
 import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
-import { addTrackToPlaylist, deleteTrackFromLibrary, deleteTrackFromPlaylist, state } from '@/app/_lib/state'
+// import { addTrackToPlaylist, deleteTrackFromLibrary, deleteTrackFromPlaylist, state } from '@/app/_lib/state'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import React from 'react'
@@ -19,19 +19,19 @@ import { SidebarMenuAction } from '@/components/ui/sidebar'
 import { MoreVertical } from 'lucide-react'
 
 const List = () => {
-    const snapshot = useSnapshot(state)
-    const focusedTrackId = snapshot.vault.focusedTrackId
+    // const snapshot = useSnapshot(state)
+    // const focusedTrackId = snapshot.vault.focusedTrackId
 
     const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
         audioManager.loadTrack(deckId, url)
     }
-    const handleClick = (id: string) => {
-        state.vault.focusedTrackId = id
-    }
+    // const handleClick = (id: string) => {
+    //     state.vault.focusedTrackId = id
+    // }
 
     return (
         <div className="w-full max-w-2xl mx-auto min-h-10 flex flex-col gap-1" id="vault-list">
-            {!snapshot.vault.currentPlaylistId
+            {/* {!snapshot.vault.currentPlaylistId
                 ? snapshot.vault.tracks.map((track) => (
                       <Item
                           key={track.id}
@@ -59,7 +59,7 @@ const List = () => {
                           >
                               <PlaylistDropdownMenu id={track.id} />
                           </Item>
-                      ))}
+                      ))} */}
         </div>
     )
 }
@@ -103,7 +103,7 @@ const Item: React.FC<ITrackListItemProps> = ({
 }
 
 const LibraryDropdownMenu = ({ id }: { id: string }) => {
-    const snapshot = useSnapshot(state)
+    // const snapshot = useSnapshot(state)
 
     return (
         <DropdownMenu>
@@ -112,7 +112,7 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
                     <MoreVertical />
                 </SidebarMenuAction>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="center">
+            {/* <DropdownMenuContent side="right" align="center">
                 <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                         <span>Add to Playlist</span>
@@ -128,13 +128,13 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
                 <DropdownMenuItem onClick={() => deleteTrackFromLibrary(id)}>
                     <span>Delete Track from Library</span>
                 </DropdownMenuItem>
-            </DropdownMenuContent>
+            </DropdownMenuContent> */}
         </DropdownMenu>
     )
 }
 
 const PlaylistDropdownMenu = ({ id }: { id: string }) => {
-    const snapshot = useSnapshot(state)
+    // const snapshot = useSnapshot(state)
 
     return (
         <DropdownMenu>
@@ -143,11 +143,11 @@ const PlaylistDropdownMenu = ({ id }: { id: string }) => {
                     <MoreVertical />
                 </SidebarMenuAction>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="center">
+            {/* <DropdownMenuContent side="right" align="center">
                 <DropdownMenuItem onClick={() => deleteTrackFromPlaylist(id, snapshot.vault.currentPlaylistId)}>
                     <span>Delete Track from Playlist</span>
                 </DropdownMenuItem>
-            </DropdownMenuContent>
+            </DropdownMenuContent> */}
         </DropdownMenu>
     )
 }
