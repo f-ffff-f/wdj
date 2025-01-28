@@ -7,6 +7,7 @@ export const useLogout = () => {
         localStorage.removeItem('token')
         queryClient.setQueryData(['/api/user/me'], null)
         queryClient.invalidateQueries({ queryKey: ['/api/user/me'] })
+        queryClient.invalidateQueries({ queryKey: ['/api/playlist'] })
     }
 
     return { logout }

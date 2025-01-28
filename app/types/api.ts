@@ -20,3 +20,14 @@ export type CreatePlaylistAPI = {
     Request: { name: string }
     Response: PlaylistDTO
 }
+
+// api/playlist/update
+export type UpdatePlaylistAPI = {
+    Request: { name: string }
+    Response: PlaylistDTO
+}
+
+// api/playlist/delete
+export type DeletePlaylistAPI = {
+    Response: { message: string }
+}
