@@ -17,5 +17,17 @@ model User {
   id         String   @id @default(uuid())
   email      String   @unique
   password   String
-  createdAt  DateTime @default(now())
+  createdAt  DateTime @default(now())  
+  playlists  Playlist[]
+}
+
+model Playlist {
+  id          String   @id @default(uuid())
+  name        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  userId      String   // 외래 키
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
 }
