@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import jwt from 'jsonwebtoken'
+import { UserDTO } from '@/types/dto'
+import { UserMeAPI } from '@/types/api'
 
 /**
  * 인증된 사용자의 정보를 반환하는 API 엔드포인트
@@ -27,7 +29,7 @@ export async function GET(request: Request) {
         }
 
         // 디코딩된 userId로 사용자 정보 조회
-        const user = await prisma.user.findUnique({
+        const user: UserDTO | null = await prisma.user.findUnique({
             where: { id: decoded.userId },
             select: {
                 id: true,
@@ -40,7 +42,7 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 })
         }
 
-        return NextResponse.json(user)
+        return NextResponse.json(user as UserMeAPI['Response'])
     } catch (error) {
         if (error instanceof jwt.JsonWebTokenError) {
             return NextResponse.json({ error: 'Invalid token' }, { status: 401 })

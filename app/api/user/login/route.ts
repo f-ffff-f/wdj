@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import { UserLoginAPI } from '@/types/api'
 
 export async function POST(request: Request) {
     try {
@@ -34,7 +35,7 @@ export async function POST(request: Request) {
             email: user.email,
             createdAt: user.createdAt,
             token,
-        })
+        } as UserLoginAPI['Response'])
     } catch (err) {
         console.error('Login error:', err)
         return NextResponse.json({ error: 'Server error' }, { status: 500 })

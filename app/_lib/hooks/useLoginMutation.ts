@@ -1,19 +1,7 @@
+import { UserLoginAPI } from '@/types/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-type LoginArgs = {
-    email: string
-    password: string
-}
-
-type LoginResponse = {
-    createdAt: string
-    email: string
-    id: string
-    message: string
-    token: string
-}
-
-const loginRequest = async ({ email, password }: LoginArgs): Promise<LoginResponse> => {
+const loginRequest = async ({ email, password }: UserLoginAPI['Request']): Promise<UserLoginAPI['Response']> => {
     const res = await fetch('/api/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -25,13 +13,13 @@ const loginRequest = async ({ email, password }: LoginArgs): Promise<LoginRespon
         throw new Error(errorData?.error || 'Login failed')
     }
 
-    return res.json() as Promise<LoginResponse>
+    return res.json() as Promise<UserLoginAPI['Response']>
 }
 
-export const useLoginMutation = (onSuccess?: (data: LoginResponse) => void) => {
+export const useLoginMutation = (onSuccess?: (data: UserLoginAPI['Response']) => void) => {
     const queryClient = useQueryClient()
 
-    return useMutation<LoginResponse, Error, LoginArgs>({
+    return useMutation<UserLoginAPI['Response'], Error, UserLoginAPI['Request']>({
         mutationFn: loginRequest,
         onSuccess: (data) => {
             localStorage.setItem('token', data.token)
