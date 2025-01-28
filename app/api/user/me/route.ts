@@ -3,34 +3,20 @@ import { prisma } from '@/lib/prisma'
 import jwt from 'jsonwebtoken'
 import { UserDTO } from '@/types/dto'
 import { UserMeAPI } from '@/types/api'
+import { getUserIdFromToken } from '@/lib/auth'
 
 /**
  * 인증된 사용자의 정보를 반환하는 API 엔드포인트
  * Authorization 헤더에서 JWT 토큰을 검증하고 해당 사용자 정보를 반환
  */
 
-export async function GET(request: Request) {
+export async function GET(request: Request): Promise<NextResponse<UserMeAPI['Response']>> {
     try {
-        // Authorization 헤더 추출
-        const authHeader = request.headers.get('Authorization')
-        if (!authHeader) {
-            return NextResponse.json({ error: 'Need Authorization' }, { status: 401 })
-        }
-
-        // Bearer 토큰에서 실제 토큰 값 추출
-        const token = authHeader.split(' ')[1]
-        if (!process.env.JWT_SECRET) {
-            throw new Error('JWT_SECRET is not defined')
-        }
-
-        // JWT 토큰 검증 및 디코딩
-        const decoded = jwt.verify(token, process.env.JWT_SECRET) as {
-            userId: string
-        }
+        const userId = getUserIdFromToken(request)
 
         // 디코딩된 userId로 사용자 정보 조회
         const user: UserDTO | null = await prisma.user.findUnique({
-            where: { id: decoded.userId },
+            where: { id: userId },
             select: {
                 id: true,
                 email: true,
