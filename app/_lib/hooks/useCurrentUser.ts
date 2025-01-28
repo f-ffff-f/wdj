@@ -1,4 +1,4 @@
-import { UserMeAPI } from '@/types/api'
+import { UserMeAPI } from '@/app/types/api'
 import { useQuery } from '@tanstack/react-query'
 
 /**

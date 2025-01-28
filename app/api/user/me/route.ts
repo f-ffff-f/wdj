@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import jwt from 'jsonwebtoken'
-import { UserDTO } from '@/types/dto'
-import { UserMeAPI } from '@/types/api'
+import { UserDTO } from '@/app/types/dto'
+import { UserMeAPI } from '@/app/types/api'
 import { getUserIdFromToken } from '@/app/_lib/utils'
 
 /**
