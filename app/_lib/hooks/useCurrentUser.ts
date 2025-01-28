@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { fetcher } from '@/lib/fetcher'
+import { fetcher } from '@/app/_lib/fetcher'
 
 /**
  * 현재 인증된 사용자의 정보를 관리하는 커스텀 훅
@@ -15,8 +15,7 @@ export const useCurrentUser = () => {
     const queryClient = useQueryClient()
 
     const { data, isLoading, error } = useQuery<User>({
-        queryKey: ['currentUser'],
-        queryFn: () => fetcher('/api/user/me'),
+        queryKey: ['/api/user/me'],
         retry: false,
         staleTime: 1000 * 60 * 60 * 24,
         refetchOnWindowFocus: true,
@@ -27,8 +26,8 @@ export const useCurrentUser = () => {
         // localStorage에서 토큰 제거
         localStorage.removeItem('token')
         // React Query 캐시 초기화
-        queryClient.setQueryData(['currentUser'], null)
-        queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+        queryClient.setQueryData(['/api/user/me'], null)
+        queryClient.invalidateQueries({ queryKey: ['/api/user/me'] })
     }
 
     return {

@@ -10,7 +10,6 @@ type LoginResponse = {
     email: string
     id: string
     message: string
-    password: string
     token: string
 }
 
@@ -37,7 +36,7 @@ export const useLoginMutation = (onSuccess?: (data: LoginResponse) => void) => {
         onSuccess: (data) => {
             localStorage.setItem('token', data.token)
             queryClient.invalidateQueries({
-                queryKey: ['currentUser'],
+                queryKey: ['/api/user/me'],
                 refetchType: 'active',
             })
             if (onSuccess) onSuccess(data)

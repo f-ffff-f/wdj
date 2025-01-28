@@ -10,7 +10,7 @@ export async function POST(request: Request) {
         // 1) 이메일로 유저 조회
         const user = await prisma.user.findUnique({ where: { email } })
         if (!user) {
-            return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
+            return NextResponse.json({ error: 'User not found' }, { status: 401 })
         }
 
         // 2) 비밀번호 비교

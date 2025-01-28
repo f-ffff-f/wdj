@@ -1,7 +1,7 @@
 import LoginForm from '@/app/_components/Auth/LoginForm'
 import { Button } from '@/components/ui/button'
 import { SidebarGroupLabel } from '@/components/ui/sidebar'
-import { useCurrentUser } from '@/lib/hooks/useCurrentUser'
+import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
 
 const Auth = () => {
     const { data, isLoading, error, isAuthenticated, logout } = useCurrentUser()
