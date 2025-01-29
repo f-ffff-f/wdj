@@ -3,13 +3,19 @@ import OverlayGuide from '@/app/_components/Shortcuts/OverlayGuide'
 import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
 import { EDeckIds } from '@/app/_lib/constants'
 import { Button } from '@/components/ui/button'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {
+    const ref = useRef<HTMLDivElement>(null)
     // const snapshot = useSnapshot(state)
     const [showHelp, setShowHelp] = useState(false)
 
     useEffect(() => {
+        ref.current?.focus()
+    }, [])
+
+    useEffect(() => {
+        const element = ref.current
         const handler = (event: KeyboardEvent) => {
             // EShortcut에 정의된 값일때만 키보드 기본동작 막음
             if (Object.values(EShortcut).includes(event.code as EShortcut)) {
@@ -18,8 +24,8 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             }
         }
 
-        window.addEventListener('keydown', handler)
-        return () => window.removeEventListener('keydown', handler)
+        element?.addEventListener('keydown', handler)
+        return () => element?.removeEventListener('keydown', handler)
     }, [])
 
     // useEffect(() => {
@@ -101,7 +107,12 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
     // }, [snapshot])
 
     return (
-        <div>
+        <div
+            ref={ref}
+            tabIndex={-1} // 포커스 가능하도록 tabIndex 추가
+            className="outline-none" // 포커스 아웃라인 제거
+            onClick={() => ref.current?.focus()} // 클릭 시 포커스 확보
+        >
             {children}
             {showHelp ? (
                 <Button className="fixed bottom-4 left-4 z-50" onClick={() => setShowHelp(false)}>

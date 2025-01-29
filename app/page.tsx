@@ -13,17 +13,17 @@ const DJController = dynamic(() => import('@/app/_components/DJController'), { s
 const Home = () => {
     return (
         <QueryClientProvider client={queryClient}>
-            <Shortcuts>
-                <SidebarProvider defaultOpen={true}>
-                    <AppSidebar />
-                    <div className="flex-1">
-                        <SidebarTrigger />
+            <SidebarProvider defaultOpen={true}>
+                <AppSidebar />
+                <div className="flex-1">
+                    <SidebarTrigger />
 
+                    <Shortcuts>
                         <DJController />
                         {process.env.NODE_ENV === 'development' && <Debugger />}
-                    </div>
-                </SidebarProvider>
-            </Shortcuts>
+                    </Shortcuts>
+                </div>
+            </SidebarProvider>
         </QueryClientProvider>
     )
 }
