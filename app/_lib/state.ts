@@ -1,8 +1,6 @@
-/**
- * UI는 이걸 사용하고, 게스트는 이걸 사용할 수 있다
- */
 import { proxy } from 'valtio'
 import { devtools } from 'valtio/utils'
+import { v4 as uuidv4 } from 'uuid'
 
 type IPlaylist = {
     id: string
@@ -27,10 +25,6 @@ interface IState {
     }
 }
 
-const generateId = (name: string) => {
-    return name.replace(/ /g, '-')
-}
-
 export const state = proxy<IState>({
     UI: { currentPlaylistId: '', focusedTrackId: '' },
     guest: {
@@ -47,8 +41,8 @@ const isDuplicateTrack = async (trackId: string): Promise<boolean> => {
     }
 }
 
-const isDuplicatePlaylist = async (playlistId: string): Promise<boolean> => {
-    if (state.guest.playlists.some((playlist) => playlist.id === playlistId)) {
+const isDuplicatePlaylist = async (playlistName: string): Promise<boolean> => {
+    if (state.guest.playlists.some((playlist) => playlist.name === playlistName)) {
         return true
     } else {
         return false
@@ -62,7 +56,7 @@ const isDuplicateTrackInPlaylist = async (trackId: string, playlistId: string): 
 
 // 라이브러리에 트랙 추가 함수
 const addTrackToLibrary = async (file: File) => {
-    const trackId = generateId(file.name)
+    const trackId = uuidv4()
     const duplicate = await isDuplicateTrack(trackId)
 
     if (duplicate) {
@@ -87,8 +81,7 @@ const deleteTrackFromLibrary = async (trackId: string) => {
 }
 
 const createPlaylist = async (newPlaylistName: string) => {
-    const playlistId = generateId(newPlaylistName)
-    const duplicate = await isDuplicatePlaylist(playlistId)
+    const duplicate = await isDuplicatePlaylist(newPlaylistName)
 
     if (duplicate) {
         alert('이미 동일한 플레이리스트가 존재합니다: ' + newPlaylistName)
@@ -96,13 +89,20 @@ const createPlaylist = async (newPlaylistName: string) => {
     }
 
     const playlist: IPlaylist = {
-        id: playlistId,
+        id: uuidv4(),
         name: newPlaylistName,
     }
     state.guest.playlists.push(playlist)
 }
 
 const updatePlaylist = async ({ id, name }: { id: string; name: string }, { onSuccess }: { onSuccess: () => void }) => {
+    const duplicate = await isDuplicatePlaylist(name)
+
+    if (duplicate) {
+        alert('이미 동일한 플레이리스트가 존재합니다: ' + name)
+        return
+    }
+
     const playlist = state.guest.playlists.find((playlist) => playlist.id === id)
     if (playlist) {
         playlist.name = name
