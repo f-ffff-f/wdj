@@ -32,6 +32,12 @@ export type DeletePlaylistAPI = {
     Response: { message: string }
 }
 
+// api/playlist/[playlistId]/tracks
+export type AddTracksToPlaylistAPI = {
+    Request: { trackIds: string[] }
+    Response: PlaylistDTO
+}
+
 // api/track
 export type GetTracksAPI = {
     Response: TrackDTO[]

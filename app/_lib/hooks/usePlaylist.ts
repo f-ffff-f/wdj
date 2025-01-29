@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CreatePlaylistAPI, DeletePlaylistAPI, GetPlaylistsAPI, UpdatePlaylistAPI } from '@/app/types/api'
+import {
+    AddTracksToPlaylistAPI,
+    CreatePlaylistAPI,
+    DeletePlaylistAPI,
+    GetPlaylistsAPI,
+    UpdatePlaylistAPI,
+} from '@/app/types/api'
 import { fetcher } from '@/app/_lib/queryClient/fetcher'
 import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
 import { useSnapshot } from 'valtio'
@@ -47,6 +53,7 @@ export const usePlaylist = () => {
                 id: tempId,
                 name,
                 createdAt: new Date(),
+                tracks: [],
             }
 
             queryClient.setQueryData<GetPlaylistsAPI['Response']>(queryKey, (old = []) => [newPlaylist, ...old])
@@ -124,6 +131,22 @@ export const usePlaylist = () => {
 
     const deletePlaylist = isAuthenticated ? deletePlaylistMutation.mutate : valtioAction.deletePlaylist
 
+    const addTracksToPlaylistMutation = useMutation({
+        mutationFn: async ({ id, trackIds }: { id: string; trackIds: string[] }) => {
+            return fetcher(`/api/playlist/${id}/tracks`, {
+                method: 'POST',
+                body: JSON.stringify({ trackIds }),
+            }) as Promise<AddTracksToPlaylistAPI['Response']>
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey })
+        },
+    })
+
+    const addTracksToPlaylist = isAuthenticated
+        ? addTracksToPlaylistMutation.mutate
+        : addTracksToPlaylistMutation.mutate // 미구현
+
     return {
         playlists,
         isLoading: playlistsQuery.isLoading,
@@ -134,5 +157,7 @@ export const usePlaylist = () => {
         isUpdating: updatePlaylistMutation.isPending,
         deletePlaylist,
         isDeleting: deletePlaylistMutation.isPending,
+        addTracksToPlaylist,
+        isAddingTracks: addTracksToPlaylistMutation.isPending,
     }
 }

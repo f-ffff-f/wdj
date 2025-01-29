@@ -18,6 +18,7 @@ import { SidebarMenuAction } from '@/components/ui/sidebar'
 import { MoreVertical } from 'lucide-react'
 import { useTrack } from '@/app/_lib/hooks/useTrack'
 import { state } from '@/app/_lib/state'
+import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
 
 const List = () => {
     const { tracks } = useTrack()
@@ -90,6 +91,7 @@ const Item: React.FC<ITrackListItemProps> = ({
 
 const LibraryDropdownMenu = ({ id }: { id: string }) => {
     const { deleteTrack } = useTrack()
+    const { playlists, addTracksToPlaylist } = usePlaylist()
     // const snapshot = useSnapshot(state)
 
     return (
@@ -100,18 +102,23 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
                 </SidebarMenuAction>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="center">
-                {/* <DropdownMenuSub>
+                <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                         <span>Add to Playlist</span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
-                        {snapshot.vault.playlists.map((playlist) => (
-                            <DropdownMenuItem key={playlist.id} onClick={() => addTrackToPlaylist(id, playlist.id)}>
+                        {playlists?.map((playlist) => (
+                            <DropdownMenuItem
+                                key={playlist.id}
+                                onClick={() => {
+                                    addTracksToPlaylist({ id: playlist.id, trackIds: [id] })
+                                }}
+                            >
                                 <span>{playlist.name}</span>
                             </DropdownMenuItem>
                         ))}
                     </DropdownMenuSubContent>
-                </DropdownMenuSub> */}
+                </DropdownMenuSub>
                 <DropdownMenuItem onClick={() => deleteTrack(id)}>
                     <span>Delete Track from Library</span>
                 </DropdownMenuItem>
