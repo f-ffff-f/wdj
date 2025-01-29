@@ -152,7 +152,9 @@ export const usePlaylist = () => {
         enabled: !!snapshot.UI.currentPlaylistId,
     })
 
-    const playlistTracks = isAuthenticated ? playlistTracksQuery.data : playlistTracksQuery.data // TODO: 임시
+    const playlistTracks = isAuthenticated
+        ? playlistTracksQuery.data
+        : snapshot.guest.tracks.filter((track) => track.playlistIds.includes(snapshot.UI.currentPlaylistId))
 
     return {
         playlists,
