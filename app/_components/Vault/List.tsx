@@ -17,10 +17,11 @@ import {
 import { SidebarMenuAction } from '@/components/ui/sidebar'
 import { MoreVertical } from 'lucide-react'
 import { useTrack } from '@/app/_lib/hooks/useTrack'
+import { state } from '@/app/_lib/state'
 
 const List = () => {
     const { tracks } = useTrack()
-    // const snapshot = useSnapshot(state)
+    const snapshot = useSnapshot(state)
     // const focusedTrackId = snapshot.vault.focusedTrackId
 
     const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
@@ -42,7 +43,7 @@ const List = () => {
                     handleLoadToDeck={handleLoadToDeck}
                     handleClick={() => {}}
                 >
-                    <PlaylistDropdownMenu id={track.id} />
+                    <LibraryDropdownMenu id={track.id} />
                 </Item>
             ))}
         </div>
@@ -88,6 +89,7 @@ const Item: React.FC<ITrackListItemProps> = ({
 }
 
 const LibraryDropdownMenu = ({ id }: { id: string }) => {
+    const { deleteTrack } = useTrack()
     // const snapshot = useSnapshot(state)
 
     return (
@@ -97,8 +99,8 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
                     <MoreVertical />
                 </SidebarMenuAction>
             </DropdownMenuTrigger>
-            {/* <DropdownMenuContent side="right" align="center">
-                <DropdownMenuSub>
+            <DropdownMenuContent side="right" align="center">
+                {/* <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                         <span>Add to Playlist</span>
                     </DropdownMenuSubTrigger>
@@ -109,11 +111,11 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
                             </DropdownMenuItem>
                         ))}
                     </DropdownMenuSubContent>
-                </DropdownMenuSub>
-                <DropdownMenuItem onClick={() => deleteTrackFromLibrary(id)}>
+                </DropdownMenuSub> */}
+                <DropdownMenuItem onClick={() => deleteTrack(id)}>
                     <span>Delete Track from Library</span>
                 </DropdownMenuItem>
-            </DropdownMenuContent> */}
+            </DropdownMenuContent>
         </DropdownMenu>
     )
 }
