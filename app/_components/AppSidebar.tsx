@@ -68,6 +68,7 @@ const AppSidebar = () => {
 
     const handleDeletePlaylist = (playlistId: string) => {
         deletePlaylist(playlistId)
+        state.UI.currentPlaylistId = ''
     }
 
     return (

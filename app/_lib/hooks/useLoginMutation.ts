@@ -25,6 +25,8 @@ export const useLoginMutation = (onSuccess?: (data: UserLoginAPI['Response']) =>
             localStorage.setItem('token', data.token)
             queryClient.invalidateQueries({ queryKey: ['/api/user/me'] })
             queryClient.invalidateQueries({ queryKey: ['/api/playlist'] })
+            queryClient.invalidateQueries({ queryKey: ['/api/playlist/[id]/tracks'] })
+            queryClient.invalidateQueries({ queryKey: ['/api/track'] })
 
             if (onSuccess) onSuccess(data)
         },
