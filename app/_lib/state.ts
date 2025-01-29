@@ -61,7 +61,7 @@ const isDuplicateTrackInPlaylist = async (trackId: string, playlistId: string): 
 }
 
 // 라이브러리에 트랙 추가 함수
-export const addTrackToLibrary = async (file: File) => {
+const addTrackToLibrary = async (file: File) => {
     const trackId = generateId(file.name)
     const duplicate = await isDuplicateTrack(trackId)
 
@@ -82,11 +82,11 @@ export const addTrackToLibrary = async (file: File) => {
     state.UI.focusedTrackId = trackId // 새로 추가된 트랙을 포커스
 }
 
-export const deleteTrackFromLibrary = async (trackId: string) => {
+const deleteTrackFromLibrary = async (trackId: string) => {
     state.guest.tracks = state.guest.tracks.filter((track) => track.id !== trackId)
 }
 
-export const addPlaylist = async (newPlaylistName: string) => {
+const createPlaylist = async (newPlaylistName: string) => {
     const playlistId = generateId(newPlaylistName)
     const duplicate = await isDuplicatePlaylist(playlistId)
 
@@ -102,37 +102,23 @@ export const addPlaylist = async (newPlaylistName: string) => {
     state.guest.playlists.push(playlist)
 }
 
-export const renamePlaylist = async (prevPlaylistId: string, newName: string) => {
-    const newPlaylistId = generateId(newName)
-    const duplicate = await isDuplicatePlaylist(newPlaylistId)
-
-    if (duplicate) {
-        alert('이미 동일한 플레이리스트가 존재합니다: ' + newName)
-        return
-    }
-
-    const playlist = state.guest.playlists.find((playlist) => playlist.id === prevPlaylistId)
+const updatePlaylist = async ({ id, name }: { id: string; name: string }, { onSuccess }: { onSuccess: () => void }) => {
+    const playlist = state.guest.playlists.find((playlist) => playlist.id === id)
     if (playlist) {
-        playlist.id = newPlaylistId
-        playlist.name = newName
-
-        state.guest.tracks.forEach((track) => {
-            if (track.playlistIds.includes(prevPlaylistId)) {
-                track.playlistIds = track.playlistIds.filter((id) => id !== prevPlaylistId).concat(newPlaylistId)
-            }
-        })
+        playlist.name = name
     }
-    state.UI.currentPlaylistId = newPlaylistId
+
+    onSuccess()
 }
 
-export const deletePlaylist = async (playlistId: string) => {
+const deletePlaylist = async (playlistId: string) => {
     state.guest.playlists = state.guest.playlists.filter((playlist) => playlist.id !== playlistId)
     state.guest.tracks.forEach((track) => {
         track.playlistIds = track.playlistIds.filter((id) => id !== playlistId)
     })
 }
 
-export const addTrackToPlaylist = async (trackId: string, playlistId: string) => {
+const addTrackToPlaylist = async (trackId: string, playlistId: string) => {
     const duplicate = await isDuplicateTrackInPlaylist(trackId, playlistId)
     if (duplicate) {
         alert('이미 동일한 트랙이 플레이리스트에 존재합니다: ' + trackId)
@@ -141,12 +127,22 @@ export const addTrackToPlaylist = async (trackId: string, playlistId: string) =>
     state.guest.tracks.find((track) => track.id === trackId)?.playlistIds.push(playlistId)
 }
 
-export const deleteTrackFromPlaylist = async (trackId: string, playlistId: string) => {
+const deleteTrackFromPlaylist = async (trackId: string, playlistId: string) => {
     const track = state.guest.tracks.find((track) => track.id === trackId)
 
     if (track) {
         track.playlistIds = track.playlistIds.filter((id) => id !== playlistId)
     }
+}
+
+export const valtioAction = {
+    addTrackToLibrary,
+    deleteTrackFromLibrary,
+    createPlaylist,
+    updatePlaylist,
+    deletePlaylist,
+    addTrackToPlaylist,
+    deleteTrackFromPlaylist,
 }
 
 const unsub = devtools(state, { name: 'state', enabled: true })

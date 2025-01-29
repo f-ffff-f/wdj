@@ -2,11 +2,14 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CreatePlaylistAPI, DeletePlaylistAPI, GetPlaylistsAPI, UpdatePlaylistAPI } from '@/app/types/api'
 import { fetcher } from '@/app/_lib/queryClient/fetcher'
 import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
+import { useSnapshot } from 'valtio'
+import { state, valtioAction } from '@/app/_lib/state'
 
 /**
  * 플레이리스트 관련 커스텀 훅
  */
 export const usePlaylist = () => {
+    const snapshot = useSnapshot(state)
     const { isAuthenticated } = useCurrentUser()
 
     const queryClient = useQueryClient()
@@ -21,7 +24,7 @@ export const usePlaylist = () => {
         retry: false,
     })
 
-    const playlists = isAuthenticated ? playlistsQuery.data : []
+    const playlists = isAuthenticated ? playlistsQuery.data : snapshot.guest.playlists
 
     /**
      * 플레이리스트 생성 뮤테이션
@@ -58,7 +61,7 @@ export const usePlaylist = () => {
         },
     })
 
-    const createPlaylist = isAuthenticated ? createPlaylistMutation.mutate : () => alert('Need Authorization')
+    const createPlaylist = isAuthenticated ? createPlaylistMutation.mutate : valtioAction.createPlaylist
 
     /**
      * 플레이리스트 수정 뮤테이션
@@ -89,7 +92,7 @@ export const usePlaylist = () => {
         },
     })
 
-    const updatePlaylist = isAuthenticated ? updatePlaylistMutation.mutate : () => alert('Need Authorization')
+    const updatePlaylist = isAuthenticated ? updatePlaylistMutation.mutate : valtioAction.updatePlaylist
 
     /**
      * 플레이리스트 삭제 뮤테이션
@@ -119,7 +122,7 @@ export const usePlaylist = () => {
         },
     })
 
-    const deletePlaylist = isAuthenticated ? deletePlaylistMutation.mutate : () => alert('Need Authorization')
+    const deletePlaylist = isAuthenticated ? deletePlaylistMutation.mutate : valtioAction.deletePlaylist
 
     return {
         playlists,
