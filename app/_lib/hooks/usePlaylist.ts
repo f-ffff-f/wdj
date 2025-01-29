@@ -143,9 +143,7 @@ export const usePlaylist = () => {
         },
     })
 
-    const addTracksToPlaylist = isAuthenticated
-        ? addTracksToPlaylistMutation.mutate
-        : addTracksToPlaylistMutation.mutate // 미구현
+    const addTracksToPlaylist = isAuthenticated ? addTracksToPlaylistMutation.mutate : valtioAction.addTrackToPlaylist
 
     return {
         playlists,

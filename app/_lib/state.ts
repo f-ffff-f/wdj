@@ -77,8 +77,8 @@ const deletePlaylist = async (playlistId: string) => {
     })
 }
 
-const addTrackToPlaylist = async (trackId: string, playlistId: string) => {
-    state.guest.tracks.find((track) => track.id === trackId)?.playlistIds.push(playlistId)
+const addTrackToPlaylist = async ({ id, trackIds }: { id: string; trackIds: string[] }) => {
+    state.guest.tracks.find((track) => trackIds.includes(track.id))?.playlistIds.push(id)
 }
 
 const deleteTrackFromPlaylist = async (trackId: string, playlistId: string) => {
