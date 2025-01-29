@@ -143,7 +143,8 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
 }
 
 const PlaylistDropdownMenu = ({ id }: { id: string }) => {
-    // const snapshot = useSnapshot(state)
+    const { playlists, deleteTracksFromPlaylist } = usePlaylist()
+    const snapshot = useSnapshot(state)
 
     return (
         <DropdownMenu>
@@ -152,11 +153,13 @@ const PlaylistDropdownMenu = ({ id }: { id: string }) => {
                     <MoreVertical />
                 </SidebarMenuAction>
             </DropdownMenuTrigger>
-            {/* <DropdownMenuContent side="right" align="center">
-                <DropdownMenuItem onClick={() => deleteTrackFromPlaylist(id, snapshot.vault.currentPlaylistId)}>
+            <DropdownMenuContent side="right" align="center">
+                <DropdownMenuItem
+                    onClick={() => deleteTracksFromPlaylist({ id: snapshot.UI.currentPlaylistId, trackIds: [id] })}
+                >
                     <span>Delete Track from Playlist</span>
                 </DropdownMenuItem>
-            </DropdownMenuContent> */}
+            </DropdownMenuContent>
         </DropdownMenu>
     )
 }

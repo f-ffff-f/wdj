@@ -77,16 +77,16 @@ const deletePlaylist = async (playlistId: string) => {
     })
 }
 
-const addTrackToPlaylist = async ({ id, trackIds }: { id: string; trackIds: string[] }) => {
+const addTracksToPlaylist = async ({ id, trackIds }: { id: string; trackIds: string[] }) => {
     state.guest.tracks.find((track) => trackIds.includes(track.id))?.playlistIds.push(id)
 }
 
-const deleteTrackFromPlaylist = async (trackId: string, playlistId: string) => {
-    const track = state.guest.tracks.find((track) => track.id === trackId)
-
-    if (track) {
-        track.playlistIds = track.playlistIds.filter((id) => id !== playlistId)
-    }
+const deleteTracksFromPlaylist = async ({ id, trackIds }: { id: string; trackIds: string[] }) => {
+    state.guest.tracks.forEach((track) => {
+        if (trackIds.includes(track.id)) {
+            track.playlistIds = track.playlistIds.filter((id) => id !== id)
+        }
+    })
 }
 
 export const valtioAction = {
@@ -95,8 +95,8 @@ export const valtioAction = {
     createPlaylist,
     updatePlaylist,
     deletePlaylist,
-    addTrackToPlaylist,
-    deleteTrackFromPlaylist,
+    addTracksToPlaylist,
+    deleteTracksFromPlaylist,
 }
 
 const unsub = devtools(state, { name: 'state', enabled: true })

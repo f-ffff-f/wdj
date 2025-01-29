@@ -144,7 +144,7 @@ export const usePlaylist = () => {
         },
     })
 
-    const addTracksToPlaylist = isAuthenticated ? addTracksToPlaylistMutation.mutate : valtioAction.addTrackToPlaylist
+    const addTracksToPlaylist = isAuthenticated ? addTracksToPlaylistMutation.mutate : valtioAction.addTracksToPlaylist
 
     const playlistTracksQuery = useQuery<GetTracksAPI['Response']>({
         queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId],
@@ -155,6 +155,22 @@ export const usePlaylist = () => {
     const playlistTracks = isAuthenticated
         ? playlistTracksQuery.data
         : snapshot.guest.tracks.filter((track) => track.playlistIds.includes(snapshot.UI.currentPlaylistId))
+
+    const deleteTracksFromPlaylistMutation = useMutation({
+        mutationFn: async ({ id, trackIds }: { id: string; trackIds: string[] }) => {
+            return fetcher(`/api/playlist/${id}/tracks`, {
+                method: 'DELETE',
+                body: JSON.stringify({ trackIds }),
+            }) as Promise<DeletePlaylistAPI['Response']>
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey })
+        },
+    })
+
+    const deleteTracksFromPlaylist = isAuthenticated
+        ? deleteTracksFromPlaylistMutation.mutate
+        : valtioAction.deleteTracksFromPlaylist
 
     return {
         playlists,
@@ -171,5 +187,7 @@ export const usePlaylist = () => {
         playlistTracks,
         isLoadingPlaylistTracks: playlistTracksQuery.isLoading,
         errorPlaylistTracks: playlistTracksQuery.error,
+        deleteTracksFromPlaylist,
+        isDeletingTracks: deleteTracksFromPlaylistMutation.isPending,
     }
 }
