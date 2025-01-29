@@ -17,8 +17,11 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import Auth from '@/app/_components/Auth'
 import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
+import { state } from '@/app/_lib/state'
+import { useSnapshot } from 'valtio'
 
 const AppSidebar = () => {
+    const snapshot = useSnapshot(state)
     const [newPlaylistName, setNewPlaylistName] = useState('')
     const [editingPlaylistName, setEditingPlaylistName] = useState('')
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null)
@@ -101,8 +104,15 @@ const AppSidebar = () => {
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem>
-                                <SidebarMenuButton className="cursor-pointer" asChild>
-                                    <a>Library</a>
+                                <SidebarMenuButton
+                                    className="cursor-pointer"
+                                    isActive={snapshot.UI.currentPlaylistId === ''}
+                                    asChild
+                                    onClick={() => {
+                                        state.UI.currentPlaylistId = ''
+                                    }}
+                                >
+                                    <span>Library</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             {isLoading ? (
@@ -113,7 +123,14 @@ const AppSidebar = () => {
                                 playlists?.map((playlist) => {
                                     return editingPlaylistId !== playlist.id ? (
                                         <SidebarMenuItem key={playlist.id}>
-                                            <SidebarMenuButton className="cursor-pointer" asChild>
+                                            <SidebarMenuButton
+                                                isActive={snapshot.UI.currentPlaylistId === playlist.id}
+                                                className="cursor-pointer"
+                                                asChild
+                                                onClick={() => {
+                                                    state.UI.currentPlaylistId = playlist.id
+                                                }}
+                                            >
                                                 <span>{playlist.name}</span>
                                             </SidebarMenuButton>
                                             <DropdownMenu>

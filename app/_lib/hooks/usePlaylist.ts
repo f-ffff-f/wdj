@@ -4,6 +4,7 @@ import {
     CreatePlaylistAPI,
     DeletePlaylistAPI,
     GetPlaylistsAPI,
+    GetTracksAPI,
     UpdatePlaylistAPI,
 } from '@/app/types/api'
 import { fetcher } from '@/app/_lib/queryClient/fetcher'
@@ -145,6 +146,14 @@ export const usePlaylist = () => {
 
     const addTracksToPlaylist = isAuthenticated ? addTracksToPlaylistMutation.mutate : valtioAction.addTrackToPlaylist
 
+    const playlistTracksQuery = useQuery<GetTracksAPI['Response']>({
+        queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId],
+        queryFn: () => fetcher(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`),
+        enabled: !!snapshot.UI.currentPlaylistId,
+    })
+
+    const playlistTracks = isAuthenticated ? playlistTracksQuery.data : playlistTracksQuery.data // TODO: 임시
+
     return {
         playlists,
         isLoading: playlistsQuery.isLoading,
@@ -157,5 +166,8 @@ export const usePlaylist = () => {
         isDeleting: deletePlaylistMutation.isPending,
         addTracksToPlaylist,
         isAddingTracks: addTracksToPlaylistMutation.isPending,
+        playlistTracks,
+        isLoadingPlaylistTracks: playlistTracksQuery.isLoading,
+        errorPlaylistTracks: playlistTracksQuery.error,
     }
 }

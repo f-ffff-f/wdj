@@ -11,9 +11,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     try {
         // 인증 처리
         const result = tryGetUserIdFromToken(request)
-        if (!result) {
-            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-        }
+        if (!result) return NextResponse.json(result, { status: 401 })
 
         // 요청 본문 유효성 검사
         const { trackIds } = await request.json()
@@ -53,6 +51,41 @@ export async function POST(request: Request, { params }: { params: { id: string 
                 return NextResponse.json({ error: 'Playlist or track not found' }, { status: 404 })
             }
         }
+        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
+    }
+}
+
+/**
+ * 특정 플레이리스트의 트랙 목록 조회 API
+ */
+export async function GET(request: Request, { params }: { params: { id: string } }) {
+    try {
+        const result = tryGetUserIdFromToken(request)
+        if (!result) return NextResponse.json(result, { status: 401 })
+
+        const playlist = await prisma.playlist.findUnique({
+            where: {
+                id: params.id,
+                userId: result.userId,
+            },
+            include: {
+                tracks: {
+                    select: {
+                        id: true,
+                        fileName: true,
+                        url: true,
+                        createdAt: true,
+                    },
+                    orderBy: { createdAt: 'desc' },
+                },
+            },
+        })
+
+        if (!playlist) return NextResponse.json({ error: 'Playlist not found' }, { status: 404 })
+
+        return NextResponse.json(playlist.tracks)
+    } catch (error) {
+        console.error('Get playlist tracks error:', error)
         return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
     }
 }

@@ -21,8 +21,9 @@ import { state } from '@/app/_lib/state'
 import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
 
 const List = () => {
-    const { tracks } = useTrack()
     const snapshot = useSnapshot(state)
+    const { tracks } = useTrack()
+    const { playlistTracks } = usePlaylist()
     // const focusedTrackId = snapshot.vault.focusedTrackId
 
     const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
@@ -34,19 +35,33 @@ const List = () => {
 
     return (
         <div className="w-full max-w-2xl mx-auto min-h-10 flex flex-col gap-1" id="vault-list">
-            {tracks?.map((track) => (
-                <Item
-                    key={track.id}
-                    id={track.id}
-                    fileName={track.fileName}
-                    url={track.url}
-                    isFocused={false}
-                    handleLoadToDeck={handleLoadToDeck}
-                    handleClick={() => {}}
-                >
-                    <LibraryDropdownMenu id={track.id} />
-                </Item>
-            ))}
+            {snapshot.UI.currentPlaylistId === ''
+                ? tracks?.map((track) => (
+                      <Item
+                          key={track.id}
+                          id={track.id}
+                          fileName={track.fileName}
+                          url={track.url}
+                          isFocused={false}
+                          handleLoadToDeck={handleLoadToDeck}
+                          handleClick={() => {}}
+                      >
+                          <LibraryDropdownMenu id={track.id} />
+                      </Item>
+                  ))
+                : playlistTracks?.map((track) => (
+                      <Item
+                          key={track.id}
+                          id={track.id}
+                          fileName={track.fileName}
+                          url={track.url}
+                          isFocused={false}
+                          handleLoadToDeck={handleLoadToDeck}
+                          handleClick={() => {}}
+                      >
+                          <PlaylistDropdownMenu id={track.id} />
+                      </Item>
+                  ))}
         </div>
     )
 }
