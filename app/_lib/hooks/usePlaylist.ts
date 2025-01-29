@@ -1,11 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { CreatePlaylistAPI, DeletePlaylistAPI, GetPlaylistsAPI, UpdatePlaylistAPI } from '@/app/types/api'
 import { fetcher } from '@/app/_lib/queryClient/fetcher'
+import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
 
 /**
  * 플레이리스트 관련 커스텀 훅
  */
 export const usePlaylist = () => {
+    const { isAuthenticated } = useCurrentUser()
+
     const queryClient = useQueryClient()
     const queryKey = ['/api/playlist']
 
@@ -17,6 +20,8 @@ export const usePlaylist = () => {
         queryFn: () => fetcher('/api/playlist'),
         retry: false,
     })
+
+    const playlists = isAuthenticated ? playlistsQuery.data : []
 
     /**
      * 플레이리스트 생성 뮤테이션
@@ -53,6 +58,8 @@ export const usePlaylist = () => {
         },
     })
 
+    const createPlaylist = isAuthenticated ? createPlaylistMutation.mutate : () => alert('Need Authorization')
+
     /**
      * 플레이리스트 수정 뮤테이션
      */
@@ -82,6 +89,8 @@ export const usePlaylist = () => {
         },
     })
 
+    const updatePlaylist = isAuthenticated ? updatePlaylistMutation.mutate : () => alert('Need Authorization')
+
     /**
      * 플레이리스트 삭제 뮤테이션
      */
@@ -110,15 +119,17 @@ export const usePlaylist = () => {
         },
     })
 
+    const deletePlaylist = isAuthenticated ? deletePlaylistMutation.mutate : () => alert('Need Authorization')
+
     return {
-        playlists: playlistsQuery.data,
+        playlists,
         isLoading: playlistsQuery.isLoading,
         error: playlistsQuery.error,
-        createPlaylist: createPlaylistMutation.mutate,
+        createPlaylist,
         isCreating: createPlaylistMutation.isPending,
-        updatePlaylist: updatePlaylistMutation.mutate,
+        updatePlaylist,
         isUpdating: updatePlaylistMutation.isPending,
-        deletePlaylist: deletePlaylistMutation.mutate,
+        deletePlaylist,
         isDeleting: deletePlaylistMutation.isPending,
     }
 }

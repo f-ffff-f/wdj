@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { CreatePlaylistAPI } from '@/app/types/api'
-import { getUserIdFromToken } from '@/app/_lib/utils'
+import { tryGetUserIdFromToken } from '@/app/_lib/utils'
 
 /**
  * 새로운 플레이리스트를 생성하는 API 엔드포인트
@@ -10,17 +9,17 @@ import { getUserIdFromToken } from '@/app/_lib/utils'
 export async function POST(request: Request) {
     try {
         // 토큰에서 사용자 ID 확인
-        const result = getUserIdFromToken(request)
+        const result = tryGetUserIdFromToken(request)
 
-        if (result instanceof NextResponse) {
-            return result
+        if (!result) {
+            return NextResponse.json(result, { status: 200 })
         }
 
         // 요청 본문에서 플레이리스트 이름 추출
-        const { name } = (await request.json()) as CreatePlaylistAPI['Request']
+        const { name } = await request.json()
 
         if (!name || typeof name !== 'string' || name.trim().length === 0) {
-            return NextResponse.json({ error: '플레이리스트 이름은 필수입니다' }, { status: 400 })
+            return NextResponse.json({ error: 'Playlist name is required' }, { status: 400 })
         }
 
         // 플레이리스트 생성
@@ -36,9 +35,9 @@ export async function POST(request: Request) {
             },
         })
 
-        return NextResponse.json(playlist as CreatePlaylistAPI['Response'], { status: 201 })
+        return NextResponse.json(playlist, { status: 201 })
     } catch (error) {
-        console.error('플레이리스트 생성 오류:', error)
-        return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 })
+        console.error('Playlist creation error:', error)
+        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
     }
 }

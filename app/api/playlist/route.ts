@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { GetPlaylistsAPI } from '@/app/types/api'
-import { getUserIdFromToken } from '@/app/_lib/utils'
+import { tryGetUserIdFromToken } from '@/app/_lib/utils'
 
 /**
  * 사용자의 플레이리스트 목록을 조회하는 API 엔드포인트
@@ -10,10 +9,10 @@ import { getUserIdFromToken } from '@/app/_lib/utils'
 export async function GET(request: Request) {
     try {
         // 토큰에서 사용자 ID 확인
-        const result = getUserIdFromToken(request)
+        const result = tryGetUserIdFromToken(request)
 
-        if (result instanceof NextResponse) {
-            return result
+        if (!result) {
+            return NextResponse.json(result, { status: 200 })
         }
 
         // 사용자의 플레이리스트 조회
@@ -32,7 +31,7 @@ export async function GET(request: Request) {
         })
 
         // 응답 데이터 형식 변환
-        const response: GetPlaylistsAPI['Response'] = playlists.map((playlist) => ({
+        const response = playlists.map((playlist) => ({
             id: playlist.id,
             name: playlist.name,
             createdAt: playlist.createdAt,
@@ -40,7 +39,7 @@ export async function GET(request: Request) {
 
         return NextResponse.json(response)
     } catch (error) {
-        console.error('플레이리스트 조회 오류:', error)
-        return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 })
+        console.error('Playlist retrieval error:', error)
+        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
     }
 }

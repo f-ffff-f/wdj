@@ -1,13 +1,13 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromToken } from '@/app/_lib/utils'
+import { tryGetUserIdFromToken } from '@/app/_lib/utils'
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
-        const result = getUserIdFromToken(request)
+        const result = tryGetUserIdFromToken(request)
 
-        if (result instanceof NextResponse) {
-            return result
+        if (!result) {
+            return NextResponse.json(result, { status: 200 })
         }
 
         await prisma.playlist.delete({
@@ -17,9 +17,9 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
             },
         })
 
-        return NextResponse.json({ message: '플레이리스트가 삭제되었습니다' })
+        return NextResponse.json({ message: 'Playlist deleted successfully' })
     } catch (error) {
-        console.error('플레이리스트 삭제 오류:', error)
-        return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 })
+        console.error('Playlist deletion error:', error)
+        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
     }
 }

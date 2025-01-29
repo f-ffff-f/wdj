@@ -1,20 +1,19 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { UpdatePlaylistAPI } from '@/app/types/api'
-import { getUserIdFromToken } from '@/app/_lib/utils'
+import { tryGetUserIdFromToken } from '@/app/_lib/utils'
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
     try {
-        const result = getUserIdFromToken(request)
+        const result = tryGetUserIdFromToken(request)
 
-        if (result instanceof NextResponse) {
-            return result
+        if (!result) {
+            return NextResponse.json(result, { status: 200 })
         }
 
-        const { name } = (await request.json()) as UpdatePlaylistAPI['Request']
+        const { name } = await request.json()
 
         if (!name || typeof name !== 'string' || name.trim().length === 0) {
-            return NextResponse.json({ error: '플레이리스트 이름은 필수입니다' }, { status: 400 })
+            return NextResponse.json({ error: 'Playlist name is required' }, { status: 400 })
         }
 
         const playlist = await prisma.playlist.update({
@@ -34,7 +33,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
 
         return NextResponse.json(playlist)
     } catch (error) {
-        console.error('플레이리스트 수정 오류:', error)
-        return NextResponse.json({ error: '서버 오류가 발생했습니다' }, { status: 500 })
+        console.error('Playlist update error:', error)
+        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
     }
 }
