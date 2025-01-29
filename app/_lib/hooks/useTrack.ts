@@ -31,12 +31,17 @@ export const useTrack = () => {
             // 1. S3 업로드 로직 (가정)
             const s3Url = 'testurl' // 실제 구현 필요
 
+            // [추가] playlistId 가져오기
+            const playlistId = snapshot.UI.currentPlaylistId
+
             // 2. 메타데이터 API 전송
             return fetcher('/api/track/create', {
                 method: 'POST',
                 body: JSON.stringify({
                     fileName: file.name,
                     url: s3Url,
+                    // [추가] playlistId가 있으면 넘겨줌
+                    playlistId,
                 }),
             }) as Promise<CreateTrackAPI['Response']>
         },
@@ -46,6 +51,7 @@ export const useTrack = () => {
             const previousTracks = queryClient.getQueryData<GetTracksAPI['Response']>(queryKey)
             const tempId = `temp-${Date.now()}`
 
+            // optimistic update
             const newTrack = {
                 id: tempId,
                 fileName: file.name,
@@ -63,6 +69,7 @@ export const useTrack = () => {
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
+            queryClient.invalidateQueries({ queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId] })
         },
     })
 
