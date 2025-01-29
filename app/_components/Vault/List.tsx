@@ -107,7 +107,6 @@ const Item: React.FC<ITrackListItemProps> = ({
 const LibraryDropdownMenu = ({ id }: { id: string }) => {
     const { deleteTrack } = useTrack()
     const { playlists, addTracksToPlaylist } = usePlaylist()
-    // const snapshot = useSnapshot(state)
 
     return (
         <DropdownMenu>
@@ -143,8 +142,7 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
 }
 
 const PlaylistDropdownMenu = ({ id }: { id: string }) => {
-    const { playlists, deleteTracksFromPlaylist } = usePlaylist()
-    const snapshot = useSnapshot(state)
+    const { deleteTracksFromPlaylist } = usePlaylist()
 
     return (
         <DropdownMenu>
@@ -154,9 +152,7 @@ const PlaylistDropdownMenu = ({ id }: { id: string }) => {
                 </SidebarMenuAction>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="center">
-                <DropdownMenuItem
-                    onClick={() => deleteTracksFromPlaylist({ id: snapshot.UI.currentPlaylistId, trackIds: [id] })}
-                >
+                <DropdownMenuItem onClick={() => deleteTracksFromPlaylist([id])}>
                     <span>Delete Track from Playlist</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>

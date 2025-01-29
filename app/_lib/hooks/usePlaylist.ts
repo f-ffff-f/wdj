@@ -157,8 +157,8 @@ export const usePlaylist = () => {
         : snapshot.guest.tracks.filter((track) => track.playlistIds.includes(snapshot.UI.currentPlaylistId))
 
     const deleteTracksFromPlaylistMutation = useMutation({
-        mutationFn: async ({ id, trackIds }: { id: string; trackIds: string[] }) => {
-            return fetcher(`/api/playlist/${id}/tracks`, {
+        mutationFn: async (trackIds: string[]) => {
+            return fetcher(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`, {
                 method: 'DELETE',
                 body: JSON.stringify({ trackIds }),
             }) as Promise<DeletePlaylistAPI['Response']>

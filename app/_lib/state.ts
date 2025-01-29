@@ -81,7 +81,7 @@ const addTracksToPlaylist = async ({ id, trackIds }: { id: string; trackIds: str
     state.guest.tracks.find((track) => trackIds.includes(track.id))?.playlistIds.push(id)
 }
 
-const deleteTracksFromPlaylist = async ({ id, trackIds }: { id: string; trackIds: string[] }) => {
+const deleteTracksFromPlaylist = async (trackIds: string[]) => {
     state.guest.tracks.forEach((track) => {
         if (trackIds.includes(track.id)) {
             track.playlistIds = track.playlistIds.filter((id) => id !== id)
