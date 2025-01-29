@@ -7,3 +7,7 @@ export type UserDTO = Prisma.UserGetPayload<{
 export type PlaylistDTO = Prisma.PlaylistGetPayload<{
     select: { id: true; name: true; createdAt: true }
 }>
+
+export type TrackDTO = Prisma.TrackGetPayload<{
+    select: { id: true; fileName: true; url: true; createdAt: true }
+}>

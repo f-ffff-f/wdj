@@ -1,4 +1,4 @@
-import { UserDTO } from './dto'
+import { TrackDTO, UserDTO } from './dto'
 import { PlaylistDTO } from './dto'
 
 // api/user/me
@@ -29,5 +29,21 @@ export type UpdatePlaylistAPI = {
 
 // api/playlist/delete
 export type DeletePlaylistAPI = {
+    Response: { message: string }
+}
+
+// api/track
+export type GetTracksAPI = {
+    Response: TrackDTO[]
+}
+
+// api/track/create
+export type CreateTrackAPI = {
+    Request: { fileName: string; url: string }
+    Response: TrackDTO
+}
+
+// api/track/[id]/delete
+export type DeleteTrackAPI = {
     Response: { message: string }
 }
