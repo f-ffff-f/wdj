@@ -1,12 +1,14 @@
 import React from 'react'
 import { InputFile } from '@/components/ui/inputFile'
+import { useTrack } from '@/app/_lib/hooks/useTrack'
 
 const FileUploader = () => {
+    const { createTrack } = useTrack()
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
             const files = Array.from(event.target.files)
             files.forEach((file) => {
-                // addTrackToLibrary(file)
+                createTrack(file)
             })
         }
     }

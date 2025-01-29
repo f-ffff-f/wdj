@@ -1,5 +1,4 @@
 import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
-// import { addTrackToPlaylist, deleteTrackFromLibrary, deleteTrackFromPlaylist, state } from '@/app/_lib/state'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import React from 'react'
@@ -17,8 +16,10 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenuAction } from '@/components/ui/sidebar'
 import { MoreVertical } from 'lucide-react'
+import { useTrack } from '@/app/_lib/hooks/useTrack'
 
 const List = () => {
+    const { tracks } = useTrack()
     // const snapshot = useSnapshot(state)
     // const focusedTrackId = snapshot.vault.focusedTrackId
 
@@ -31,35 +32,19 @@ const List = () => {
 
     return (
         <div className="w-full max-w-2xl mx-auto min-h-10 flex flex-col gap-1" id="vault-list">
-            {/* {!snapshot.vault.currentPlaylistId
-                ? snapshot.vault.tracks.map((track) => (
-                      <Item
-                          key={track.id}
-                          id={track.id}
-                          fileName={track.fileName}
-                          url={track.url}
-                          isFocused={focusedTrackId === track.id}
-                          handleLoadToDeck={handleLoadToDeck}
-                          handleClick={handleClick}
-                      >
-                          <LibraryDropdownMenu id={track.id} />
-                      </Item>
-                  ))
-                : snapshot.vault.tracks
-                      .filter((track) => track.playlistIds.includes(snapshot.vault.currentPlaylistId))
-                      .map((track) => (
-                          <Item
-                              key={track.id}
-                              id={track.id}
-                              fileName={track.fileName}
-                              url={track.url}
-                              isFocused={focusedTrackId === track.id}
-                              handleLoadToDeck={handleLoadToDeck}
-                              handleClick={handleClick}
-                          >
-                              <PlaylistDropdownMenu id={track.id} />
-                          </Item>
-                      ))} */}
+            {tracks?.map((track) => (
+                <Item
+                    key={track.id}
+                    id={track.id}
+                    fileName={track.fileName}
+                    url={track.url}
+                    isFocused={false}
+                    handleLoadToDeck={handleLoadToDeck}
+                    handleClick={() => {}}
+                >
+                    <PlaylistDropdownMenu id={track.id} />
+                </Item>
+            ))}
         </div>
     )
 }
