@@ -30,7 +30,8 @@ A modern DJ mixing web application that runs in the browser.
 -   [x] Keyboard controls
 -   [x] Audio Effects
     -   [x] Speed control
--   [ ] Server Development
+-   [x] Server Development
+    -   [ ] Advanced features
 -   [ ] MIDI controls
 
 ### tech stack
@@ -41,6 +42,8 @@ A modern DJ mixing web application that runs in the browser.
 -   [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
 -   [Valtio](https://github.com/pmndrs/valtio)
 -   [TailwindCSS](https://tailwindcss.com/)
+-   [Prisma](https://www.prisma.io)
+-   [PostgreSQL](https://www.postgresql.org)
 
 ## License
 

@@ -42,6 +42,8 @@ DJ 웹 애플리케이션입니다
 -   [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
 -   [Valtio](https://github.com/pmndrs/valtio)
 -   [TailwindCSS](https://tailwindcss.com/)
+-   [Prisma](https://www.prisma.io)
+-   [PostgreSQL](https://www.postgresql.org)
 
 ## 라이선스
 
