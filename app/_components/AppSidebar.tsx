@@ -1,4 +1,3 @@
-import { addPlaylist, deletePlaylist, renamePlaylist, state } from '@/app/_lib/state'
 import {
     Sidebar,
     SidebarContent,
@@ -10,63 +9,97 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { useSnapshot } from 'valtio'
 import { Check, MoreHorizontal, Plus, X } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import Auth from '@/app/_components/Auth'
+import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
+import { state } from '@/app/_lib/state'
+import { useSnapshot } from 'valtio'
 
 const AppSidebar = () => {
     const snapshot = useSnapshot(state)
     const [newPlaylistName, setNewPlaylistName] = useState('')
     const [editingPlaylistName, setEditingPlaylistName] = useState('')
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null)
+    const {
+        playlists,
+        createPlaylist,
+        updatePlaylist,
+        deletePlaylist,
+        isCreating,
+        isUpdating,
+        isDeleting,
+        isLoading,
+        error,
+    } = usePlaylist()
 
     const handleAddPlaylist = () => {
         if (!newPlaylistName.trim()) return
 
-        addPlaylist(newPlaylistName)
+        createPlaylist(newPlaylistName)
         setNewPlaylistName('') // 입력창 초기화
     }
 
     const startRenamePlaylist = (playlistId: string) => {
-        setEditingPlaylistId(playlistId)
+        const playlist = playlists?.find((p) => p.id === playlistId)
+        if (playlist) {
+            setEditingPlaylistId(playlistId)
+            setEditingPlaylistName(playlist.name)
+        }
     }
 
     const handleRenamePlaylist = (playlistId: string) => {
-        renamePlaylist(playlistId, editingPlaylistName)
-        setEditingPlaylistId(null)
-        setEditingPlaylistName('')
+        if (!editingPlaylistName.trim()) return
+
+        updatePlaylist(
+            { id: playlistId, name: editingPlaylistName },
+            {
+                onSuccess: () => {
+                    setEditingPlaylistId(null)
+                    setEditingPlaylistName('')
+                },
+            },
+        )
     }
 
     const handleDeletePlaylist = (playlistId: string) => {
         deletePlaylist(playlistId)
+        state.UI.currentPlaylistId = ''
     }
 
     return (
         <Sidebar variant="floating">
             <SidebarContent>
                 <SidebarGroup>
+                    <Auth />
+                </SidebarGroup>
+                <Separator />
+                <SidebarGroup>
                     <SidebarGroupLabel>Playlists</SidebarGroupLabel>
 
                     <div className="flex w-full mb-1 items-center space-x-2">
                         <Input
                             type="text"
-                            placeholder="새 플레이리스트 이름"
+                            placeholder="New Playlist Name"
                             value={newPlaylistName}
                             onChange={(e) => setNewPlaylistName(e.target.value)}
                             className="h-8"
+                            disabled={isCreating}
                         />
                         <Button
                             size="icon"
                             variant="ghost"
                             className="h-8 w-8"
                             onClick={handleAddPlaylist}
-                            title="플레이리스트 추가"
+                            title="Add Playlist"
+                            disabled={isCreating}
                         >
                             <Plus className="h-4 w-4" />
-                            <span className="sr-only">플레이리스트 추가</span>
+                            <span className="sr-only">Add Playlist</span>
                         </Button>
                     </div>
                     <SidebarGroupContent>
@@ -74,81 +107,91 @@ const AppSidebar = () => {
                             <SidebarMenuItem>
                                 <SidebarMenuButton
                                     className="cursor-pointer"
-                                    isActive={snapshot.vault.currentPlaylistId === ''}
+                                    isActive={snapshot.UI.currentPlaylistId === ''}
                                     asChild
                                     onClick={() => {
-                                        state.vault.currentPlaylistId = ''
+                                        state.UI.currentPlaylistId = ''
                                     }}
                                 >
-                                    <a>Library</a>
+                                    <span>Library</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-                            {snapshot.vault.playlists.map((playlist) => {
-                                return editingPlaylistId !== playlist.id ? (
-                                    <SidebarMenuItem key={playlist.id}>
-                                        <SidebarMenuButton
-                                            className="cursor-pointer"
-                                            isActive={snapshot.vault.currentPlaylistId === playlist.id}
-                                            asChild
-                                            onClick={() => {
-                                                state.vault.currentPlaylistId = playlist.id
-                                                state.vault.focusedTrackId =
-                                                    snapshot.vault.tracks.filter((track) =>
-                                                        track.playlistIds.includes(playlist.id),
-                                                    )?.[0]?.id ?? state.vault.focusedTrackId
-                                            }}
-                                        >
-                                            <span>{playlist.name}</span>
-                                        </SidebarMenuButton>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <SidebarMenuAction>
-                                                    <MoreHorizontal />
-                                                </SidebarMenuAction>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent side="right" align="start">
-                                                <DropdownMenuItem onClick={() => startRenamePlaylist(playlist.id)}>
-                                                    <span>Rename Playlist</span>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem onClick={() => handleDeletePlaylist(playlist.id)}>
-                                                    <span>Delete Playlist</span>
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </SidebarMenuItem>
-                                ) : (
-                                    <div className="flex w-full mb-1 items-center space-x-2" key={playlist.id}>
-                                        <Input
-                                            autoFocus
-                                            type="text"
-                                            placeholder="바꿀 플레이리스트 이름"
-                                            value={editingPlaylistName}
-                                            onChange={(e) => setEditingPlaylistName(e.target.value)}
-                                            className="h-8"
-                                        />
-                                        <Button
-                                            size="icon"
-                                            variant="ghost"
-                                            className="h-8 w-8"
-                                            onClick={() => setEditingPlaylistId(null)}
-                                            title="플레이리스트 이름 변경 취소"
-                                        >
-                                            <X className="h-4 w-4" />
-                                            <span className="sr-only">플레이리스트 이름 변경 취소</span>
-                                        </Button>
-                                        <Button
-                                            size="icon"
-                                            variant="ghost"
-                                            className="h-8 w-8"
-                                            onClick={() => handleRenamePlaylist(playlist.id)}
-                                            title="플레이리스트 이름 변경"
-                                        >
-                                            <Check className="h-4 w-4" />
-                                            <span className="sr-only">플레이리스트 이름 변경</span>
-                                        </Button>
-                                    </div>
-                                )
-                            })}
+                            {isLoading ? (
+                                <div className="text-center py-2">로딩 중...</div>
+                            ) : error ? (
+                                <div className="text-center py-2 text-destructive">에러: {error.message}</div>
+                            ) : (
+                                playlists?.map((playlist) => {
+                                    return editingPlaylistId !== playlist.id ? (
+                                        <SidebarMenuItem key={playlist.id}>
+                                            <SidebarMenuButton
+                                                isActive={snapshot.UI.currentPlaylistId === playlist.id}
+                                                className="cursor-pointer"
+                                                asChild
+                                                onClick={() => {
+                                                    state.UI.currentPlaylistId = playlist.id
+                                                }}
+                                            >
+                                                <span>{playlist.name}</span>
+                                            </SidebarMenuButton>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <SidebarMenuAction>
+                                                        <MoreHorizontal />
+                                                    </SidebarMenuAction>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent side="right" align="start">
+                                                    <DropdownMenuItem
+                                                        onClick={() => startRenamePlaylist(playlist.id)}
+                                                        disabled={isDeleting}
+                                                    >
+                                                        <span>Rename Playlist</span>
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onClick={() => handleDeletePlaylist(playlist.id)}
+                                                        disabled={isDeleting}
+                                                        className="text-destructive"
+                                                    >
+                                                        <span>Delete Playlist</span>
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+                                        </SidebarMenuItem>
+                                    ) : (
+                                        <div className="flex w-full mb-1 items-center space-x-2" key={playlist.id}>
+                                            <Input
+                                                autoFocus
+                                                type="text"
+                                                placeholder="Change Playlist Name"
+                                                value={editingPlaylistName}
+                                                onChange={(e) => setEditingPlaylistName(e.target.value)}
+                                                className="h-8"
+                                            />
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-8 w-8"
+                                                onClick={() => setEditingPlaylistId(null)}
+                                                title="Cancel Playlist Name Change"
+                                            >
+                                                <X className="h-4 w-4" />
+                                                <span className="sr-only">Cancel Playlist Name Change</span>
+                                            </Button>
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-8 w-8"
+                                                onClick={() => handleRenamePlaylist(playlist.id)}
+                                                title="Change Playlist Name"
+                                                disabled={isUpdating}
+                                            >
+                                                <Check className="h-4 w-4" />
+                                                <span className="sr-only">Change Playlist Name</span>
+                                            </Button>
+                                        </div>
+                                    )
+                                })
+                            )}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
