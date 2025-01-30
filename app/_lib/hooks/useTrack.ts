@@ -45,28 +45,6 @@ export const useTrack = () => {
                 }),
             }) as Promise<CreateTrackAPI['Response']>
         },
-        onMutate: async (file) => {
-            await queryClient.cancelQueries({ queryKey })
-
-            const previousTracks = queryClient.getQueryData<GetTracksAPI['Response']>(queryKey)
-            const tempId = `temp-${Date.now()}`
-
-            // optimistic update
-            const newTrack = {
-                id: tempId,
-                fileName: file.name,
-                url: URL.createObjectURL(file),
-                createdAt: new Date(),
-                playlistIds: [],
-            }
-
-            queryClient.setQueryData<GetTracksAPI['Response']>(queryKey, (old = []) => [newTrack, ...old])
-
-            return { previousTracks }
-        },
-        onError: (err, variables, context) => {
-            queryClient.setQueryData(queryKey, context?.previousTracks)
-        },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
             queryClient.invalidateQueries({ queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId] })

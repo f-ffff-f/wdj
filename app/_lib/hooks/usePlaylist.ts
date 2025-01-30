@@ -43,27 +43,6 @@ export const usePlaylist = () => {
                 body: JSON.stringify({ name }),
             }) as Promise<CreatePlaylistAPI['Response']>
         },
-        onMutate: async (name) => {
-            await queryClient.cancelQueries({ queryKey })
-
-            const previousPlaylists = queryClient.getQueryData<GetPlaylistsAPI['Response']>(queryKey)
-
-            // 임시 ID 생성
-            const tempId = `temp-${Date.now()}`
-            const newPlaylist = {
-                id: tempId,
-                name,
-                createdAt: new Date(),
-                tracks: [],
-            }
-
-            queryClient.setQueryData<GetPlaylistsAPI['Response']>(queryKey, (old = []) => [newPlaylist, ...old])
-
-            return { previousPlaylists }
-        },
-        onError: (err, newName, context) => {
-            queryClient.setQueryData(queryKey, context?.previousPlaylists)
-        },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
         },
@@ -81,20 +60,6 @@ export const usePlaylist = () => {
                 body: JSON.stringify({ name }),
             }) as Promise<UpdatePlaylistAPI['Response']>
         },
-        onMutate: async ({ id, name }) => {
-            await queryClient.cancelQueries({ queryKey })
-
-            const previousPlaylists = queryClient.getQueryData<GetPlaylistsAPI['Response']>(queryKey)
-
-            queryClient.setQueryData<GetPlaylistsAPI['Response']>(queryKey, (old = []) =>
-                old.map((playlist) => (playlist.id === id ? { ...playlist, name } : playlist)),
-            )
-
-            return { previousPlaylists }
-        },
-        onError: (err, variables, context) => {
-            queryClient.setQueryData(queryKey, context?.previousPlaylists)
-        },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
         },
@@ -110,20 +75,6 @@ export const usePlaylist = () => {
             return fetcher(`/api/playlist/${id}/delete`, {
                 method: 'DELETE',
             }) as Promise<DeletePlaylistAPI['Response']>
-        },
-        onMutate: async (id) => {
-            await queryClient.cancelQueries({ queryKey })
-
-            const previousPlaylists = queryClient.getQueryData<GetPlaylistsAPI['Response']>(queryKey)
-
-            queryClient.setQueryData<GetPlaylistsAPI['Response']>(queryKey, (old = []) =>
-                old.filter((playlist) => playlist.id !== id),
-            )
-
-            return { previousPlaylists }
-        },
-        onError: (err, id, context) => {
-            queryClient.setQueryData(queryKey, context?.previousPlaylists)
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
