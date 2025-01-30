@@ -61,13 +61,11 @@ const createPlaylist = async (newPlaylistName: string) => {
     state.guest.playlists.push(playlist)
 }
 
-const updatePlaylist = async ({ id, name }: { id: string; name: string }, { onSuccess }: { onSuccess: () => void }) => {
+const updatePlaylist = async ({ id, name }: { id: string; name: string }) => {
     const playlist = state.guest.playlists.find((playlist) => playlist.id === id)
     if (playlist) {
         playlist.name = name
     }
-
-    onSuccess()
 }
 
 const deletePlaylist = async (playlistId: string) => {
