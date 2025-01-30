@@ -1,5 +1,4 @@
 import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
-import { addTrackToPlaylist, deleteTrackFromLibrary, deleteTrackFromPlaylist, state } from '@/app/_lib/state'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import React from 'react'
@@ -17,49 +16,52 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenuAction } from '@/components/ui/sidebar'
 import { MoreVertical } from 'lucide-react'
+import { useTrack } from '@/app/_lib/hooks/useTrack'
+import { state } from '@/app/_lib/state'
+import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
 
 const List = () => {
     const snapshot = useSnapshot(state)
-    const focusedTrackId = snapshot.vault.focusedTrackId
+    const { tracks } = useTrack()
+    const { playlistTracks } = usePlaylist()
+    // const focusedTrackId = snapshot.vault.focusedTrackId
 
     const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
         audioManager.loadTrack(deckId, url)
     }
-    const handleClick = (id: string) => {
-        state.vault.focusedTrackId = id
-    }
+    // const handleClick = (id: string) => {
+    //     state.vault.focusedTrackId = id
+    // }
 
     return (
         <div className="w-full max-w-2xl mx-auto min-h-10 flex flex-col gap-1" id="vault-list">
-            {!snapshot.vault.currentPlaylistId
-                ? snapshot.vault.tracks.map((track) => (
+            {snapshot.UI.currentPlaylistId === ''
+                ? tracks?.map((track) => (
                       <Item
                           key={track.id}
                           id={track.id}
                           fileName={track.fileName}
                           url={track.url}
-                          isFocused={focusedTrackId === track.id}
+                          isFocused={false}
                           handleLoadToDeck={handleLoadToDeck}
-                          handleClick={handleClick}
+                          handleClick={() => {}}
                       >
                           <LibraryDropdownMenu id={track.id} />
                       </Item>
                   ))
-                : snapshot.vault.tracks
-                      .filter((track) => track.playlistIds.includes(snapshot.vault.currentPlaylistId))
-                      .map((track) => (
-                          <Item
-                              key={track.id}
-                              id={track.id}
-                              fileName={track.fileName}
-                              url={track.url}
-                              isFocused={focusedTrackId === track.id}
-                              handleLoadToDeck={handleLoadToDeck}
-                              handleClick={handleClick}
-                          >
-                              <PlaylistDropdownMenu id={track.id} />
-                          </Item>
-                      ))}
+                : playlistTracks?.map((track) => (
+                      <Item
+                          key={track.id}
+                          id={track.id}
+                          fileName={track.fileName}
+                          url={track.url}
+                          isFocused={false}
+                          handleLoadToDeck={handleLoadToDeck}
+                          handleClick={() => {}}
+                      >
+                          <PlaylistDropdownMenu id={track.id} />
+                      </Item>
+                  ))}
         </div>
     )
 }
@@ -103,7 +105,8 @@ const Item: React.FC<ITrackListItemProps> = ({
 }
 
 const LibraryDropdownMenu = ({ id }: { id: string }) => {
-    const snapshot = useSnapshot(state)
+    const { deleteTrack } = useTrack()
+    const { playlists, addTracksToPlaylist } = usePlaylist()
 
     return (
         <DropdownMenu>
@@ -118,14 +121,19 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
                         <span>Add to Playlist</span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
-                        {snapshot.vault.playlists.map((playlist) => (
-                            <DropdownMenuItem key={playlist.id} onClick={() => addTrackToPlaylist(id, playlist.id)}>
+                        {playlists?.map((playlist) => (
+                            <DropdownMenuItem
+                                key={playlist.id}
+                                onClick={() => {
+                                    addTracksToPlaylist({ id: playlist.id, trackIds: [id] })
+                                }}
+                            >
                                 <span>{playlist.name}</span>
                             </DropdownMenuItem>
                         ))}
                     </DropdownMenuSubContent>
                 </DropdownMenuSub>
-                <DropdownMenuItem onClick={() => deleteTrackFromLibrary(id)}>
+                <DropdownMenuItem onClick={() => deleteTrack(id)}>
                     <span>Delete Track from Library</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
@@ -134,7 +142,7 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
 }
 
 const PlaylistDropdownMenu = ({ id }: { id: string }) => {
-    const snapshot = useSnapshot(state)
+    const { deleteTracksFromPlaylist } = usePlaylist()
 
     return (
         <DropdownMenu>
@@ -144,7 +152,7 @@ const PlaylistDropdownMenu = ({ id }: { id: string }) => {
                 </SidebarMenuAction>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="center">
-                <DropdownMenuItem onClick={() => deleteTrackFromPlaylist(id, snapshot.vault.currentPlaylistId)}>
+                <DropdownMenuItem onClick={() => deleteTracksFromPlaylist([id])}>
                     <span>Delete Track from Playlist</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>

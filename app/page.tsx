@@ -1,7 +1,9 @@
 'use client'
 
+import { QueryClientProvider } from '@tanstack/react-query'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import dynamic from 'next/dynamic'
+import { queryClient } from '@/app/_lib/queryClient'
 
 const Shortcuts = dynamic(() => import('@/app/_components/Shortcuts'), { ssr: false })
 const AppSidebar = dynamic(() => import('@/app/_components/AppSidebar'), { ssr: false })
@@ -10,17 +12,19 @@ const DJController = dynamic(() => import('@/app/_components/DJController'), { s
 
 const Home = () => {
     return (
-        <Shortcuts>
+        <QueryClientProvider client={queryClient}>
             <SidebarProvider defaultOpen={true}>
                 <AppSidebar />
                 <div className="flex-1">
                     <SidebarTrigger />
 
-                    <DJController />
-                    {process.env.NODE_ENV === 'development' && <Debugger />}
+                    <Shortcuts>
+                        <DJController />
+                        {process.env.NODE_ENV === 'development' && <Debugger />}
+                    </Shortcuts>
                 </div>
             </SidebarProvider>
-        </Shortcuts>
+        </QueryClientProvider>
     )
 }
 
