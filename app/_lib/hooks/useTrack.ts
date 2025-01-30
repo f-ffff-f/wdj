@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { CreateTrackAPI, DeleteTrackAPI, GetTracksAPI } from '@/app/types/api'
+import { DeleteTrackAPI, GetTracksAPI } from '@/app/types/api'
 import { fetcher } from '@/app/_lib/queryClient/fetcher'
 import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
 import { useSnapshot } from 'valtio'
@@ -28,22 +28,42 @@ export const useTrack = () => {
     // 트랙 생성 뮤테이션
     const createTrackMutation = useMutation({
         mutationFn: async (file: File) => {
-            // 1. S3 업로드 로직 (가정)
-            const s3Url = 'testurl' // 실제 구현 필요
+            try {
+                // 1. 프리사인드 URL 요청
+                const presignedResponse = await fetcher('/api/upload/presigned-url', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        fileName: file.name,
+                        fileType: file.type,
+                    }),
+                })
 
-            // [추가] playlistId 가져오기
-            const playlistId = snapshot.UI.currentPlaylistId
+                // 2. S3에 파일 업로드
+                const uploadResponse = await fetch(presignedResponse.url, {
+                    method: 'PUT',
+                    body: file,
+                    headers: {
+                        'Content-Type': file.type,
+                    },
+                })
 
-            // 2. 메타데이터 API 전송
-            return fetcher('/api/track/create', {
-                method: 'POST',
-                body: JSON.stringify({
-                    fileName: file.name,
-                    url: s3Url,
-                    // [추가] playlistId가 있으면 넘겨줌
-                    playlistId,
-                }),
-            }) as Promise<CreateTrackAPI['Response']>
+                if (!uploadResponse.ok) throw new Error('S3 upload failed')
+
+                // 3. 메타데이터 저장 요청
+                const playlistId = snapshot.UI.currentPlaylistId
+                const s3Url = presignedResponse.url.split('?')[0]
+
+                return await fetcher('/api/track/create', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        fileName: file.name,
+                        url: s3Url,
+                        playlistId,
+                    }),
+                })
+            } catch (error) {
+                throw new Error(`File upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+            }
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
