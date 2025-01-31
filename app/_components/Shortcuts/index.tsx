@@ -2,15 +2,17 @@ import { EShortcut } from '@/app/_components/Shortcuts/constants'
 import OverlayGuide from '@/app/_components/Shortcuts/OverlayGuide'
 import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
 import { EDeckIds } from '@/app/_lib/constants'
+import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
 import { state } from '@/app/_lib/state'
 import { Button } from '@/components/ui/button'
 import React, { useState, useEffect, useRef } from 'react'
-import { useSnapshot } from 'valtio'
+import { useTrack } from '@/app/_lib/hooks/useTrack'
 
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {
+    const { isAuthenticated } = useCurrentUser()
     const ref = useRef<HTMLDivElement>(null)
-    const snapshot = useSnapshot(state)
     const [showHelp, setShowHelp] = useState(false)
+    const { tracks } = useTrack()
 
     useEffect(() => {
         ref.current?.focus()
@@ -33,8 +35,8 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         const element = ref.current
 
-        const findIndex = (id: string) => {
-            return state.guest.tracks.findIndex((track) => track.id === id)
+        const findIndex = (tracks: ReadonlyArray<{ readonly id: string }> | undefined, id: string) => {
+            return tracks?.findIndex((track) => track.id === id) ?? -1
         }
 
         const shortcutHandlers: Record<EShortcut, () => void> = {
@@ -64,33 +66,61 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             },
             [EShortcut.ArrowUp]: () => {
                 if (state.UI.focusedTrackId) {
-                    const index = findIndex(state.UI.focusedTrackId)
-                    if (index > 0) {
-                        state.UI.focusedTrackId = state.guest.tracks[index - 1].id
+                    if (isAuthenticated && tracks) {
+                        const index = findIndex(tracks, state.UI.focusedTrackId)
+                        if (index > 0 && tracks) {
+                            state.UI.focusedTrackId = tracks[index - 1].id
+                        }
+                    } else {
+                        const index = findIndex(state.guest.tracks, state.UI.focusedTrackId)
+                        if (index > 0) {
+                            state.UI.focusedTrackId = state.guest.tracks[index - 1].id
+                        }
                     }
                 }
             },
             [EShortcut.ArrowDown]: () => {
                 if (state.UI.focusedTrackId) {
-                    const index = findIndex(state.UI.focusedTrackId)
-                    if (index < state.guest.tracks.length - 1) {
-                        state.UI.focusedTrackId = state.guest.tracks[index + 1].id
+                    if (isAuthenticated && tracks) {
+                        const index = findIndex(tracks, state.UI.focusedTrackId)
+                        if (index < tracks.length - 1) {
+                            state.UI.focusedTrackId = tracks[index + 1].id
+                        }
+                    } else {
+                        const index = findIndex(state.guest.tracks, state.UI.focusedTrackId)
+                        if (index < state.guest.tracks.length - 1) {
+                            state.UI.focusedTrackId = state.guest.tracks[index + 1].id
+                        }
                     }
                 }
             },
             [EShortcut.ArrowLeft]: () => {
                 if (state.UI.focusedTrackId) {
-                    const index = findIndex(state.UI.focusedTrackId)
-                    if (index >= 0) {
-                        audioManager.loadTrack(EDeckIds.DECK_1, state.guest.tracks[index].url!)
+                    if (isAuthenticated && tracks) {
+                        const index = findIndex(tracks, state.UI.focusedTrackId)
+                        if (index >= 0) {
+                            audioManager.loadTrack(EDeckIds.DECK_1, tracks[index].url!)
+                        }
+                    } else {
+                        const index = findIndex(state.guest.tracks, state.UI.focusedTrackId)
+                        if (index >= 0) {
+                            audioManager.loadTrack(EDeckIds.DECK_1, state.guest.tracks[index].url!)
+                        }
                     }
                 }
             },
             [EShortcut.ArrowRight]: () => {
                 if (state.UI.focusedTrackId) {
-                    const index = findIndex(state.UI.focusedTrackId)
-                    if (index <= state.guest.tracks.length - 1) {
-                        audioManager.loadTrack(EDeckIds.DECK_2, state.guest.tracks[index].url!)
+                    if (isAuthenticated && tracks) {
+                        const index = findIndex(tracks, state.UI.focusedTrackId)
+                        if (index <= tracks.length - 1) {
+                            audioManager.loadTrack(EDeckIds.DECK_2, tracks[index].url!)
+                        }
+                    } else {
+                        const index = findIndex(state.guest.tracks, state.UI.focusedTrackId)
+                        if (index <= state.guest.tracks.length - 1) {
+                            audioManager.loadTrack(EDeckIds.DECK_2, state.guest.tracks[index].url!)
+                        }
                     }
                 }
             },
@@ -108,7 +138,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         return () => {
             element?.removeEventListener('keydown', handleKeyDown)
         }
-    }, [])
+    }, [tracks, isAuthenticated])
 
     return (
         <div
