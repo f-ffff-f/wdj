@@ -24,14 +24,14 @@ const List = () => {
     const snapshot = useSnapshot(state)
     const { tracks } = useTrack()
     const { playlistTracks } = usePlaylist()
-    // const focusedTrackId = snapshot.vault.focusedTrackId
+    const focusedTrackId = state.UI.focusedTrackId
 
     const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
         audioManager.loadTrack(deckId, url)
     }
-    // const handleClick = (id: string) => {
-    //     state.vault.focusedTrackId = id
-    // }
+    const handleClick = (id: string) => {
+        state.UI.focusedTrackId = id
+    }
 
     return (
         <div className="w-full max-w-2xl mx-auto min-h-10 flex flex-col gap-1" id="vault-list">
@@ -42,9 +42,9 @@ const List = () => {
                           id={track.id}
                           fileName={track.fileName}
                           url={track.url}
-                          isFocused={false}
+                          isFocused={focusedTrackId === track.id}
                           handleLoadToDeck={handleLoadToDeck}
-                          handleClick={() => {}}
+                          handleClick={handleClick}
                       >
                           <LibraryDropdownMenu id={track.id} />
                       </Item>
@@ -55,9 +55,9 @@ const List = () => {
                           id={track.id}
                           fileName={track.fileName}
                           url={track.url}
-                          isFocused={false}
+                          isFocused={focusedTrackId === track.id}
                           handleLoadToDeck={handleLoadToDeck}
-                          handleClick={() => {}}
+                          handleClick={handleClick}
                       >
                           <PlaylistDropdownMenu id={track.id} />
                       </Item>

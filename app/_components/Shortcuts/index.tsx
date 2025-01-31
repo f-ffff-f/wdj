@@ -2,12 +2,14 @@ import { EShortcut } from '@/app/_components/Shortcuts/constants'
 import OverlayGuide from '@/app/_components/Shortcuts/OverlayGuide'
 import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
 import { EDeckIds } from '@/app/_lib/constants'
+import { state } from '@/app/_lib/state'
 import { Button } from '@/components/ui/button'
 import React, { useState, useEffect, useRef } from 'react'
+import { useSnapshot } from 'valtio'
 
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {
     const ref = useRef<HTMLDivElement>(null)
-    // const snapshot = useSnapshot(state)
+    const snapshot = useSnapshot(state)
     const [showHelp, setShowHelp] = useState(false)
 
     useEffect(() => {
@@ -28,83 +30,85 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         return () => element?.removeEventListener('keydown', handler)
     }, [])
 
-    // useEffect(() => {
-    //     const findIndex = (id: string) => {
-    //         return snapshot.vault.tracks.findIndex((track) => track.id === id)
-    //     }
+    useEffect(() => {
+        const element = ref.current
 
-    //     const shortcutHandlers: Record<EShortcut, () => void> = {
-    //         [EShortcut.KeyQ]: () =>
-    //             audioManager.setSpeed(EDeckIds.DECK_1, audioManager.getSpeed(EDeckIds.DECK_1) + 0.05),
-    //         [EShortcut.KeyA]: () =>
-    //             audioManager.setSpeed(EDeckIds.DECK_1, audioManager.getSpeed(EDeckIds.DECK_1) - 0.05),
-    //         [EShortcut.BracketRight]: () =>
-    //             audioManager.setSpeed(EDeckIds.DECK_2, audioManager.getSpeed(EDeckIds.DECK_2) + 0.05),
-    //         [EShortcut.Quote]: () =>
-    //             audioManager.setSpeed(EDeckIds.DECK_2, audioManager.getSpeed(EDeckIds.DECK_2) - 0.05),
-    //         [EShortcut.KeyW]: () =>
-    //             audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) + 0.05),
-    //         [EShortcut.KeyS]: () =>
-    //             audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) - 0.05),
-    //         [EShortcut.BracketLeft]: () =>
-    //             audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) + 0.05),
-    //         [EShortcut.Semicolon]: () =>
-    //             audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) - 0.05),
-    //         [EShortcut.KeyZ]: () => audioManager.setCrossFade(audioManager.getCrossFade() - 0.05),
-    //         [EShortcut.Slash]: () => audioManager.setCrossFade(audioManager.getCrossFade() + 0.05),
-    //         [EShortcut.ShiftLeft]: () => audioManager.playPauseDeck(EDeckIds.DECK_1),
-    //         [EShortcut.ShiftRight]: () => audioManager.playPauseDeck(EDeckIds.DECK_2),
-    //         [EShortcut.Enter]: () => {
-    //             const fileInput = document.getElementById('file-uploader')
-    //             if (fileInput) fileInput.click()
-    //         },
-    //         [EShortcut.ArrowUp]: () => {
-    //             if (snapshot.vault.focusedTrackId) {
-    //                 const index = findIndex(snapshot.vault.focusedTrackId)
-    //                 if (index > 0) {
-    //                     state.vault.focusedTrackId = snapshot.vault.tracks[index - 1].id
-    //                 }
-    //             }
-    //         },
-    //         [EShortcut.ArrowDown]: () => {
-    //             if (snapshot.vault.focusedTrackId) {
-    //                 const index = findIndex(snapshot.vault.focusedTrackId)
-    //                 if (index < snapshot.vault.tracks.length - 1) {
-    //                     state.vault.focusedTrackId = snapshot.vault.tracks[index + 1].id
-    //                 }
-    //             }
-    //         },
-    //         [EShortcut.ArrowLeft]: () => {
-    //             if (snapshot.vault.focusedTrackId) {
-    //                 const index = findIndex(snapshot.vault.focusedTrackId)
-    //                 if (index >= 0) {
-    //                     audioManager.loadTrack(EDeckIds.DECK_1, snapshot.vault.tracks[index].url!)
-    //                 }
-    //             }
-    //         },
-    //         [EShortcut.ArrowRight]: () => {
-    //             if (snapshot.vault.focusedTrackId) {
-    //                 const index = findIndex(snapshot.vault.focusedTrackId)
-    //                 if (index <= snapshot.vault.tracks.length - 1) {
-    //                     audioManager.loadTrack(EDeckIds.DECK_2, snapshot.vault.tracks[index].url!)
-    //                 }
-    //             }
-    //         },
-    //     }
+        const findIndex = (id: string) => {
+            return state.guest.tracks.findIndex((track) => track.id === id)
+        }
 
-    //     const handleKeyDown = (event: KeyboardEvent) => {
-    //         const handler = shortcutHandlers[event.code as EShortcut]
-    //         if (handler) {
-    //             handler()
-    //         }
-    //     }
+        const shortcutHandlers: Record<EShortcut, () => void> = {
+            [EShortcut.KeyQ]: () =>
+                audioManager.setSpeed(EDeckIds.DECK_1, audioManager.getSpeed(EDeckIds.DECK_1) + 0.05),
+            [EShortcut.KeyA]: () =>
+                audioManager.setSpeed(EDeckIds.DECK_1, audioManager.getSpeed(EDeckIds.DECK_1) - 0.05),
+            [EShortcut.BracketRight]: () =>
+                audioManager.setSpeed(EDeckIds.DECK_2, audioManager.getSpeed(EDeckIds.DECK_2) + 0.05),
+            [EShortcut.Quote]: () =>
+                audioManager.setSpeed(EDeckIds.DECK_2, audioManager.getSpeed(EDeckIds.DECK_2) - 0.05),
+            [EShortcut.KeyW]: () =>
+                audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) + 0.05),
+            [EShortcut.KeyS]: () =>
+                audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) - 0.05),
+            [EShortcut.BracketLeft]: () =>
+                audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) + 0.05),
+            [EShortcut.Semicolon]: () =>
+                audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) - 0.05),
+            [EShortcut.KeyZ]: () => audioManager.setCrossFade(audioManager.getCrossFade() - 0.05),
+            [EShortcut.Slash]: () => audioManager.setCrossFade(audioManager.getCrossFade() + 0.05),
+            [EShortcut.ShiftLeft]: () => audioManager.playPauseDeck(EDeckIds.DECK_1),
+            [EShortcut.ShiftRight]: () => audioManager.playPauseDeck(EDeckIds.DECK_2),
+            [EShortcut.Enter]: () => {
+                const fileInput = document.getElementById('file-uploader')
+                if (fileInput) fileInput.click()
+            },
+            [EShortcut.ArrowUp]: () => {
+                if (state.UI.focusedTrackId) {
+                    const index = findIndex(state.UI.focusedTrackId)
+                    if (index > 0) {
+                        state.UI.focusedTrackId = state.guest.tracks[index - 1].id
+                    }
+                }
+            },
+            [EShortcut.ArrowDown]: () => {
+                if (state.UI.focusedTrackId) {
+                    const index = findIndex(state.UI.focusedTrackId)
+                    if (index < state.guest.tracks.length - 1) {
+                        state.UI.focusedTrackId = state.guest.tracks[index + 1].id
+                    }
+                }
+            },
+            [EShortcut.ArrowLeft]: () => {
+                if (state.UI.focusedTrackId) {
+                    const index = findIndex(state.UI.focusedTrackId)
+                    if (index >= 0) {
+                        audioManager.loadTrack(EDeckIds.DECK_1, state.guest.tracks[index].url!)
+                    }
+                }
+            },
+            [EShortcut.ArrowRight]: () => {
+                if (state.UI.focusedTrackId) {
+                    const index = findIndex(state.UI.focusedTrackId)
+                    if (index <= state.guest.tracks.length - 1) {
+                        audioManager.loadTrack(EDeckIds.DECK_2, state.guest.tracks[index].url!)
+                    }
+                }
+            },
+        }
 
-    //     window.addEventListener('keydown', handleKeyDown)
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const handler = shortcutHandlers[event.code as EShortcut]
+            if (handler) {
+                handler()
+            }
+        }
 
-    //     return () => {
-    //         window.removeEventListener('keydown', handleKeyDown)
-    //     }
-    // }, [snapshot])
+        element?.addEventListener('keydown', handleKeyDown)
+
+        return () => {
+            element?.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [])
 
     return (
         <div
