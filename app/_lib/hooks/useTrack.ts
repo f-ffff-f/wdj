@@ -23,8 +23,6 @@ export const useTrack = () => {
         retry: false,
     })
 
-    const tracks = isAuthenticated ? tracksQuery.data : snapshot.guest.tracks
-
     // 트랙 생성 뮤테이션
     const createTrackMutation = useMutation({
         mutationFn: async (file: File) => {
@@ -65,6 +63,9 @@ export const useTrack = () => {
                 throw new Error(`File upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
             }
         },
+        onSuccess: (data) => {
+            state.UI.focusedTrackId = data.id
+        },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
             queryClient.invalidateQueries({ queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId] })
@@ -101,7 +102,7 @@ export const useTrack = () => {
     const deleteTrack = isAuthenticated ? deleteTrackMutation.mutate : valtioAction.deleteTrackFromLibrary
 
     return {
-        tracks,
+        tracksQuery: tracksQuery.data,
         isLoading: tracksQuery.isLoading,
         error: tracksQuery.error,
         createTrack,

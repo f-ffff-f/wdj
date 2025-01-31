@@ -12,7 +12,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated } = useCurrentUser()
     const ref = useRef<HTMLDivElement>(null)
     const [showHelp, setShowHelp] = useState(false)
-    const { tracks } = useTrack()
+    const { tracksQuery } = useTrack()
 
     useEffect(() => {
         ref.current?.focus()
@@ -66,10 +66,10 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             },
             [EShortcut.ArrowUp]: () => {
                 if (state.UI.focusedTrackId) {
-                    if (isAuthenticated && tracks) {
-                        const index = findIndex(tracks, state.UI.focusedTrackId)
-                        if (index > 0 && tracks) {
-                            state.UI.focusedTrackId = tracks[index - 1].id
+                    if (isAuthenticated && tracksQuery) {
+                        const index = findIndex(tracksQuery, state.UI.focusedTrackId)
+                        if (index > 0 && tracksQuery) {
+                            state.UI.focusedTrackId = tracksQuery[index - 1].id
                         }
                     } else {
                         const index = findIndex(state.guest.tracks, state.UI.focusedTrackId)
@@ -81,10 +81,10 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             },
             [EShortcut.ArrowDown]: () => {
                 if (state.UI.focusedTrackId) {
-                    if (isAuthenticated && tracks) {
-                        const index = findIndex(tracks, state.UI.focusedTrackId)
-                        if (index < tracks.length - 1) {
-                            state.UI.focusedTrackId = tracks[index + 1].id
+                    if (isAuthenticated && tracksQuery) {
+                        const index = findIndex(tracksQuery, state.UI.focusedTrackId)
+                        if (index < tracksQuery.length - 1) {
+                            state.UI.focusedTrackId = tracksQuery[index + 1].id
                         }
                     } else {
                         const index = findIndex(state.guest.tracks, state.UI.focusedTrackId)
@@ -96,10 +96,10 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             },
             [EShortcut.ArrowLeft]: () => {
                 if (state.UI.focusedTrackId) {
-                    if (isAuthenticated && tracks) {
-                        const index = findIndex(tracks, state.UI.focusedTrackId)
+                    if (isAuthenticated && tracksQuery) {
+                        const index = findIndex(tracksQuery, state.UI.focusedTrackId)
                         if (index >= 0) {
-                            audioManager.loadTrack(EDeckIds.DECK_1, tracks[index].url!)
+                            audioManager.loadTrack(EDeckIds.DECK_1, tracksQuery[index].url!)
                         }
                     } else {
                         const index = findIndex(state.guest.tracks, state.UI.focusedTrackId)
@@ -111,10 +111,10 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             },
             [EShortcut.ArrowRight]: () => {
                 if (state.UI.focusedTrackId) {
-                    if (isAuthenticated && tracks) {
-                        const index = findIndex(tracks, state.UI.focusedTrackId)
-                        if (index <= tracks.length - 1) {
-                            audioManager.loadTrack(EDeckIds.DECK_2, tracks[index].url!)
+                    if (isAuthenticated && tracksQuery) {
+                        const index = findIndex(tracksQuery, state.UI.focusedTrackId)
+                        if (index <= tracksQuery.length - 1) {
+                            audioManager.loadTrack(EDeckIds.DECK_2, tracksQuery[index].url!)
                         }
                     } else {
                         const index = findIndex(state.guest.tracks, state.UI.focusedTrackId)
@@ -138,7 +138,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         return () => {
             element?.removeEventListener('keydown', handleKeyDown)
         }
-    }, [tracks, isAuthenticated])
+    }, [tracksQuery, isAuthenticated])
 
     return (
         <div

@@ -1,7 +1,7 @@
 import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useSnapshot } from 'valtio'
 import { Card } from '@/components/ui/card'
 import { EDeckIds } from '@/app/_lib/constants'
@@ -19,11 +19,20 @@ import { MoreVertical } from 'lucide-react'
 import { useTrack } from '@/app/_lib/hooks/useTrack'
 import { state } from '@/app/_lib/state'
 import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
+import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
 
 const List = () => {
+    const { isAuthenticated } = useCurrentUser()
+
     const snapshot = useSnapshot(state)
-    const { tracks } = useTrack()
-    const { playlistTracks } = usePlaylist()
+    const { tracksQuery } = useTrack()
+    const { playlistTracksQuery } = usePlaylist()
+
+    const tracks = isAuthenticated ? tracksQuery : snapshot.guest.tracks
+    const playlistTracks = isAuthenticated
+        ? playlistTracksQuery
+        : snapshot.guest.tracks.filter((track) => track.playlistIds.includes(snapshot.UI.currentPlaylistId))
+
     const focusedTrackId = state.UI.focusedTrackId
 
     const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
@@ -105,8 +114,11 @@ const Item: React.FC<ITrackListItemProps> = ({
 }
 
 const LibraryDropdownMenu = ({ id }: { id: string }) => {
+    const { isAuthenticated } = useCurrentUser()
+    const snapshot = useSnapshot(state)
     const { deleteTrack } = useTrack()
-    const { playlists, addTracksToPlaylist } = usePlaylist()
+    const { playlistsQuery, addTracksToPlaylist } = usePlaylist()
+    const playlists = isAuthenticated ? playlistsQuery : snapshot.guest.playlists
 
     return (
         <DropdownMenu>
