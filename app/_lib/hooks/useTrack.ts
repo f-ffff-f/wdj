@@ -1,9 +1,8 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { DeleteTrackAPI, GetTracksAPI } from '@/app/types/api'
 import { fetcher } from '@/app/_lib/queryClient/fetcher'
-import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
+import { state } from '@/app/_lib/state'
+import { DeleteTrackAPI, GetTracksAPI } from '@/app/types/api'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
-import { state, valtioAction } from '@/app/_lib/state'
 
 /**
  * 트랙 관리 커스텀 훅
@@ -11,7 +10,6 @@ import { state, valtioAction } from '@/app/_lib/state'
  */
 export const useTrack = () => {
     const snapshot = useSnapshot(state)
-    const { isAuthenticated } = useCurrentUser()
 
     const queryClient = useQueryClient()
     const queryKey = ['/api/track']
@@ -72,8 +70,6 @@ export const useTrack = () => {
         },
     })
 
-    const createTrack = isAuthenticated ? createTrackMutation.mutate : valtioAction.addTrackToLibrary
-
     // 트랙 삭제 뮤테이션
     const deleteTrackMutation = useMutation({
         mutationFn: async (id: string) => {
@@ -99,15 +95,13 @@ export const useTrack = () => {
         },
     })
 
-    const deleteTrack = isAuthenticated ? deleteTrackMutation.mutate : valtioAction.deleteTrackFromLibrary
-
     return {
         tracksQuery: tracksQuery.data,
         isLoading: tracksQuery.isLoading,
         error: tracksQuery.error,
-        createTrack,
+        createTrack: createTrackMutation.mutate,
         isCreating: createTrackMutation.isPending,
-        deleteTrack,
+        deleteTrack: deleteTrackMutation.mutate,
         isDeleting: deleteTrackMutation.isPending,
     }
 }

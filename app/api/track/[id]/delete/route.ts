@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { tryGetUserIdFromToken } from '@/app/_lib/utils'
+import { getUserIdFromToken } from '@/app/_lib/utils'
 
 /**
  * 트랙 삭제 API 엔드포인트
@@ -8,10 +8,7 @@ import { tryGetUserIdFromToken } from '@/app/_lib/utils'
  */
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
-        const result = tryGetUserIdFromToken(request)
-        if (!result) {
-            return NextResponse.json(result, { status: 200 })
-        }
+        const result = getUserIdFromToken(request)
 
         await prisma.track.delete({
             where: {

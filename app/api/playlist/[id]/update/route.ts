@@ -1,14 +1,10 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { tryGetUserIdFromToken } from '@/app/_lib/utils'
+import { getUserIdFromToken } from '@/app/_lib/utils'
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
     try {
-        const result = tryGetUserIdFromToken(request)
-
-        if (!result) {
-            return NextResponse.json(result, { status: 200 })
-        }
+        const result = getUserIdFromToken(request)
 
         const { name } = await request.json()
 

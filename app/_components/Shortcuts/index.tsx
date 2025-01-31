@@ -2,15 +2,13 @@ import { EShortcut } from '@/app/_components/Shortcuts/constants'
 import OverlayGuide from '@/app/_components/Shortcuts/OverlayGuide'
 import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
 import { EDeckIds } from '@/app/_lib/constants'
-import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
+import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
+import { useTrack } from '@/app/_lib/hooks/useTrack'
 import { state } from '@/app/_lib/state'
 import { Button } from '@/components/ui/button'
-import React, { useState, useEffect, useRef } from 'react'
-import { useTrack } from '@/app/_lib/hooks/useTrack'
-import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
+import React, { useEffect, useRef, useState } from 'react'
 
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {
-    const { isAuthenticated } = useCurrentUser()
     const ref = useRef<HTMLDivElement>(null)
     const [showHelp, setShowHelp] = useState(false)
     const { tracksQuery } = useTrack()
@@ -68,102 +66,50 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             },
             [EShortcut.ArrowUp]: () => {
                 if (state.UI.focusedTrackId) {
-                    if (isAuthenticated) {
-                        if (state.UI.currentPlaylistId === '') {
-                            const index = findIndex(tracksQuery, state.UI.focusedTrackId)
-                            if (index > 0 && tracksQuery) {
-                                state.UI.focusedTrackId = tracksQuery[index - 1].id
-                            }
-                        } else {
-                            const index = findIndex(playlistTracksQuery, state.UI.focusedTrackId)
-                            if (index > 0 && playlistTracksQuery) {
-                                state.UI.focusedTrackId = playlistTracksQuery[index - 1].id
-                            }
+                    if (state.UI.currentPlaylistId === '') {
+                        const index = findIndex(tracksQuery, state.UI.focusedTrackId)
+                        if (index > 0 && tracksQuery) {
+                            state.UI.focusedTrackId = tracksQuery[index - 1].id
                         }
                     } else {
-                        if (state.UI.currentPlaylistId === '') {
-                            const index = findIndex(state.guest.tracks, state.UI.focusedTrackId)
-                            if (index > 0) {
-                                state.UI.focusedTrackId = state.guest.tracks[index - 1].id
-                            }
-                        } else {
-                            const index = findIndex(
-                                state.guest.tracks.filter((track) =>
-                                    track.playlistIds.includes(state.UI.currentPlaylistId),
-                                ),
-                                state.UI.focusedTrackId,
-                            )
-                            if (index > 0) {
-                                state.UI.focusedTrackId = state.guest.tracks.filter((track) =>
-                                    track.playlistIds.includes(state.UI.currentPlaylistId),
-                                )[index - 1].id
-                            }
+                        const index = findIndex(playlistTracksQuery, state.UI.focusedTrackId)
+                        if (index > 0 && playlistTracksQuery) {
+                            state.UI.focusedTrackId = playlistTracksQuery[index - 1].id
                         }
                     }
                 }
             },
             [EShortcut.ArrowDown]: () => {
                 if (state.UI.focusedTrackId) {
-                    if (isAuthenticated) {
-                        if (state.UI.currentPlaylistId === '' && tracksQuery) {
-                            const index = findIndex(tracksQuery, state.UI.focusedTrackId)
-                            if (index < tracksQuery.length - 1) {
-                                state.UI.focusedTrackId = tracksQuery[index + 1].id
-                            }
-                        } else if (state.UI.currentPlaylistId && playlistTracksQuery) {
-                            const index = findIndex(playlistTracksQuery, state.UI.focusedTrackId)
-                            if (index < playlistTracksQuery.length - 1) {
-                                state.UI.focusedTrackId = playlistTracksQuery[index + 1].id
-                            }
+                    if (state.UI.currentPlaylistId === '' && tracksQuery) {
+                        const index = findIndex(tracksQuery, state.UI.focusedTrackId)
+                        if (index < tracksQuery.length - 1) {
+                            state.UI.focusedTrackId = tracksQuery[index + 1].id
                         }
-                    } else {
-                        if (state.UI.currentPlaylistId === '') {
-                            const index = findIndex(state.guest.tracks, state.UI.focusedTrackId)
-                            if (index < state.guest.tracks.length - 1) {
-                                state.UI.focusedTrackId = state.guest.tracks[index + 1].id
-                            }
-                        } else {
-                            const index = findIndex(
-                                state.guest.tracks.filter((track) =>
-                                    track.playlistIds.includes(state.UI.currentPlaylistId),
-                                ),
-                                state.UI.focusedTrackId,
-                            )
-                            if (index < state.guest.tracks.length - 1) {
-                                state.UI.focusedTrackId = state.guest.tracks.filter((track) =>
-                                    track.playlistIds.includes(state.UI.currentPlaylistId),
-                                )[index + 1].id
-                            }
+                    } else if (state.UI.currentPlaylistId && playlistTracksQuery) {
+                        const index = findIndex(playlistTracksQuery, state.UI.focusedTrackId)
+                        if (index < playlistTracksQuery.length - 1) {
+                            state.UI.focusedTrackId = playlistTracksQuery[index + 1].id
                         }
                     }
                 }
             },
             [EShortcut.ArrowLeft]: () => {
                 if (state.UI.focusedTrackId) {
-                    if (isAuthenticated && tracksQuery) {
+                    if (tracksQuery) {
                         const index = findIndex(tracksQuery, state.UI.focusedTrackId)
                         if (index >= 0) {
                             audioManager.loadTrack(EDeckIds.DECK_1, tracksQuery[index].url!)
-                        }
-                    } else {
-                        const index = findIndex(state.guest.tracks, state.UI.focusedTrackId)
-                        if (index >= 0) {
-                            audioManager.loadTrack(EDeckIds.DECK_1, state.guest.tracks[index].url!)
                         }
                     }
                 }
             },
             [EShortcut.ArrowRight]: () => {
                 if (state.UI.focusedTrackId) {
-                    if (isAuthenticated && tracksQuery) {
+                    if (tracksQuery) {
                         const index = findIndex(tracksQuery, state.UI.focusedTrackId)
                         if (index <= tracksQuery.length - 1) {
                             audioManager.loadTrack(EDeckIds.DECK_2, tracksQuery[index].url!)
-                        }
-                    } else {
-                        const index = findIndex(state.guest.tracks, state.UI.focusedTrackId)
-                        if (index <= state.guest.tracks.length - 1) {
-                            audioManager.loadTrack(EDeckIds.DECK_2, state.guest.tracks[index].url!)
                         }
                     }
                 }
@@ -182,7 +128,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         return () => {
             element?.removeEventListener('keydown', handleKeyDown)
         }
-    }, [tracksQuery, isAuthenticated])
+    }, [tracksQuery, playlistTracksQuery])
 
     return (
         <div

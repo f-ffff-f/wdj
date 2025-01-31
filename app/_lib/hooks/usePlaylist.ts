@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { fetcher } from '@/app/_lib/queryClient/fetcher'
+import { state } from '@/app/_lib/state'
 import {
     AddTracksToPlaylistAPI,
     CreatePlaylistAPI,
@@ -7,17 +8,14 @@ import {
     GetTracksAPI,
     UpdatePlaylistAPI,
 } from '@/app/types/api'
-import { fetcher } from '@/app/_lib/queryClient/fetcher'
-import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
-import { state, valtioAction } from '@/app/_lib/state'
 
 /**
  * 플레이리스트 관련 커스텀 훅
  */
 export const usePlaylist = () => {
     const snapshot = useSnapshot(state)
-    const { isAuthenticated } = useCurrentUser()
 
     const queryClient = useQueryClient()
     const queryKey = ['/api/playlist']
@@ -46,8 +44,6 @@ export const usePlaylist = () => {
         },
     })
 
-    const createPlaylist = isAuthenticated ? createPlaylistMutation.mutate : valtioAction.createPlaylist
-
     /**
      * 플레이리스트 수정 뮤테이션
      */
@@ -71,12 +67,6 @@ export const usePlaylist = () => {
         },
     })
 
-    // 통합된 인터페이스를 위한 매개변수 구조 조정
-    const updatePlaylist = isAuthenticated
-        ? (params: { id: string; name: string }, options?: { onSuccess?: () => void }) =>
-              updatePlaylistMutation.mutate(params, options)
-        : valtioAction.updatePlaylist
-
     /**
      * 플레이리스트 삭제 뮤테이션
      */
@@ -91,8 +81,6 @@ export const usePlaylist = () => {
         },
     })
 
-    const deletePlaylist = isAuthenticated ? deletePlaylistMutation.mutate : valtioAction.deletePlaylist
-
     const addTracksToPlaylistMutation = useMutation({
         mutationFn: async ({ id, trackIds }: { id: string; trackIds: string[] }) => {
             return fetcher(`/api/playlist/${id}/tracks`, {
@@ -104,8 +92,6 @@ export const usePlaylist = () => {
             queryClient.invalidateQueries({ queryKey })
         },
     })
-
-    const addTracksToPlaylist = isAuthenticated ? addTracksToPlaylistMutation.mutate : valtioAction.addTracksToPlaylist
 
     const playlistTracksQuery = useQuery<GetTracksAPI['Response']>({
         queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId],
@@ -125,26 +111,22 @@ export const usePlaylist = () => {
         },
     })
 
-    const deleteTracksFromPlaylist = isAuthenticated
-        ? deleteTracksFromPlaylistMutation.mutate
-        : valtioAction.deleteTracksFromPlaylist
-
     return {
         playlistsQuery: playlistsQuery.data,
         isLoading: playlistsQuery.isLoading,
         error: playlistsQuery.error,
-        createPlaylist,
+        createPlaylist: createPlaylistMutation.mutate,
         isCreating: createPlaylistMutation.isPending,
-        updatePlaylist,
+        updatePlaylist: updatePlaylistMutation.mutate,
         isUpdating: updatePlaylistMutation.isPending,
-        deletePlaylist,
+        deletePlaylist: deletePlaylistMutation.mutate,
         isDeleting: deletePlaylistMutation.isPending,
-        addTracksToPlaylist,
+        addTracksToPlaylist: addTracksToPlaylistMutation.mutate,
         isAddingTracks: addTracksToPlaylistMutation.isPending,
         playlistTracksQuery: playlistTracksQuery.data,
         isLoadingPlaylistTracks: playlistTracksQuery.isLoading,
         errorPlaylistTracks: playlistTracksQuery.error,
-        deleteTracksFromPlaylist,
+        deleteTracksFromPlaylist: deleteTracksFromPlaylistMutation.mutate,
         isDeletingTracks: deleteTracksFromPlaylistMutation.isPending,
     }
 }

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { tryGetUserIdFromToken } from '@/app/_lib/utils'
+import { getUserIdFromToken } from '@/app/_lib/utils'
 
 /**
  * 사용자의 플레이리스트 목록을 조회하는 API 엔드포인트
@@ -9,11 +9,7 @@ import { tryGetUserIdFromToken } from '@/app/_lib/utils'
 export async function GET(request: Request) {
     try {
         // 토큰에서 사용자 ID 확인
-        const result = tryGetUserIdFromToken(request)
-
-        if (!result) {
-            return NextResponse.json(result, { status: 200 })
-        }
+        const result = getUserIdFromToken(request)
 
         // 사용자의 플레이리스트 조회
         const playlists = await prisma.playlist.findMany({

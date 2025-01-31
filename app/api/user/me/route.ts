@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import jwt from 'jsonwebtoken'
-import { tryGetUserIdFromToken } from '@/app/_lib/utils'
+import { getUserIdFromToken } from '@/app/_lib/utils'
 
 /**
  * 인증된 사용자의 정보를 반환하는 API 엔드포인트
@@ -10,10 +10,10 @@ import { tryGetUserIdFromToken } from '@/app/_lib/utils'
 
 export async function GET(request: Request): Promise<NextResponse> {
     try {
-        const result = tryGetUserIdFromToken(request)
+        const result = getUserIdFromToken(request)
 
         if (!result) {
-            return NextResponse.json(result, { status: 200 })
+            return NextResponse.json({ error: 'Token is not exist' }, { status: 400 })
         }
 
         // 디코딩된 userId로 사용자 정보 조회
@@ -23,6 +23,7 @@ export async function GET(request: Request): Promise<NextResponse> {
                 id: true,
                 email: true,
                 createdAt: true,
+                role: true,
             },
         })
 

@@ -13,17 +13,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  GUEST
+  MEMBER
+}
+
+
 model User {
   id         String    @id @default(uuid())
-  email      String    @unique
-  password   String
+
+  email      String?   @unique
+  password   String?
+
+  role       Role      @default(MEMBER)
+
   createdAt  DateTime  @default(now())
   
-  // 내가 만든 플레이리스트들
   playlists  Playlist[]
   
-  // 내가 업로드한 트랙들 (내 라이브러리)
-  tracks     Track[]  // <--- 이게 사실상 '내 라이브러리'
+  tracks     Track[]
 }
 
 model Track {
