@@ -1,7 +1,7 @@
 import { Prisma } from '@prisma/client'
 
 export type UserDTO = Prisma.UserGetPayload<{
-    select: { id: true; email: true; createdAt: true }
+    select: { id: true; email: true; createdAt: true; role: true }
 }>
 
 export type PlaylistDTO = Prisma.PlaylistGetPayload<{
