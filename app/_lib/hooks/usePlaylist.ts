@@ -53,19 +53,31 @@ export const usePlaylist = () => {
     /**
      * 플레이리스트 수정 뮤테이션
      */
-    const updatePlaylistMutation = useMutation({
-        mutationFn: async ({ id, name }: { id: string; name: string }) => {
-            return fetcher(`/api/playlist/${id}/update`, {
+    const updatePlaylistMutation = useMutation<
+        UpdatePlaylistAPI['Response'],
+        Error,
+        { id: string; name: string },
+        { onSuccess?: () => void }
+    >({
+        mutationFn: async (params: { id: string; name: string }) => {
+            return fetcher(`/api/playlist/${params.id}/update`, {
                 method: 'PATCH',
-                body: JSON.stringify({ name }),
+                body: JSON.stringify({ name: params.name }),
             }) as Promise<UpdatePlaylistAPI['Response']>
+        },
+        onSuccess: (data, variables, context) => {
+            context?.onSuccess?.()
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
         },
     })
 
-    const updatePlaylist = isAuthenticated ? updatePlaylistMutation.mutate : valtioAction.updatePlaylist
+    // 통합된 인터페이스를 위한 매개변수 구조 조정
+    const updatePlaylist = isAuthenticated
+        ? (params: { id: string; name: string }, options?: { onSuccess?: () => void }) =>
+              updatePlaylistMutation.mutate(params, options)
+        : valtioAction.updatePlaylist
 
     /**
      * 플레이리스트 삭제 뮤테이션
