@@ -19,11 +19,8 @@ import Auth from '@/app/_components/Auth'
 import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
 import { state } from '@/app/_lib/state'
 import { useSnapshot } from 'valtio'
-import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
 
 const AppSidebar = () => {
-    const { isAuthenticated } = useCurrentUser()
-
     const snapshot = useSnapshot(state)
     const [newPlaylistName, setNewPlaylistName] = useState('')
     const [editingPlaylistName, setEditingPlaylistName] = useState('')
@@ -40,8 +37,6 @@ const AppSidebar = () => {
         error,
     } = usePlaylist()
 
-    const playlists = isAuthenticated ? playlistsQuery : snapshot.guest.playlists
-
     const handleAddPlaylist = () => {
         if (!newPlaylistName.trim()) return
 
@@ -50,7 +45,7 @@ const AppSidebar = () => {
     }
 
     const startRenamePlaylist = (playlistId: string) => {
-        const playlist = playlists?.find((p) => p.id === playlistId)
+        const playlist = playlistsQuery?.find((p) => p.id === playlistId)
         if (playlist) {
             setEditingPlaylistId(playlistId)
             setEditingPlaylistName(playlist.name)
@@ -126,7 +121,7 @@ const AppSidebar = () => {
                             ) : error ? (
                                 <div className="text-center py-2 text-destructive">에러: {error.message}</div>
                             ) : (
-                                playlists?.map((playlist) => {
+                                playlistsQuery?.map((playlist) => {
                                     return editingPlaylistId !== playlist.id ? (
                                         <SidebarMenuItem key={playlist.id}>
                                             <SidebarMenuButton
