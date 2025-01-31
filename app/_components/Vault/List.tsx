@@ -1,10 +1,10 @@
 import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import React, { useEffect } from 'react'
-import { useSnapshot } from 'valtio'
-import { Card } from '@/components/ui/card'
 import { EDeckIds } from '@/app/_lib/constants'
+import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
+import { useTrack } from '@/app/_lib/hooks/useTrack'
+import { state } from '@/app/_lib/state'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,23 +15,15 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenuAction } from '@/components/ui/sidebar'
+import { cn } from '@/lib/utils'
 import { MoreVertical } from 'lucide-react'
-import { useTrack } from '@/app/_lib/hooks/useTrack'
-import { state } from '@/app/_lib/state'
-import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
-import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
+import React from 'react'
+import { useSnapshot } from 'valtio'
 
 const List = () => {
-    const { isAuthenticated } = useCurrentUser()
-
     const snapshot = useSnapshot(state)
     const { tracksQuery } = useTrack()
     const { playlistTracksQuery } = usePlaylist()
-
-    const tracks = isAuthenticated ? tracksQuery : snapshot.guest.tracks
-    const playlistTracks = isAuthenticated
-        ? playlistTracksQuery
-        : snapshot.guest.tracks.filter((track) => track.playlistIds.includes(snapshot.UI.currentPlaylistId))
 
     const focusedTrackId = state.UI.focusedTrackId
 
@@ -45,7 +37,7 @@ const List = () => {
     return (
         <div className="w-full max-w-2xl mx-auto min-h-10 flex flex-col gap-1" id="vault-list">
             {snapshot.UI.currentPlaylistId === ''
-                ? tracks?.map((track) => (
+                ? tracksQuery?.map((track) => (
                       <Item
                           key={track.id}
                           id={track.id}
@@ -58,7 +50,7 @@ const List = () => {
                           <LibraryDropdownMenu id={track.id} />
                       </Item>
                   ))
-                : playlistTracks?.map((track) => (
+                : playlistTracksQuery?.map((track) => (
                       <Item
                           key={track.id}
                           id={track.id}
@@ -114,11 +106,8 @@ const Item: React.FC<ITrackListItemProps> = ({
 }
 
 const LibraryDropdownMenu = ({ id }: { id: string }) => {
-    const { isAuthenticated } = useCurrentUser()
-    const snapshot = useSnapshot(state)
     const { deleteTrack } = useTrack()
     const { playlistsQuery, addTracksToPlaylist } = usePlaylist()
-    const playlists = isAuthenticated ? playlistsQuery : snapshot.guest.playlists
 
     return (
         <DropdownMenu>
@@ -133,7 +122,7 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
                         <span>Add to Playlist</span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
-                        {playlists?.map((playlist) => (
+                        {playlistsQuery?.map((playlist) => (
                             <DropdownMenuItem
                                 key={playlist.id}
                                 onClick={() => {

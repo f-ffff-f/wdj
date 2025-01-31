@@ -1,14 +1,11 @@
 // /app/api/track/create/route.ts (가정)
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { tryGetUserIdFromToken } from '@/app/_lib/utils'
+import { getUserIdFromToken } from '@/app/_lib/utils'
 
 export async function POST(request: Request) {
     try {
-        const result = tryGetUserIdFromToken(request)
-        if (!result) {
-            return NextResponse.json(result, { status: 200 })
-        }
+        const result = getUserIdFromToken(request)
 
         // fileName, url과 함께 playlistId를 받을 수 있게 구조분해 할당
         const { fileName, url, playlistId } = await request.json()

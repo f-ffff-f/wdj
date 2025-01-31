@@ -5,7 +5,7 @@ import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
 import { useLogout } from '@/app/_lib/hooks/useLogout'
 
 const Auth = () => {
-    const { data, isLoading, error, isAuthenticated } = useCurrentUser()
+    const { data, isLoading, error, isMember } = useCurrentUser()
     const { logout } = useLogout()
 
     if (isLoading) return <SidebarGroupLabel>loading...</SidebarGroupLabel>
@@ -13,7 +13,7 @@ const Auth = () => {
 
     return (
         <div>
-            {isAuthenticated ? (
+            {isMember ? (
                 <div className="flex items-center justify-between">
                     <SidebarGroupLabel>{data?.email}</SidebarGroupLabel>
                     <Button onClick={logout}>Logout</Button>
