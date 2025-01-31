@@ -36,20 +36,6 @@ export const getUserIdFromToken = (request: Request): { userId: string } => {
     return decoded
 }
 
-// 선택적 인증용 (비회원 허용 API 경로)
-
-export const tryGetUserIdFromToken = (request: Request): { userId: string } | null => {
-    try {
-        return getUserIdFromToken(request)
-    } catch (error) {
-        // AuthorizationError만 캐치하여 null 반환
-        if (error instanceof AuthorizationError) {
-            return null
-        }
-        // 시스템 오류는 상위로 전파
-        throw error
-    }
-}
 export const formatTimeUI = (seconds: number): string => {
     const min = Math.floor(seconds / 60)
     const sec = Math.floor(seconds % 60)

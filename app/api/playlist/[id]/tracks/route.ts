@@ -1,4 +1,4 @@
-import { tryGetUserIdFromToken } from '@/app/_lib/utils'
+import { getUserIdFromToken } from '@/app/_lib/utils'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request, { params }: { params: { id: string } }) {
     try {
         // 인증 처리
-        const result = tryGetUserIdFromToken(request)
+        const result = getUserIdFromToken(request)
         if (!result) return NextResponse.json(result, { status: 401 })
 
         // 요청 본문 유효성 검사
@@ -60,7 +60,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
  */
 export async function GET(request: Request, { params }: { params: { id: string } }) {
     try {
-        const result = tryGetUserIdFromToken(request)
+        const result = getUserIdFromToken(request)
         if (!result) return NextResponse.json(result, { status: 401 })
 
         const playlist = await prisma.playlist.findUnique({
@@ -96,7 +96,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         // 인증 처리
-        const result = tryGetUserIdFromToken(request)
+        const result = getUserIdFromToken(request)
         if (!result) return NextResponse.json(result, { status: 401 })
 
         // 요청 본문 유효성 검사
