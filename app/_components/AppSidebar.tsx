@@ -19,14 +19,17 @@ import Auth from '@/app/_components/Auth'
 import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
 import { state } from '@/app/_lib/state'
 import { useSnapshot } from 'valtio'
+import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
 
 const AppSidebar = () => {
+    const { isAuthenticated } = useCurrentUser()
+
     const snapshot = useSnapshot(state)
     const [newPlaylistName, setNewPlaylistName] = useState('')
     const [editingPlaylistName, setEditingPlaylistName] = useState('')
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null)
     const {
-        playlists,
+        playlistsQuery,
         createPlaylist,
         updatePlaylist,
         deletePlaylist,
@@ -36,6 +39,8 @@ const AppSidebar = () => {
         isLoading,
         error,
     } = usePlaylist()
+
+    const playlists = isAuthenticated ? playlistsQuery : snapshot.guest.playlists
 
     const handleAddPlaylist = () => {
         if (!newPlaylistName.trim()) return

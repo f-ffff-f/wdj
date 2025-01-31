@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
 import { useSnapshot } from 'valtio'
-// import { state } from '@/app/_lib/state'
+import { state } from '@/app/_lib/state'
 
 const Debugger: React.FC = () => {
     const [audioManagerState, setAudioManagerState] = useState<string>('')
-    // const snapshot = useSnapshot(state)
+    const snapshot = useSnapshot(state)
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -18,7 +18,7 @@ const Debugger: React.FC = () => {
     return (
         <div className="flex whitespace-pre-wrap text-xs p-4 text-gray-500">
             <pre>{audioManagerState}</pre>
-            {/* <pre>{JSON.stringify(snapshot, null, 2)}</pre> */}
+            <pre>{JSON.stringify(snapshot, null, 2)}</pre>
         </div>
     )
 }

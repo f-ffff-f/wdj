@@ -31,8 +31,6 @@ export const usePlaylist = () => {
         retry: false,
     })
 
-    const playlists = isAuthenticated ? playlistsQuery.data : snapshot.guest.playlists
-
     /**
      * 플레이리스트 생성 뮤테이션
      */
@@ -115,10 +113,6 @@ export const usePlaylist = () => {
         enabled: !!snapshot.UI.currentPlaylistId,
     })
 
-    const playlistTracks = isAuthenticated
-        ? playlistTracksQuery.data
-        : snapshot.guest.tracks.filter((track) => track.playlistIds.includes(snapshot.UI.currentPlaylistId))
-
     const deleteTracksFromPlaylistMutation = useMutation({
         mutationFn: async (trackIds: string[]) => {
             return fetcher(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`, {
@@ -136,7 +130,7 @@ export const usePlaylist = () => {
         : valtioAction.deleteTracksFromPlaylist
 
     return {
-        playlists,
+        playlistsQuery: playlistsQuery.data,
         isLoading: playlistsQuery.isLoading,
         error: playlistsQuery.error,
         createPlaylist,
@@ -147,7 +141,7 @@ export const usePlaylist = () => {
         isDeleting: deletePlaylistMutation.isPending,
         addTracksToPlaylist,
         isAddingTracks: addTracksToPlaylistMutation.isPending,
-        playlistTracks,
+        playlistTracksQuery: playlistTracksQuery.data,
         isLoadingPlaylistTracks: playlistTracksQuery.isLoading,
         errorPlaylistTracks: playlistTracksQuery.error,
         deleteTracksFromPlaylist,

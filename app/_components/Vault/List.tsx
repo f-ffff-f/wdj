@@ -1,7 +1,7 @@
 import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useSnapshot } from 'valtio'
 import { Card } from '@/components/ui/card'
 import { EDeckIds } from '@/app/_lib/constants'
@@ -19,19 +19,28 @@ import { MoreVertical } from 'lucide-react'
 import { useTrack } from '@/app/_lib/hooks/useTrack'
 import { state } from '@/app/_lib/state'
 import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
+import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
 
 const List = () => {
+    const { isAuthenticated } = useCurrentUser()
+
     const snapshot = useSnapshot(state)
-    const { tracks } = useTrack()
-    const { playlistTracks } = usePlaylist()
-    // const focusedTrackId = snapshot.vault.focusedTrackId
+    const { tracksQuery } = useTrack()
+    const { playlistTracksQuery } = usePlaylist()
+
+    const tracks = isAuthenticated ? tracksQuery : snapshot.guest.tracks
+    const playlistTracks = isAuthenticated
+        ? playlistTracksQuery
+        : snapshot.guest.tracks.filter((track) => track.playlistIds.includes(snapshot.UI.currentPlaylistId))
+
+    const focusedTrackId = state.UI.focusedTrackId
 
     const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
         audioManager.loadTrack(deckId, url)
     }
-    // const handleClick = (id: string) => {
-    //     state.vault.focusedTrackId = id
-    // }
+    const handleClick = (id: string) => {
+        state.UI.focusedTrackId = id
+    }
 
     return (
         <div className="w-full max-w-2xl mx-auto min-h-10 flex flex-col gap-1" id="vault-list">
@@ -42,9 +51,9 @@ const List = () => {
                           id={track.id}
                           fileName={track.fileName}
                           url={track.url}
-                          isFocused={false}
+                          isFocused={focusedTrackId === track.id}
                           handleLoadToDeck={handleLoadToDeck}
-                          handleClick={() => {}}
+                          handleClick={handleClick}
                       >
                           <LibraryDropdownMenu id={track.id} />
                       </Item>
@@ -55,9 +64,9 @@ const List = () => {
                           id={track.id}
                           fileName={track.fileName}
                           url={track.url}
-                          isFocused={false}
+                          isFocused={focusedTrackId === track.id}
                           handleLoadToDeck={handleLoadToDeck}
-                          handleClick={() => {}}
+                          handleClick={handleClick}
                       >
                           <PlaylistDropdownMenu id={track.id} />
                       </Item>
@@ -105,8 +114,11 @@ const Item: React.FC<ITrackListItemProps> = ({
 }
 
 const LibraryDropdownMenu = ({ id }: { id: string }) => {
+    const { isAuthenticated } = useCurrentUser()
+    const snapshot = useSnapshot(state)
     const { deleteTrack } = useTrack()
-    const { playlists, addTracksToPlaylist } = usePlaylist()
+    const { playlistsQuery, addTracksToPlaylist } = usePlaylist()
+    const playlists = isAuthenticated ? playlistsQuery : snapshot.guest.playlists
 
     return (
         <DropdownMenu>
