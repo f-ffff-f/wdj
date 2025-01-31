@@ -15,7 +15,7 @@ export async function POST(request: Request) {
         }
 
         // 2) 비밀번호 비교
-        const isMatch = await bcrypt.compare(password, user.password)
+        const isMatch = await bcrypt.compare(password, user.password!)
         if (!isMatch) {
             return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
         }
