@@ -5,7 +5,7 @@
  */
 
 export const fetcher = async (url: string, options: RequestInit = {}) => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem('token') || localStorage.getItem('guestToken')
 
     // 기본 헤더 설정
     const defaultHeaders = {
