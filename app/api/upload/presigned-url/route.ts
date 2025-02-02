@@ -3,13 +3,7 @@ import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { v4 as uuidv4 } from 'uuid'
 import { getUserIdFromToken } from '@/app/_lib/auth/getUserIdFromToken'
-
-// 환경 변수 유효성 검사
-const getEnv = (key: string): string => {
-    const value = process.env[key]
-    if (!value) throw new Error(`Missing environment variable: ${key}`)
-    return value
-}
+import { getEnv } from '@/app/_lib/utils'
 
 const s3 = new S3Client({
     region: getEnv('AWS_REGION'),
