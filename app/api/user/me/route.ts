@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import jwt from 'jsonwebtoken'
-import { getUserIdFromToken } from '@/app/_lib/utils'
+import { AuthorizationError, getUserIdFromToken } from '@/app/_lib/utils'
 
 /**
  * 인증된 사용자의 정보를 반환하는 API 엔드포인트
@@ -11,10 +11,6 @@ import { getUserIdFromToken } from '@/app/_lib/utils'
 export async function GET(request: Request): Promise<NextResponse> {
     try {
         const result = getUserIdFromToken(request)
-
-        if (!result) {
-            return NextResponse.json({ error: 'Token is not exist' }, { status: 400 })
-        }
 
         // 디코딩된 userId로 사용자 정보 조회
         const user = await prisma.user.findUnique({
@@ -33,6 +29,10 @@ export async function GET(request: Request): Promise<NextResponse> {
 
         return NextResponse.json(user)
     } catch (error) {
+        if (error instanceof AuthorizationError) {
+            return NextResponse.json({ error: error.message }, { status: error.statusCode })
+        }
+
         if (error instanceof jwt.JsonWebTokenError) {
             return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
         }
