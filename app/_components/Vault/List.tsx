@@ -22,12 +22,13 @@ import { useSnapshot } from 'valtio'
 
 const List = () => {
     const snapshot = useSnapshot(state)
-    const { tracksQuery } = useTrack()
+    const { tracksQuery, getTrackUrl } = useTrack()
     const { playlistTracksQuery } = usePlaylist()
 
     const focusedTrackId = state.UI.focusedTrackId
 
-    const handleLoadToDeck = (deckId: EDeckIds, url: string) => {
+    const handleLoadToDeck = async (deckId: EDeckIds, id: string) => {
+        const url = await getTrackUrl(id)
         audioManager.loadTrack(deckId, url)
     }
     const handleClick = (id: string) => {
@@ -42,7 +43,6 @@ const List = () => {
                           key={track.id}
                           id={track.id}
                           fileName={track.fileName}
-                          url={track.url}
                           isFocused={focusedTrackId === track.id}
                           handleLoadToDeck={handleLoadToDeck}
                           handleClick={handleClick}
@@ -55,7 +55,6 @@ const List = () => {
                           key={track.id}
                           id={track.id}
                           fileName={track.fileName}
-                          url={track.url}
                           isFocused={focusedTrackId === track.id}
                           handleLoadToDeck={handleLoadToDeck}
                           handleClick={handleClick}
@@ -70,23 +69,13 @@ const List = () => {
 interface ITrackListItemProps {
     id: string
     fileName: string
-    url?: string
     isFocused: boolean
     handleLoadToDeck: (deckId: EDeckIds, url: string) => void
     handleClick: (id: string) => void
     children: React.ReactNode
 }
 
-const Item: React.FC<ITrackListItemProps> = ({
-    id,
-    fileName,
-    url,
-    isFocused,
-    handleLoadToDeck,
-    handleClick,
-    children,
-}) => {
-    if (!url) return null
+const Item: React.FC<ITrackListItemProps> = ({ id, fileName, isFocused, handleLoadToDeck, handleClick, children }) => {
     return (
         <div className="flex">
             <Card
@@ -96,9 +85,9 @@ const Item: React.FC<ITrackListItemProps> = ({
                 )}
                 onClick={() => handleClick(id)}
             >
-                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, url)}>load to deck 1</Button>
+                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, id)}>load to deck 1</Button>
                 <span className="flex-1 text-center px-4">{fileName}</span>
-                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, url)}>load to deck 2</Button>
+                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, id)}>load to deck 2</Button>
                 {children}
             </Card>
         </div>

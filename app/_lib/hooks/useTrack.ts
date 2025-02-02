@@ -95,6 +95,19 @@ export const useTrack = () => {
         },
     })
 
+    // 단일 트랙의 blob url | presigned URL 가져오기 함수
+    const getTrackUrl = async (id: string): Promise<string> => {
+        const data = await fetchWithToken(`/api/track/${id}/get`, {
+            method: 'GET',
+        })
+
+        if (data.error) {
+            throw new Error('Failed to fetch track presigned URL')
+        }
+
+        return data.presignedUrl
+    }
+
     return {
         tracksQuery: tracksQuery.data,
         isLoading: tracksQuery.isLoading,
@@ -103,5 +116,6 @@ export const useTrack = () => {
         isCreating: createTrackMutation.isPending,
         deleteTrack: deleteTrackMutation.mutate,
         isDeleting: deleteTrackMutation.isPending,
+        getTrackUrl,
     }
 }
