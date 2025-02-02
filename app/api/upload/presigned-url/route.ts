@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { v4 as uuidv4 } from 'uuid'
+import { getUserIdFromToken } from '@/app/_lib/utils'
 
 // 환경 변수 유효성 검사
 const getEnv = (key: string): string => {
@@ -20,6 +21,8 @@ const s3 = new S3Client({
 
 export const POST = async (req: Request) => {
     try {
+        const result = getUserIdFromToken(req)
+
         const { fileName, fileType } = await req.json()
 
         // 입력 유효성 검사
@@ -28,7 +31,7 @@ export const POST = async (req: Request) => {
         }
 
         // 고유 파일 키 생성
-        const fileKey = `uploads/${new Date().toISOString().split('T')[0]}/${uuidv4()}-${fileName}`
+        const fileKey = `uploads/${result.userId}/${new Date().toISOString().split('T')[0]}/${uuidv4()}-${fileName}`
 
         // S3 업로드 명령 생성
         const putCommand = new PutObjectCommand({
