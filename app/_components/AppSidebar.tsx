@@ -119,7 +119,9 @@ const AppSidebar = () => {
                             {isLoading ? (
                                 <div className="text-center py-2">로딩 중...</div>
                             ) : error ? (
-                                <div className="text-center py-2 text-destructive">에러: {error.message}</div>
+                                error instanceof Error && error.message === 'Token is not exist' ? null : (
+                                    <div className="text-center py-2 text-destructive">에러: {error.message}</div>
+                                )
                             ) : (
                                 playlistsQuery?.map((playlist) => {
                                     return editingPlaylistId !== playlist.id ? (
