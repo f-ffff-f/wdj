@@ -15,7 +15,7 @@ export const getUserIdFromToken = (request: Request): { userId: string } => {
     // Authorization 헤더 추출
     const authHeader = request.headers.get('Authorization')
     if (!authHeader) {
-        throw new AuthorizationError(401, 'Need Authorization')
+        throw new AuthorizationError(401, 'Token is not exist')
     }
 
     if (!authHeader.startsWith('Bearer ')) {

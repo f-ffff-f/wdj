@@ -25,7 +25,7 @@ export const useCurrentUser = () => {
                     }
 
                     const { token } = await guestRes.json()
-                    localStorage.setItem('guestToken', token)
+                    sessionStorage.setItem('guestToken', token)
                     return fetcher('/api/user/me') // 재시도
                 }
                 throw error // 다른 에러는 상위로 전파
