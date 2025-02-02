@@ -1,6 +1,6 @@
 import { UserMeAPI } from '@/app/types/api'
 import { useQuery } from '@tanstack/react-query'
-import { fetcher } from '@/app/_lib/queryClient/fetcher'
+import { fetchWithToken } from '@/app/_lib/auth/fetchWithToken'
 /**
  * 현재 인증된 사용자의 정보를 관리하는 커스텀 훅
  */
@@ -10,7 +10,7 @@ export const useCurrentUser = () => {
         queryKey: ['/api/user/me'],
         queryFn: async () => {
             try {
-                return await fetcher('/api/user/me')
+                return await fetchWithToken('/api/user/me')
             } catch (error) {
                 const errorMessage = error instanceof Error ? error.message : 'Unknown error'
 
@@ -26,7 +26,7 @@ export const useCurrentUser = () => {
 
                     const { token } = await guestRes.json()
                     sessionStorage.setItem('guestToken', token)
-                    return fetcher('/api/user/me') // 재시도
+                    return fetchWithToken('/api/user/me') // 재시도
                 }
                 throw error // 다른 에러는 상위로 전파
             }

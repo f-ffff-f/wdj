@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromToken } from '@/app/_lib/utils'
+import { getUserIdFromToken } from '@/app/_lib/auth/getUserIdFromToken'
 
 /**
  * 사용자의 트랙 목록 조회 API 엔드포인트
