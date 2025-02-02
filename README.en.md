@@ -15,11 +15,6 @@ A modern DJ mixing web application that runs in the browser.
 3. Go back to Step 1.
 4. Repeat Step 2 to load a different audio file onto the other deck.
 
-## Start the Local Development Server
-
-1. Install Docker.
-2. Run `docker-compose up app-dev` in the project root directory.
-
 ## Prototype Development Status
 
 -   [x] Dual Deck System
