@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromToken } from '@/app/_lib/utils'
+import { getUserIdFromToken } from '@/app/_lib/auth/getUserIdFromToken'
 
 /**
  * 새로운 플레이리스트를 생성하는 API 엔드포인트

@@ -4,8 +4,12 @@
  * @returns Promise with parsed JSON response
  */
 
-export const fetcher = async (url: string, options: RequestInit = {}) => {
+export const fetchWithToken = async (url: string, options: RequestInit = {}) => {
     const token = localStorage.getItem('token') || sessionStorage.getItem('guestToken')
+
+    if (!token) {
+        throw new Error('Token is not exist')
+    }
 
     // 기본 헤더 설정
     const defaultHeaders = {
@@ -16,7 +20,7 @@ export const fetcher = async (url: string, options: RequestInit = {}) => {
     const headers = {
         ...defaultHeaders,
         ...options.headers,
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        Authorization: `Bearer ${token}`,
     }
 
     const res = await fetch(url, { ...options, headers })

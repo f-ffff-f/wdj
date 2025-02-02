@@ -1,4 +1,4 @@
-import { fetcher } from '@/app/_lib/queryClient/fetcher'
+import { fetchWithToken } from '@/app/_lib/auth/fetchWithToken'
 import { state } from '@/app/_lib/state'
 import { DeleteTrackAPI, GetTracksAPI } from '@/app/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -17,7 +17,7 @@ export const useTrack = () => {
     // 트랙 목록 조회 쿼리
     const tracksQuery = useQuery<GetTracksAPI['Response']>({
         queryKey,
-        queryFn: () => fetcher('/api/track'),
+        queryFn: () => fetchWithToken('/api/track'),
         retry: false,
     })
 
@@ -26,7 +26,7 @@ export const useTrack = () => {
         mutationFn: async (file: File) => {
             try {
                 // 1. 프리사인드 URL 요청
-                const presignedResponse = await fetcher('/api/upload/presigned-url', {
+                const presignedResponse = await fetchWithToken('/api/upload/presigned-url', {
                     method: 'POST',
                     body: JSON.stringify({
                         fileName: file.name,
@@ -49,7 +49,7 @@ export const useTrack = () => {
                 const playlistId = snapshot.UI.currentPlaylistId
                 const s3Url = presignedResponse.url.split('?')[0]
 
-                return await fetcher('/api/track/create', {
+                return await fetchWithToken('/api/track/create', {
                     method: 'POST',
                     body: JSON.stringify({
                         fileName: file.name,
@@ -73,7 +73,7 @@ export const useTrack = () => {
     // 트랙 삭제 뮤테이션
     const deleteTrackMutation = useMutation({
         mutationFn: async (id: string) => {
-            return fetcher(`/api/track/${id}/delete`, {
+            return fetchWithToken(`/api/track/${id}/delete`, {
                 method: 'DELETE',
             }) as Promise<DeleteTrackAPI['Response']>
         },

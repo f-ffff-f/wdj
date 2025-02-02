@@ -1,4 +1,4 @@
-import { fetcher } from '@/app/_lib/queryClient/fetcher'
+import { fetchWithToken } from '@/app/_lib/auth/fetchWithToken'
 import { state } from '@/app/_lib/state'
 import {
     AddTracksToPlaylistAPI,
@@ -25,7 +25,7 @@ export const usePlaylist = () => {
      */
     const playlistsQuery = useQuery<GetPlaylistsAPI['Response']>({
         queryKey,
-        queryFn: () => fetcher('/api/playlist'),
+        queryFn: () => fetchWithToken('/api/playlist'),
         retry: false,
     })
 
@@ -34,7 +34,7 @@ export const usePlaylist = () => {
      */
     const createPlaylistMutation = useMutation({
         mutationFn: async (name: string) => {
-            return fetcher('/api/playlist/create', {
+            return fetchWithToken('/api/playlist/create', {
                 method: 'POST',
                 body: JSON.stringify({ name }),
             }) as Promise<CreatePlaylistAPI['Response']>
@@ -54,7 +54,7 @@ export const usePlaylist = () => {
         { onSuccess?: () => void }
     >({
         mutationFn: async (params: { id: string; name: string }) => {
-            return fetcher(`/api/playlist/${params.id}/update`, {
+            return fetchWithToken(`/api/playlist/${params.id}/update`, {
                 method: 'PATCH',
                 body: JSON.stringify({ name: params.name }),
             }) as Promise<UpdatePlaylistAPI['Response']>
@@ -72,7 +72,7 @@ export const usePlaylist = () => {
      */
     const deletePlaylistMutation = useMutation({
         mutationFn: async (id: string) => {
-            return fetcher(`/api/playlist/${id}/delete`, {
+            return fetchWithToken(`/api/playlist/${id}/delete`, {
                 method: 'DELETE',
             }) as Promise<DeletePlaylistAPI['Response']>
         },
@@ -83,7 +83,7 @@ export const usePlaylist = () => {
 
     const addTracksToPlaylistMutation = useMutation({
         mutationFn: async ({ id, trackIds }: { id: string; trackIds: string[] }) => {
-            return fetcher(`/api/playlist/${id}/tracks`, {
+            return fetchWithToken(`/api/playlist/${id}/tracks`, {
                 method: 'POST',
                 body: JSON.stringify({ trackIds }),
             }) as Promise<AddTracksToPlaylistAPI['Response']>
@@ -95,13 +95,13 @@ export const usePlaylist = () => {
 
     const playlistTracksQuery = useQuery<GetTracksAPI['Response']>({
         queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId],
-        queryFn: () => fetcher(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`),
+        queryFn: () => fetchWithToken(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`),
         enabled: !!snapshot.UI.currentPlaylistId,
     })
 
     const deleteTracksFromPlaylistMutation = useMutation({
         mutationFn: async (trackIds: string[]) => {
-            return fetcher(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`, {
+            return fetchWithToken(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`, {
                 method: 'DELETE',
                 body: JSON.stringify({ trackIds }),
             }) as Promise<DeletePlaylistAPI['Response']>
