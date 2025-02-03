@@ -45,7 +45,7 @@ export type GetTracksAPI = {
 
 // api/track/create
 export type CreateTrackAPI = {
-    Request: { fileName: string; url: string }
+    Request: { fileName: string; playlistId?: string }
     Response: TrackDTO
 }
 
