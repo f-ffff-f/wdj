@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from 'react'
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {
     const ref = useRef<HTMLDivElement>(null)
     const [showHelp, setShowHelp] = useState(false)
-    const { tracksQuery } = useTrack()
+    const { tracksQuery, getTrackBlobUrl } = useTrack()
     const { playlistTracksQuery } = usePlaylist()
 
     useEffect(() => {
@@ -94,22 +94,24 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                     }
                 }
             },
-            [EShortcut.ArrowLeft]: () => {
+            [EShortcut.ArrowLeft]: async () => {
                 if (state.UI.focusedTrackId) {
                     if (tracksQuery) {
                         const index = findIndex(tracksQuery, state.UI.focusedTrackId)
                         if (index >= 0) {
-                            audioManager.loadTrack(EDeckIds.DECK_1, tracksQuery[index].url!)
+                            const url = await getTrackBlobUrl(tracksQuery[index].id)
+                            audioManager.loadTrack(EDeckIds.DECK_1, url)
                         }
                     }
                 }
             },
-            [EShortcut.ArrowRight]: () => {
+            [EShortcut.ArrowRight]: async () => {
                 if (state.UI.focusedTrackId) {
                     if (tracksQuery) {
                         const index = findIndex(tracksQuery, state.UI.focusedTrackId)
                         if (index <= tracksQuery.length - 1) {
-                            audioManager.loadTrack(EDeckIds.DECK_2, tracksQuery[index].url!)
+                            const url = await getTrackBlobUrl(tracksQuery[index].id)
+                            audioManager.loadTrack(EDeckIds.DECK_2, url)
                         }
                     }
                 }

@@ -4,6 +4,10 @@ export const getEnv = (key: string): string => {
     return value
 }
 
+export const generateS3FileKey = (userId: string, id: string): `uploads/${string}/${string}` => {
+    return `uploads/${userId}/${id}`
+}
+
 export const formatTimeUI = (seconds: number): string => {
     const min = Math.floor(seconds / 60)
     const sec = Math.floor(seconds % 60)

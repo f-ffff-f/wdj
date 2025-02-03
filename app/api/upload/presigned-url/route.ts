@@ -1,9 +1,9 @@
+// /app/api/upload/presigned-url/route.ts
 import { NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { v4 as uuidv4 } from 'uuid'
 import { getUserIdFromToken } from '@/app/_lib/auth/getUserIdFromToken'
-import { getEnv } from '@/app/_lib/utils'
+import { generateS3FileKey, getEnv } from '@/app/_lib/utils'
 
 const s3 = new S3Client({
     region: getEnv('AWS_REGION'),
@@ -17,7 +17,7 @@ export const POST = async (req: Request) => {
     try {
         const result = getUserIdFromToken(req)
 
-        const { fileName, fileType } = await req.json()
+        const { fileName, fileType, id } = await req.json()
 
         // 입력 유효성 검사
         if (!fileName || !fileType) {
@@ -25,7 +25,7 @@ export const POST = async (req: Request) => {
         }
 
         // 고유 파일 키 생성
-        const fileKey = `uploads/${result.userId}/${new Date().toISOString().split('T')[0]}/${uuidv4()}-${fileName}`
+        const fileKey = generateS3FileKey(result.userId, id)
 
         // S3 업로드 명령 생성
         const putCommand = new PutObjectCommand({

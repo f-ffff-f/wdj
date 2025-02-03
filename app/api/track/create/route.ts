@@ -1,26 +1,23 @@
-// /app/api/track/create/route.ts (가정)
+// /app/api/track/create/route.ts
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUserIdFromToken } from '@/app/_lib/auth/getUserIdFromToken'
+import { CreateTrackAPI } from '@/app/types/api'
 
 export async function POST(request: Request) {
     try {
         const result = getUserIdFromToken(request)
 
-        // fileName, url과 함께 playlistId를 받을 수 있게 구조분해 할당
-        const { fileName, url, playlistId } = await request.json()
+        // fileName, playlistId를 받을 수 있게 구조분해 할당
+        const { fileName, playlistId }: CreateTrackAPI['Request'] = await request.json()
 
         if (!fileName || typeof fileName !== 'string' || fileName.trim().length === 0) {
             return NextResponse.json({ error: 'Invalid file name' }, { status: 400 })
-        }
-        if (!url || typeof url !== 'string' || url.trim().length === 0) {
-            return NextResponse.json({ error: 'Invalid file URL' }, { status: 400 })
         }
 
         // playlistId가 존재하는 경우만 connect 로직을 추가
         const createData = {
             fileName: fileName.trim(),
-            url: url.trim(),
             userId: result.userId,
             playlists: {},
         }
@@ -37,7 +34,6 @@ export async function POST(request: Request) {
             select: {
                 id: true,
                 fileName: true,
-                url: true,
                 createdAt: true,
                 // playlistId를 포함해 반환하려면 아래 처럼 필요
                 playlists: {

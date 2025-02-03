@@ -37,7 +37,6 @@ export async function POST(request: Request, { params }: { params: { id: string 
                     select: {
                         id: true,
                         fileName: true,
-                        url: true,
                     },
                 },
             },
@@ -73,7 +72,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
                     select: {
                         id: true,
                         fileName: true,
-                        url: true,
                         createdAt: true,
                     },
                     orderBy: { createdAt: 'desc' },
@@ -123,7 +121,6 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
                     select: {
                         id: true,
                         fileName: true,
-                        url: true,
                     },
                 },
             },

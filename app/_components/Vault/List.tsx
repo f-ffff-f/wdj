@@ -22,13 +22,13 @@ import { useSnapshot } from 'valtio'
 
 const List = () => {
     const snapshot = useSnapshot(state)
-    const { tracksQuery, getTrackUrl } = useTrack()
+    const { tracksQuery, getTrackBlobUrl } = useTrack()
     const { playlistTracksQuery } = usePlaylist()
 
     const focusedTrackId = state.UI.focusedTrackId
 
     const handleLoadToDeck = async (deckId: EDeckIds, id: string) => {
-        const url = await getTrackUrl(id)
+        const url = await getTrackBlobUrl(id)
         audioManager.loadTrack(deckId, url)
     }
     const handleClick = (id: string) => {
