@@ -51,13 +51,12 @@ class AudioManager {
     }
 
     /** 특정 데크에 파일 로드 */
-    async loadTrack(deckId: EDeckIds, url: string) {
+    async loadTrack(deckId: EDeckIds, blob: Blob) {
         const deck = this.findDeck(deckId)
         if (!deck) return
 
         try {
-            const response = await fetch(url)
-            const arrayBuffer = await response.arrayBuffer()
+            const arrayBuffer = await blob.arrayBuffer()
             const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer)
             deck.audioBuffer = audioBuffer
         } catch (error) {

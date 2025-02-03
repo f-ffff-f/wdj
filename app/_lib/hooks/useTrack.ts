@@ -1,15 +1,12 @@
 // /app/_lib/hooks/useTrack.ts
 import { fetchWithToken } from '@/app/_lib/auth/fetchWithToken'
 import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
+import { deleteTrackFromIndexedDB, getTrackFromIndexedDB, setTrackToIndexedDB } from '@/app/_lib/indexedDB'
 import { state } from '@/app/_lib/state'
 import { DeleteTrackAPI, GetTracksAPI } from '@/app/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 
-/**
- * 트랙 관리 커스텀 훅
- * 인증 상태에 따라 서버 API 또는 로컬 상태 사용
- */
 export const useTrack = () => {
     const { isMember } = useCurrentUser()
     const snapshot = useSnapshot(state)
@@ -39,10 +36,9 @@ export const useTrack = () => {
                     }),
                 })
 
-                if (!isMember) {
-                    // todo: indexed DB 저장
-                    return response
-                } else {
+                setTrackToIndexedDB(response.id, file)
+
+                if (isMember) {
                     // 2. 프리사인드 URL 요청
                     const presignedResponse = await fetchWithToken('/api/upload/presigned-url', {
                         method: 'POST',
@@ -63,10 +59,9 @@ export const useTrack = () => {
                     })
 
                     if (!uploadResponse.ok) throw new Error('S3 upload failed')
-
-                    // todo: indexed DB 저장
-                    return response
                 }
+
+                return response
             } catch (error) {
                 throw new Error(`File upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
             }
@@ -83,9 +78,9 @@ export const useTrack = () => {
     // 트랙 삭제 뮤테이션
     const deleteTrackMutation = useMutation({
         mutationFn: async (id: string) => {
-            // todo: indexed DB 삭제
-            if (!isMember) {
-            } else {
+            deleteTrackFromIndexedDB(id)
+
+            if (isMember) {
                 return fetchWithToken(`/api/track/${id}/delete`, {
                     method: 'DELETE',
                 }) as Promise<DeleteTrackAPI['Response']>
@@ -109,23 +104,30 @@ export const useTrack = () => {
         },
     })
 
-    // 단일 트랙의 blob url | presigned URL 가져오기 함수
-    const getTrackBlobUrl = async (id: string): Promise<string> => {
-        // todo: indexed DB에서 get
-        if (!isMember) {
-            // indexed DB에 없으면 에러
-            return '' //
+    // 단일 트랙의 blob | presigned URL => blob 가져오기 함수
+    const getTrackBlobUrl = async (id: string): Promise<Blob> => {
+        const blob = await getTrackFromIndexedDB(id)
+        if (blob) {
+            return blob
         } else {
-            // indexed DB에 없으면 s3에서 가져오고 indexed DB에 저장하고 그 url을 반환
-            const data = await fetchWithToken(`/api/track/${id}/presigned-url`, {
-                method: 'GET',
-            })
+            if (isMember) {
+                const response = await fetchWithToken(`/api/track/${id}/presigned-url`, {
+                    method: 'GET',
+                })
 
-            if (data.error) {
-                throw new Error('Failed to fetch track presigned URL')
+                if (response.error) {
+                    throw new Error('Failed to fetch track presigned URL')
+                }
+
+                const fileResponse = await fetch(response.presignedUrl)
+                const blob = await fileResponse.blob()
+
+                setTrackToIndexedDB(id, blob)
+
+                return blob
+            } else {
+                throw new Error('Track not found')
             }
-
-            return data.presignedUrl
         }
     }
 
