@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { getEnv } from '@/app/_lib/utils'
+import { generateS3FileKey, getEnv } from '@/app/_lib/utils'
 
 // S3 클라이언트 생성
 const s3 = new S3Client({
@@ -24,15 +24,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
             return NextResponse.json({ error: 'Track not found' }, { status: 404 })
         }
 
-        // S3 URL에서 key 추출 (디코딩 적용)
-        const urlObj = new URL(track.url)
-        const rawKey = urlObj.pathname.startsWith('/') ? urlObj.pathname.substring(1) : urlObj.pathname
-        const decodedKey = decodeURIComponent(rawKey)
+        const fileKey = generateS3FileKey(track.userId, track.id)
 
         // GetObjectCommand 생성
         const getCommand = new GetObjectCommand({
             Bucket: getEnv('AWS_S3_BUCKET_NAME'),
-            Key: decodedKey,
+            Key: fileKey,
         })
 
         // presigned URL 생성 (예: 15분 유효)

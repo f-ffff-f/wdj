@@ -9,5 +9,5 @@ export type PlaylistDTO = Prisma.PlaylistGetPayload<{
 }>
 
 export type TrackDTO = Prisma.TrackGetPayload<{
-    select: { id: true; fileName: true; url: true; createdAt: true }
+    select: { id: true; fileName: true; createdAt: true }
 }>

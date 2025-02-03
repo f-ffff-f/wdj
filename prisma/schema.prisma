@@ -37,7 +37,6 @@ model User {
 model Track {
   id         String    @id @default(uuid())
   fileName   String
-  url        String
   createdAt  DateTime  @default(now())
 
   // 누가 업로드했는지 (즉, 그 유저의 라이브러리에 자동 포함)

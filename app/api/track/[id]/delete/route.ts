@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUserIdFromToken } from '@/app/_lib/auth/getUserIdFromToken'
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import { getEnv } from '@/app/_lib/utils'
+import { generateS3FileKey, getEnv } from '@/app/_lib/utils'
 
 // S3 클라이언트 인스턴스 생성
 const s3 = new S3Client({
@@ -29,18 +29,12 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
             return NextResponse.json({ error: 'Track not found or unauthorized' }, { status: 404 })
         }
 
-        // S3에서 파일을 삭제하기 위해 track.url에서 key를 추출
-        // 예: "https://{bucket}.s3.amazonaws.com/uploads/{userId}/{날짜}/{uuid}-{fileName}"
-        // => key: "uploads/{userId}/{날짜}/{uuid}-{fileName}"
-        const urlObj = new URL(track.url)
-        const rawKey = urlObj.pathname.startsWith('/') ? urlObj.pathname.substring(1) : urlObj.pathname
-
-        const decodedKey = decodeURIComponent(rawKey)
+        const fileKey = generateS3FileKey(result.userId, track.id)
 
         // S3에서 파일 삭제 명령 실행
         const deleteCommand = new DeleteObjectCommand({
             Bucket: getEnv('AWS_S3_BUCKET_NAME'),
-            Key: decodedKey,
+            Key: fileKey,
         })
         await s3.send(deleteCommand)
 

@@ -15,7 +15,6 @@ export async function GET(request: Request) {
             select: {
                 id: true,
                 fileName: true,
-                url: true,
                 createdAt: true,
             },
             orderBy: { createdAt: 'desc' },
