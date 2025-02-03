@@ -83,9 +83,13 @@ export const useTrack = () => {
     // 트랙 삭제 뮤테이션
     const deleteTrackMutation = useMutation({
         mutationFn: async (id: string) => {
-            return fetchWithToken(`/api/track/${id}/delete`, {
-                method: 'DELETE',
-            }) as Promise<DeleteTrackAPI['Response']>
+            // todo: indexed DB 삭제
+            if (!isMember) {
+            } else {
+                return fetchWithToken(`/api/track/${id}/delete`, {
+                    method: 'DELETE',
+                }) as Promise<DeleteTrackAPI['Response']>
+            }
         },
         onMutate: async (id) => {
             await queryClient.cancelQueries({ queryKey })
@@ -106,13 +110,13 @@ export const useTrack = () => {
     })
 
     // 단일 트랙의 blob url | presigned URL 가져오기 함수
-    const getTrackUrl = async (id: string): Promise<string> => {
+    const getTrackBlobUrl = async (id: string): Promise<string> => {
+        // todo: indexed DB에서 get
         if (!isMember) {
-            // todo: indexed DB에서 get
-            return ''
+            // indexed DB에 없으면 에러
+            return '' //
         } else {
-            // todo: indexed DB에서 get
-            // 없으면 s3에서 가져오고 indexed DB에 저장하고 그 url을 반환
+            // indexed DB에 없으면 s3에서 가져오고 indexed DB에 저장하고 그 url을 반환
             const data = await fetchWithToken(`/api/track/${id}/presigned-url`, {
                 method: 'GET',
             })
@@ -133,6 +137,6 @@ export const useTrack = () => {
         isCreating: createTrackMutation.isPending,
         deleteTrack: deleteTrackMutation.mutate,
         isDeleting: deleteTrackMutation.isPending,
-        getTrackUrl,
+        getTrackBlobUrl,
     }
 }
