@@ -14,7 +14,11 @@ export const useCurrentUser = () => {
             } catch (error) {
                 const errorMessage = error instanceof Error ? error.message : 'Unknown error'
 
-                if (errorMessage.includes('Token is not exist') || errorMessage.includes('Invalid token')) {
+                if (
+                    errorMessage.includes('Token is not exist') ||
+                    errorMessage.includes('Invalid token') ||
+                    errorMessage.includes('User not found')
+                ) {
                     const guestRes = await fetch('/api/guest/create', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
