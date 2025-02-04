@@ -9,7 +9,7 @@ const Auth = () => {
     const { logout } = useLogout()
 
     if (isLoading) return <SidebarGroupLabel>loading...</SidebarGroupLabel>
-    if (error && !error.message.includes('Invalid token')) return <SidebarGroupLabel>{error.message}</SidebarGroupLabel>
+    if (error) return <SidebarGroupLabel>{error.message}</SidebarGroupLabel>
 
     return (
         <div>
