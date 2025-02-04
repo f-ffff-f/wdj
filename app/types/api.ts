@@ -38,7 +38,7 @@ export type AddTracksToPlaylistAPI = {
     Response: PlaylistDTO
 }
 
-// api/track
+// api/tracks
 export type GetTracksAPI = {
     Response: TrackDTO[]
 }
