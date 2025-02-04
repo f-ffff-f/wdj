@@ -26,7 +26,7 @@ export const useLoginMutation = (onSuccess?: (data: UserLoginAPI['Response']) =>
             queryClient.invalidateQueries({ queryKey: ['/api/user/me'] })
             queryClient.invalidateQueries({ queryKey: ['/api/playlist'] })
             queryClient.invalidateQueries({ queryKey: ['/api/playlist/[id]/tracks'] })
-            queryClient.invalidateQueries({ queryKey: ['/api/track'] })
+            queryClient.invalidateQueries({ queryKey: ['/api/tracks'] })
 
             if (onSuccess) onSuccess(data)
         },

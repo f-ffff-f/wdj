@@ -12,12 +12,12 @@ export const useTrack = () => {
     const snapshot = useSnapshot(state)
 
     const queryClient = useQueryClient()
-    const queryKey = ['/api/track']
+    const queryKey = ['/api/tracks']
 
     // 트랙 목록 조회 쿼리
     const tracksQuery = useQuery<GetTracksAPI['Response']>({
         queryKey,
-        queryFn: () => fetchWithToken('/api/track'),
+        queryFn: () => fetchWithToken('/api/tracks'),
         retry: false,
     })
 
@@ -104,6 +104,18 @@ export const useTrack = () => {
         },
     })
 
+    // 모든 트랙 삭제
+    const deleteAllTracksMutation = useMutation({
+        mutationFn: async () => {
+            return fetchWithToken('/api/tracks/delete', {
+                method: 'DELETE',
+            })
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey })
+        },
+    })
+
     // 단일 트랙의 blob | presigned URL => blob 가져오기 함수
     const getTrackBlobUrl = async (id: string): Promise<Blob> => {
         const blob = await getTrackFromIndexedDB(id)
@@ -139,6 +151,8 @@ export const useTrack = () => {
         isCreating: createTrackMutation.isPending,
         deleteTrack: deleteTrackMutation.mutate,
         isDeleting: deleteTrackMutation.isPending,
+        deleteAllTracks: deleteAllTracksMutation.mutate,
+        isDeletingAllTracks: deleteAllTracksMutation.isPending,
         getTrackBlobUrl,
     }
 }
