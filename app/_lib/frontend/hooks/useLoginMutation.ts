@@ -1,4 +1,4 @@
-import { UserLoginAPI } from '@/app/types/api'
+import { UserLoginAPI } from '@/app/_lib/types/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 const loginRequest = async ({ email, password }: UserLoginAPI['Request']): Promise<UserLoginAPI['Response']> => {

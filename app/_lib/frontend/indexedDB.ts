@@ -1,4 +1,4 @@
-import { updateStorageEstimate } from '@/app/_lib/state'
+import { updateStorageEstimate } from '@/app/_lib/frontend/state'
 import { openDB, DBSchema } from 'idb'
 
 interface TracksDB extends DBSchema {

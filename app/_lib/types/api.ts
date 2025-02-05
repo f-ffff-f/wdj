@@ -1,5 +1,5 @@
-import { TrackDTO, UserDTO } from './dto'
-import { PlaylistDTO } from './dto'
+import { TrackDTO, UserDTO } from '../backend/types/dto'
+import { PlaylistDTO } from '../backend/types/dto'
 
 // api/user/me
 export type UserMeAPI = { Response: UserDTO }

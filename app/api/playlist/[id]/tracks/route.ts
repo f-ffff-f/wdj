@@ -1,4 +1,4 @@
-import { getUserIdFromToken } from '@/app/_lib/auth/getUserIdFromToken'
+import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'

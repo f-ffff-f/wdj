@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromToken } from '@/app/_lib/auth/getUserIdFromToken'
+import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import { generateS3FileKey, getEnv } from '@/app/_lib/utils'
+import { generateS3FileKey, getEnv } from '@/app/_lib/backend/utils'
 
 // S3 클라이언트 인스턴스 생성
 const s3 = new S3Client({

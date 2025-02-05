@@ -1,9 +1,9 @@
 // /app/_lib/hooks/useTrack.ts
-import { fetchWithToken } from '@/app/_lib/auth/fetchWithToken'
-import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
-import { deleteTrackFromIndexedDB, getTrackFromIndexedDB, setTrackToIndexedDB } from '@/app/_lib/indexedDB'
-import { state } from '@/app/_lib/state'
-import { DeleteTrackAPI, GetTracksAPI } from '@/app/types/api'
+import { fetchWithToken } from '@/app/_lib/frontend/auth/fetchWithToken'
+import { useCurrentUser } from '@/app/_lib/frontend/hooks/useCurrentUser'
+import { deleteTrackFromIndexedDB, getTrackFromIndexedDB, setTrackToIndexedDB } from '@/app/_lib/frontend/indexedDB'
+import { state } from '@/app/_lib/frontend/state'
+import { DeleteTrackAPI, GetTracksAPI } from '@/app/_lib/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 

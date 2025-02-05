@@ -1,5 +1,5 @@
-import { fetchWithToken } from '@/app/_lib/auth/fetchWithToken'
-import { state } from '@/app/_lib/state'
+import { fetchWithToken } from '@/app/_lib/frontend/auth/fetchWithToken'
+import { state } from '@/app/_lib/frontend/state'
 import {
     AddTracksToPlaylistAPI,
     CreatePlaylistAPI,
@@ -7,7 +7,7 @@ import {
     GetPlaylistsAPI,
     GetTracksAPI,
     UpdatePlaylistAPI,
-} from '@/app/types/api'
+} from '@/app/_lib/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 

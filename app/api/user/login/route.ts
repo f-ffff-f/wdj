@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { UserLoginAPI } from '@/app/types/api'
+import { UserLoginAPI } from '@/app/_lib/types/api'
 
 export async function POST(request: Request) {
     try {

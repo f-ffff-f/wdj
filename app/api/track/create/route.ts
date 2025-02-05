@@ -1,8 +1,8 @@
 // /app/api/track/create/route.ts
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromToken } from '@/app/_lib/auth/getUserIdFromToken'
-import { CreateTrackAPI } from '@/app/types/api'
+import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
+import { CreateTrackAPI } from '@/app/_lib/types/api'
 
 export async function POST(request: Request) {
     try {

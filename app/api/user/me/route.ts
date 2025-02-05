@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import jwt from 'jsonwebtoken'
-import { getUserIdFromToken } from '@/app/_lib/auth/getUserIdFromToken'
+import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
 
 /**
  * 인증된 사용자의 정보를 반환하는 API 엔드포인트

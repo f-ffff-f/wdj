@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { generateS3FileKey, getEnv } from '@/app/_lib/utils'
+import { generateS3FileKey, getEnv } from '@/app/_lib/backend/utils'
 
 // S3 클라이언트 생성
 const s3 = new S3Client({

@@ -2,8 +2,8 @@
 import { NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { getUserIdFromToken } from '@/app/_lib/auth/getUserIdFromToken'
-import { generateS3FileKey, getEnv } from '@/app/_lib/utils'
+import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
+import { generateS3FileKey, getEnv } from '@/app/_lib/backend/utils'
 
 const s3 = new S3Client({
     region: getEnv('AWS_REGION'),
