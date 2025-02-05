@@ -1,13 +1,13 @@
-import { UserMeAPI } from '@/app/_lib/types/api'
 import { useQuery } from '@tanstack/react-query'
 import { fetchWithToken } from '@/app/_lib/utils'
+import { User } from '@prisma/client'
 /**
  * 현재 인증된 사용자의 정보를 관리하는 커스텀 훅
  */
 
 // app/_lib/frontend/hooks/useCurrentUser.ts
 export const useCurrentUser = () => {
-    const { data, isLoading, error } = useQuery<UserMeAPI['Response']>({
+    const { data, isLoading, error } = useQuery<User>({
         queryKey: ['/api/user/me'],
         queryFn: async () => {
             try {

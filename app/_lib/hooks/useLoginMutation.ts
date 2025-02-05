@@ -1,7 +1,10 @@
-import { UserLoginAPI } from '@/app/_lib/types/api'
+import { User } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-const loginRequest = async ({ email, password }: UserLoginAPI['Request']): Promise<UserLoginAPI['Response']> => {
+type TRequest = { email: string; password: string }
+type TResponse = User & { token: string }
+
+const loginRequest = async ({ email, password }: TRequest) => {
     const res = await fetch('/api/user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -13,13 +16,13 @@ const loginRequest = async ({ email, password }: UserLoginAPI['Request']): Promi
         throw new Error(errorData?.error || 'Login failed')
     }
 
-    return res.json() as Promise<UserLoginAPI['Response']>
+    return res.json()
 }
 
-export const useLoginMutation = (onSuccess?: (data: UserLoginAPI['Response']) => void) => {
+export const useLoginMutation = (onSuccess?: (data: TResponse) => void) => {
     const queryClient = useQueryClient()
 
-    return useMutation<UserLoginAPI['Response'], Error, UserLoginAPI['Request']>({
+    return useMutation<TResponse, Error, TRequest>({
         mutationFn: loginRequest,
         onSuccess: (data) => {
             localStorage.setItem('token', data.token)

@@ -47,7 +47,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
             },
         })
 
-        return NextResponse.json(playlist, { status: 200 })
+        return NextResponse.json(playlist)
     } catch (error) {
         console.error('Add tracks to playlist error:', error)
         return handleError(error)
@@ -132,7 +132,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
             },
         })
 
-        return NextResponse.json(playlist, { status: 200 })
+        return NextResponse.json(playlist)
     } catch (error) {
         console.error('Remove tracks from playlist error:', error)
         return handleError(error)

@@ -30,9 +30,7 @@ export async function POST(request: Request) {
         })
 
         return NextResponse.json({
-            id: user.id,
-            email: user.email,
-            createdAt: user.createdAt,
+            ...user,
             token,
         })
     } catch (err) {

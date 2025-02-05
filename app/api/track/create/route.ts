@@ -2,7 +2,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getUserIdFromRequest } from '@/lib/server/utils'
-import { CreateTrackAPI } from '@/app/_lib/types/api'
 import { BadRequestError, UnauthorizedError } from '@/lib/server/error/errors'
 import { handleError } from '@/lib/server/error/handleError'
 
@@ -15,7 +14,7 @@ export async function POST(request: Request) {
         }
 
         // fileName, playlistId를 받을 수 있게 구조분해 할당
-        const { fileName, playlistId }: CreateTrackAPI['Request'] = await request.json()
+        const { fileName, playlistId } = await request.json()
 
         if (!fileName || typeof fileName !== 'string' || fileName.trim().length === 0) {
             throw new BadRequestError('Invalid file name')
@@ -51,7 +50,7 @@ export async function POST(request: Request) {
             },
         })
 
-        return NextResponse.json(newTrack, { status: 201 })
+        return NextResponse.json(newTrack)
     } catch (error) {
         console.error('Track creation error:', error)
         return handleError(error)

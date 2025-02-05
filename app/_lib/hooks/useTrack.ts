@@ -3,9 +3,9 @@ import { fetchWithToken } from '@/app/_lib/utils'
 import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
 import { deleteTrackFromIndexedDB, getTrackFromIndexedDB, setTrackToIndexedDB } from '@/app/_lib/indexedDB'
 import { state } from '@/app/_lib/state'
-import { DeleteTrackAPI, GetTracksAPI } from '@/app/_lib/types/api'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
+import { Track } from '@prisma/client'
 
 export const useTrack = () => {
     const { isMember } = useCurrentUser()
@@ -15,14 +15,14 @@ export const useTrack = () => {
     const queryKey = ['/api/tracks']
 
     // 트랙 목록 조회 쿼리
-    const tracksQuery = useQuery<GetTracksAPI['Response']>({
+    const tracksQuery = useQuery<Track[]>({
         queryKey,
         queryFn: () => fetchWithToken('/api/tracks'),
         retry: false,
     })
 
     // 트랙 생성 뮤테이션
-    const createTrackMutation = useMutation({
+    const createTrackMutation = useMutation<Track, Error, File>({
         mutationFn: async (file: File) => {
             try {
                 // 1. db 저장 요청
@@ -83,16 +83,14 @@ export const useTrack = () => {
             if (isMember) {
                 return fetchWithToken(`/api/track/${id}/delete`, {
                     method: 'DELETE',
-                }) as Promise<DeleteTrackAPI['Response']>
+                })
             }
         },
         onMutate: async (id) => {
             await queryClient.cancelQueries({ queryKey })
 
-            const previousTracks = queryClient.getQueryData<GetTracksAPI['Response']>(queryKey)
-            queryClient.setQueryData<GetTracksAPI['Response']>(queryKey, (old = []) =>
-                old.filter((track) => track.id !== id),
-            )
+            const previousTracks = queryClient.getQueryData<Track[]>(queryKey)
+            queryClient.setQueryData<Track[]>(queryKey, (old = []) => old.filter((track) => track.id !== id))
 
             return { previousTracks }
         },
