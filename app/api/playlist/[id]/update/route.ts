@@ -1,21 +1,26 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
-
+import { getUserIdFromRequest } from '@/lib/server/utils'
+import { UnauthorizedError, BadRequestError } from '@/lib/server/error/errors'
+import { handleError } from '@/lib/server/error/handleError'
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
     try {
-        const result = getUserIdFromToken(request)
+        const userId = getUserIdFromRequest(request)
+
+        if (!userId) {
+            throw new UnauthorizedError('User not authenticated')
+        }
 
         const { name } = await request.json()
 
         if (!name || typeof name !== 'string' || name.trim().length === 0) {
-            return NextResponse.json({ error: 'Playlist name is required' }, { status: 400 })
+            throw new BadRequestError('Playlist name is required')
         }
 
         const playlist = await prisma.playlist.update({
             where: {
                 id: params.id,
-                userId: result.userId,
+                userId: userId,
             },
             data: {
                 name: name.trim(),
@@ -30,6 +35,6 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         return NextResponse.json(playlist)
     } catch (error) {
         console.error('Playlist update error:', error)
-        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
+        return handleError(error)
     }
 }

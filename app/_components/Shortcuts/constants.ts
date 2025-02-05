@@ -1,4 +1,4 @@
-import { EDeckIds } from '@/app/_lib/frontend/constants'
+import { EDeckIds } from '@/app/_lib/constants'
 
 export enum EShortcut {
     KeyQ = 'KeyQ',

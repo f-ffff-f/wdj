@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import FileUploader from '@/app/_components/TrackLibrary/FileUploader'
 import List from '@/app/_components/TrackLibrary/List'
-import { audioManager } from '@/app/_lib/frontend/audioManager/audioManagerSingleton'
-import { formatTimeUI } from '@/app/_lib/frontend/utils'
+import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
+import { formatTimeUI } from '@/app/_lib/utils'
 import WaveformVisualizer from '@/app/_components/WaveformVisualizer'
 import { SliderCrossfade } from '@/components/ui/sliderCrossfade'
 import { SliderSpeed } from '@/components/ui/sliderSpeed'
@@ -10,7 +10,7 @@ import { SliderVolume } from '@/components/ui/sliderVolume'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/utils'
-import { EDeckIds } from '@/app/_lib/frontend/constants'
+import { EDeckIds } from '@/app/_lib/constants'
 
 interface IDeckUI {
     id: EDeckIds

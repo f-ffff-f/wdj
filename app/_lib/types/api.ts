@@ -1,5 +1,4 @@
-import { TrackDTO, UserDTO } from '../backend/types/dto'
-import { PlaylistDTO } from '../backend/types/dto'
+import { UserDTO, PlaylistDTO, TrackDTO } from '@/lib/server/types/dto'
 
 // api/user/me
 export type UserMeAPI = { Response: UserDTO }
@@ -7,7 +6,7 @@ export type UserMeAPI = { Response: UserDTO }
 // api/user/login
 export type UserLoginAPI = {
     Request: { email: string; password: string }
-    Response: { message: string; token: string } & UserDTO
+    Response: UserDTO & { token: string }
 }
 
 // api/playlist

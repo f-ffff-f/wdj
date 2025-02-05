@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { generateS3FileKey, getEnv } from '@/app/_lib/backend/utils'
+import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/lib/server/utils'
+import { NotFoundError, UnauthorizedError } from '@/lib/server/error/errors'
+import { handleError } from '@/lib/server/error/handleError'
 
 // S3 클라이언트 생성
 const s3 = new S3Client({
@@ -15,16 +17,22 @@ const s3 = new S3Client({
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
     try {
+        const userId = getUserIdFromRequest(request)
+
+        if (!userId) {
+            throw new UnauthorizedError('User not authenticated')
+        }
+
         // DB에서 트랙 정보 가져오기
         const track = await prisma.track.findUnique({
             where: { id: params.id },
         })
 
         if (!track) {
-            return NextResponse.json({ error: 'Track not found' }, { status: 404 })
+            throw new NotFoundError('Track not found')
         }
 
-        const fileKey = generateS3FileKey(track.userId, track.id)
+        const fileKey = generateS3FileKey(userId, track.id)
 
         // GetObjectCommand 생성
         const getCommand = new GetObjectCommand({
@@ -42,6 +50,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
         })
     } catch (error) {
         console.error('Error fetching track:', error)
-        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
+        return handleError(error)
     }
 }

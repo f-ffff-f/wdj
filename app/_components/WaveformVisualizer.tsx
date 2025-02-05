@@ -1,6 +1,6 @@
-import { audioManager } from '@/app/_lib/frontend/audioManager/audioManagerSingleton'
+import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
-import { EDeckIds } from '@/app/_lib/frontend/constants'
+import { EDeckIds } from '@/app/_lib/constants'
 
 const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
     const containerRef = useRef<HTMLDivElement>(null)

@@ -1,24 +1,30 @@
 // /app/api/track/create/route.ts
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
+import { getUserIdFromRequest } from '@/lib/server/utils'
 import { CreateTrackAPI } from '@/app/_lib/types/api'
+import { BadRequestError, UnauthorizedError } from '@/lib/server/error/errors'
+import { handleError } from '@/lib/server/error/handleError'
 
 export async function POST(request: Request) {
     try {
-        const result = getUserIdFromToken(request)
+        const userId = getUserIdFromRequest(request)
+
+        if (!userId) {
+            throw new UnauthorizedError('User not authenticated')
+        }
 
         // fileName, playlistId를 받을 수 있게 구조분해 할당
         const { fileName, playlistId }: CreateTrackAPI['Request'] = await request.json()
 
         if (!fileName || typeof fileName !== 'string' || fileName.trim().length === 0) {
-            return NextResponse.json({ error: 'Invalid file name' }, { status: 400 })
+            throw new BadRequestError('Invalid file name')
         }
 
         // playlistId가 존재하는 경우만 connect 로직을 추가
         const createData = {
             fileName: fileName.trim(),
-            userId: result.userId,
+            userId: userId,
             playlists: {},
         }
 
@@ -48,6 +54,6 @@ export async function POST(request: Request) {
         return NextResponse.json(newTrack, { status: 201 })
     } catch (error) {
         console.error('Track creation error:', error)
-        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
+        return handleError(error)
     }
 }

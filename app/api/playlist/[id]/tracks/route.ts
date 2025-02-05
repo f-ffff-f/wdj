@@ -1,7 +1,9 @@
-import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
+import { getUserIdFromRequest } from '@/lib/server/utils'
+import { UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/server/error/errors'
 import { prisma } from '@/lib/prisma'
 import { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
+import { handleError } from '@/lib/server/error/handleError'
 
 /**
  * 플레이리스트에 트랙 추가 API 엔드포인트
@@ -10,20 +12,23 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request, { params }: { params: { id: string } }) {
     try {
         // 인증 처리
-        const result = getUserIdFromToken(request)
-        if (!result) return NextResponse.json(result, { status: 401 })
+        const userId = getUserIdFromRequest(request)
+
+        if (!userId) {
+            throw new UnauthorizedError('User not authenticated')
+        }
 
         // 요청 본문 유효성 검사
         const { trackIds } = await request.json()
         if (!Array.isArray(trackIds) || trackIds.some((id) => typeof id !== 'string')) {
-            return NextResponse.json({ error: 'Invalid track IDs format' }, { status: 400 })
+            throw new BadRequestError('Invalid track IDs format')
         }
 
         // 플레이리스트 소유권 확인
         const playlist = await prisma.playlist.update({
             where: {
                 id: params.id,
-                userId: result.userId,
+                userId: userId,
             },
             data: {
                 tracks: {
@@ -45,12 +50,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         return NextResponse.json(playlist, { status: 200 })
     } catch (error) {
         console.error('Add tracks to playlist error:', error)
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === 'P2025') {
-                return NextResponse.json({ error: 'Playlist or track not found' }, { status: 404 })
-            }
-        }
-        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
+        return handleError(error)
     }
 }
 
@@ -59,13 +59,16 @@ export async function POST(request: Request, { params }: { params: { id: string 
  */
 export async function GET(request: Request, { params }: { params: { id: string } }) {
     try {
-        const result = getUserIdFromToken(request)
-        if (!result) return NextResponse.json(result, { status: 401 })
+        const userId = getUserIdFromRequest(request)
+
+        if (!userId) {
+            throw new UnauthorizedError('User not authenticated')
+        }
 
         const playlist = await prisma.playlist.findUnique({
             where: {
                 id: params.id,
-                userId: result.userId,
+                userId: userId,
             },
             include: {
                 tracks: {
@@ -79,12 +82,12 @@ export async function GET(request: Request, { params }: { params: { id: string }
             },
         })
 
-        if (!playlist) return NextResponse.json({ error: 'Playlist not found' }, { status: 404 })
+        if (!playlist) throw new NotFoundError('Playlist not found')
 
         return NextResponse.json(playlist.tracks)
     } catch (error) {
         console.error('Get playlist tracks error:', error)
-        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
+        return handleError(error)
     }
 }
 
@@ -94,20 +97,23 @@ export async function GET(request: Request, { params }: { params: { id: string }
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         // 인증 처리
-        const result = getUserIdFromToken(request)
-        if (!result) return NextResponse.json(result, { status: 401 })
+        const userId = getUserIdFromRequest(request)
+
+        if (!userId) {
+            throw new UnauthorizedError('User not authenticated')
+        }
 
         // 요청 본문 유효성 검사
         const { trackIds } = await request.json()
         if (!Array.isArray(trackIds) || trackIds.some((id) => typeof id !== 'string')) {
-            return NextResponse.json({ error: 'Invalid track IDs format' }, { status: 400 })
+            throw new BadRequestError('Invalid track IDs format')
         }
 
         // 플레이리스트 소유권 확인 및 트랙 제거
         const playlist = await prisma.playlist.update({
             where: {
                 id: params.id,
-                userId: result.userId,
+                userId: userId,
             },
             data: {
                 tracks: {
@@ -129,11 +135,6 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         return NextResponse.json(playlist, { status: 200 })
     } catch (error) {
         console.error('Remove tracks from playlist error:', error)
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            if (error.code === 'P2025') {
-                return NextResponse.json({ error: 'Playlist or track not found' }, { status: 404 })
-            }
-        }
-        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
+        return handleError(error)
     }
 }

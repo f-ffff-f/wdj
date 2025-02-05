@@ -1,5 +1,5 @@
-import { fetchWithToken } from '@/app/_lib/frontend/auth/fetchWithToken'
-import { state } from '@/app/_lib/frontend/state'
+import { fetchWithToken } from '@/app/_lib/utils'
+import { state } from '@/app/_lib/state'
 import {
     AddTracksToPlaylistAPI,
     CreatePlaylistAPI,

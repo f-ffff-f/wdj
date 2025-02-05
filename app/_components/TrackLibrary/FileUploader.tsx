@@ -1,6 +1,6 @@
 import React from 'react'
 import { InputFile } from '@/components/ui/inputFile'
-import { useTrack } from '@/app/_lib/frontend/hooks/useTrack'
+import { useTrack } from '@/app/_lib/hooks/useTrack'
 
 const FileUploader = () => {
     const { createTrack } = useTrack()

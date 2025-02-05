@@ -1,3 +1,9 @@
+export const getUserIdFromRequest = (request: Request): string | null => {
+    const userId = request.headers.get('x-user-id')
+
+    return userId
+}
+
 export const getEnv = (key: string): string => {
     const value = process.env[key]
     if (!value) throw new Error(`Missing environment variable: ${key}`)

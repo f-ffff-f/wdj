@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
+import { getUserIdFromRequest } from '@/lib/server/utils'
+import { UnauthorizedError } from '@/lib/server/error/errors'
+import { handleError } from '@/lib/server/error/handleError'
 
 /**
  * 사용자의 트랙 목록 조회 API 엔드포인트
@@ -8,10 +10,14 @@ import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
  */
 export async function GET(request: Request) {
     try {
-        const result = getUserIdFromToken(request)
+        const userId = getUserIdFromRequest(request)
+
+        if (!userId) {
+            throw new UnauthorizedError('User not authenticated')
+        }
 
         const tracks = await prisma.track.findMany({
-            where: { userId: result.userId },
+            where: { userId: userId },
             select: {
                 id: true,
                 fileName: true,
@@ -23,6 +29,6 @@ export async function GET(request: Request) {
         return NextResponse.json(tracks)
     } catch (error) {
         console.error('Track retrieval error:', error)
-        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
+        return handleError(error)
     }
 }

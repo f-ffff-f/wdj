@@ -4,12 +4,9 @@
  * @returns Promise with parsed JSON response
  */
 
+// app/_lib/frontend/auth/fetchWithToken.ts
 export const fetchWithToken = async (url: string, options: RequestInit = {}) => {
     const token = localStorage.getItem('token') || sessionStorage.getItem('guestToken')
-
-    if (!token) {
-        throw new Error('Token is not exist')
-    }
 
     // 기본 헤더 설정
     const defaultHeaders = {
@@ -31,4 +28,10 @@ export const fetchWithToken = async (url: string, options: RequestInit = {}) => 
     }
 
     return res.json()
+}
+
+export const formatTimeUI = (seconds: number): string => {
+    const min = Math.floor(seconds / 60)
+    const sec = Math.floor(seconds % 60)
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`
 }

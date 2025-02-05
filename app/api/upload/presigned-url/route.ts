@@ -2,8 +2,9 @@
 import { NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
-import { generateS3FileKey, getEnv } from '@/app/_lib/backend/utils'
+import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/lib/server/utils'
+import { BadRequestError, UnauthorizedError } from '@/lib/server/error/errors'
+import { handleError } from '@/lib/server/error/handleError'
 
 const s3 = new S3Client({
     region: getEnv('AWS_REGION'),
@@ -15,17 +16,21 @@ const s3 = new S3Client({
 
 export const POST = async (req: Request) => {
     try {
-        const result = getUserIdFromToken(req)
+        const userId = getUserIdFromRequest(req)
+
+        if (!userId) {
+            throw new UnauthorizedError('User not authenticated')
+        }
 
         const { fileName, fileType, id } = await req.json()
 
         // 입력 유효성 검사
         if (!fileName || !fileType) {
-            return NextResponse.json({ error: 'fileName and fileType are required' }, { status: 400 })
+            throw new BadRequestError('fileName and fileType are required')
         }
 
         // 고유 파일 키 생성
-        const fileKey = generateS3FileKey(result.userId, id)
+        const fileKey = generateS3FileKey(userId, id)
 
         // S3 업로드 명령 생성
         const putCommand = new PutObjectCommand({
@@ -45,6 +50,6 @@ export const POST = async (req: Request) => {
         })
     } catch (error) {
         console.error('Presigned URL generation error:', error)
-        return NextResponse.json({ error: 'Failed to generate presigned URL' }, { status: 500 })
+        return handleError(error)
     }
 }

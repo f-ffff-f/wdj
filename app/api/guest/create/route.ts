@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import jwt from 'jsonwebtoken'
+import { handleError } from '@/lib/server/error/handleError'
 
 export async function POST(request: Request) {
     try {
@@ -31,13 +32,7 @@ export async function POST(request: Request) {
             { status: 201 },
         )
     } catch (err) {
-        console.error('Guest creation error:', err instanceof Error ? err.message : 'Unknown error')
-        return NextResponse.json(
-            {
-                error: 'Guest creation failed',
-                details: err instanceof Error ? err.message : undefined,
-            },
-            { status: 500 },
-        )
+        console.error('Guest creation error:', err)
+        return handleError(err)
     }
 }

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
-
+import { getUserIdFromRequest } from '@/lib/server/utils'
+import { UnauthorizedError } from '@/lib/server/error/errors'
+import { handleError } from '@/lib/server/error/handleError'
 /**
  * 사용자의 플레이리스트 목록을 조회하는 API 엔드포인트
  * 인증된 사용자의 플레이리스트만 반환
@@ -9,12 +10,16 @@ import { getUserIdFromToken } from '@/app/_lib/backend/auth/getUserIdFromToken'
 export async function GET(request: Request) {
     try {
         // 토큰에서 사용자 ID 확인
-        const result = getUserIdFromToken(request)
+        const userId = getUserIdFromRequest(request)
+
+        if (!userId) {
+            throw new UnauthorizedError('User not authenticated')
+        }
 
         // 사용자의 플레이리스트 조회
         const playlists = await prisma.playlist.findMany({
             where: {
-                userId: result.userId,
+                userId: userId,
             },
             select: {
                 id: true,
@@ -36,6 +41,6 @@ export async function GET(request: Request) {
         return NextResponse.json(response)
     } catch (error) {
         console.error('Playlist retrieval error:', error)
-        return NextResponse.json({ error: 'Server error occurred' }, { status: 500 })
+        return handleError(error)
     }
 }
