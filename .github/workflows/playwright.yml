@@ -8,6 +8,8 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
+            - name: Create .env file
+              run: echo "${{ secrets.TEST_ENV_FILE }}" > .env
             - name: Install dependencies
               run: npm install && npx playwright install --with-deps
             - name: Run tests
