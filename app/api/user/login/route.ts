@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { NotFoundError, UnauthorizedError } from '@/lib/server/error/errors'
-import { handleError } from '@/lib/server/error/handleError'
+import { NotFoundError, UnauthorizedError } from '@/app/_libServer/CustomErrors'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 export async function POST(request: Request) {
     try {
         const { email, password } = await request.json()
@@ -35,6 +35,6 @@ export async function POST(request: Request) {
         })
     } catch (err) {
         console.error('Login error:', err)
-        return handleError(err)
+        return handleServerError(err)
     }
 }

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
-import { UnauthorizedError } from '@/lib/server/error/errors'
-import { handleError } from '@/lib/server/error/handleError'
+import { UnauthorizedError } from '@/app/_libServer/CustomErrors'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 
 /**
  * 인증 미들웨어
@@ -59,7 +59,7 @@ export async function middleware(request: NextRequest) {
             })
         } catch (error) {
             console.error('Middleware error:', error)
-            return handleError(error)
+            return handleServerError(error)
         }
     }
 

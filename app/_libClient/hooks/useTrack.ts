@@ -1,11 +1,12 @@
 // /app/_lib/hooks/useTrack.ts
-import { fetchWithToken } from '@/app/_lib/utils'
-import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
-import { deleteTrackFromIndexedDB, getTrackFromIndexedDB, setTrackToIndexedDB } from '@/app/_lib/indexedDB'
-import { state } from '@/app/_lib/state'
+import { customFetcher } from '@/app/_libClient/hooks/util/customFetcher'
+import { useCurrentUser } from '@/app/_libClient/hooks/useCurrentUser'
+import { deleteTrackFromIndexedDB, getTrackFromIndexedDB, setTrackToIndexedDB } from '@/app/_libClient/indexedDB'
+import { state } from '@/app/_libClient/state'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 import { Track } from '@prisma/client'
+import { handleClientError } from '@/app/_libClient/hooks/util/handleClientError'
 
 export const useTrack = () => {
     const { isMember } = useCurrentUser()
@@ -17,55 +18,54 @@ export const useTrack = () => {
     // 트랙 목록 조회 쿼리
     const tracksQuery = useQuery<Track[]>({
         queryKey,
-        queryFn: () => fetchWithToken('/api/tracks'),
+        queryFn: () => customFetcher('/api/tracks'),
         retry: false,
     })
 
     // 트랙 생성 뮤테이션
     const createTrackMutation = useMutation<Track, Error, File>({
         mutationFn: async (file: File) => {
-            try {
-                // 1. db 저장 요청
-                const playlistId = snapshot.UI.currentPlaylistId
+            // 1. db 저장 요청
+            const playlistId = snapshot.UI.currentPlaylistId
 
-                const response = await fetchWithToken('/api/track/create', {
+            const response = await customFetcher('/api/track/create', {
+                method: 'POST',
+                body: JSON.stringify({
+                    fileName: file.name,
+                    playlistId,
+                }),
+            })
+
+            setTrackToIndexedDB(response.id, file)
+
+            if (isMember) {
+                // 2. 프리사인드 URL 요청
+                const presignedResponse = await customFetcher('/api/upload/presigned-url', {
                     method: 'POST',
                     body: JSON.stringify({
-                        fileName: file.name,
-                        playlistId,
+                        id: response.id,
+                        fileName: response.fileName,
+                        fileType: file.type,
                     }),
                 })
 
-                setTrackToIndexedDB(response.id, file)
+                // 3. S3에 파일 업로드
+                const uploadResponse = await fetch(presignedResponse.url, {
+                    method: 'PUT',
+                    body: file,
+                    headers: {
+                        'Content-Type': file.type,
+                    },
+                })
 
-                if (isMember) {
-                    // 2. 프리사인드 URL 요청
-                    const presignedResponse = await fetchWithToken('/api/upload/presigned-url', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            id: response.id,
-                            fileName: response.fileName,
-                            fileType: file.type,
-                        }),
-                    })
-
-                    // 3. S3에 파일 업로드
-                    const uploadResponse = await fetch(presignedResponse.url, {
-                        method: 'PUT',
-                        body: file,
-                        headers: {
-                            'Content-Type': file.type,
-                        },
-                    })
-
-                    if (!uploadResponse.ok) throw new Error('S3 upload failed')
+                if (!uploadResponse.ok) {
+                    await handleClientError(uploadResponse)
                 }
-
-                return response
-            } catch (error) {
-                throw new Error(`File upload failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
             }
+
+            return response
         },
+        onError: (error) => {},
         onSuccess: (response) => {
             state.UI.focusedTrackId = response.id
         },
@@ -81,7 +81,7 @@ export const useTrack = () => {
             deleteTrackFromIndexedDB(id)
 
             if (isMember) {
-                return fetchWithToken(`/api/track/${id}/delete`, {
+                return customFetcher(`/api/track/${id}/delete`, {
                     method: 'DELETE',
                 })
             }
@@ -105,7 +105,7 @@ export const useTrack = () => {
     // 모든 트랙 삭제
     const deleteAllTracksMutation = useMutation({
         mutationFn: async () => {
-            return fetchWithToken('/api/tracks/delete', {
+            return customFetcher('/api/tracks/delete', {
                 method: 'DELETE',
             })
         },
@@ -121,7 +121,7 @@ export const useTrack = () => {
             return blob
         } else {
             if (isMember) {
-                const response = await fetchWithToken(`/api/track/${id}/presigned-url`, {
+                const response = await customFetcher(`/api/track/${id}/presigned-url`, {
                     method: 'GET',
                 })
 

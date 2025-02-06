@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError } from '@/lib/server/error/errors'
-import { handleError } from '@/lib/server/error/handleError'
+import { getUserIdFromRequest } from '@/app/_libServer/utils'
+import { UnauthorizedError } from '@/app/_libServer/CustomErrors'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 /**
  * 사용자의 플레이리스트 목록을 조회하는 API 엔드포인트
  * 인증된 사용자의 플레이리스트만 반환
@@ -41,6 +41,6 @@ export async function GET(request: Request) {
         return NextResponse.json(response)
     } catch (error) {
         console.error('Playlist retrieval error:', error)
-        return handleError(error)
+        return handleServerError(error)
     }
 }

@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/lib/server/utils'
-import { NotFoundError, UnauthorizedError } from '@/lib/server/error/errors'
-import { handleError } from '@/lib/server/error/handleError'
+import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/app/_libServer/utils'
+import { NotFoundError, UnauthorizedError } from '@/app/_libServer/CustomErrors'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 
 // S3 클라이언트 생성
 const s3 = new S3Client({
@@ -50,6 +50,6 @@ export async function GET(request: Request, { params }: { params: { id: string }
         })
     } catch (error) {
         console.error('Error fetching track:', error)
-        return handleError(error)
+        return handleServerError(error)
     }
 }

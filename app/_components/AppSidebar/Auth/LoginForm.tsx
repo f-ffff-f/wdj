@@ -6,7 +6,7 @@ import * as z from 'zod'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useLoginMutation } from '@/app/_lib/hooks/useLoginMutation'
+import { useLoginMutation } from '@/app/_libClient/hooks/useLoginMutation'
 
 const formSchema = z.object({
     email: z.string().email('Please enter a valid email'),

@@ -1,9 +1,8 @@
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/server/error/errors'
+import { getUserIdFromRequest } from '@/app/_libServer/utils'
+import { UnauthorizedError, BadRequestError, NotFoundError } from '@/app/_libServer/CustomErrors'
 import { prisma } from '@/lib/prisma'
-import { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
-import { handleError } from '@/lib/server/error/handleError'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 
 /**
  * 플레이리스트에 트랙 추가 API 엔드포인트
@@ -50,7 +49,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
         return NextResponse.json(playlist)
     } catch (error) {
         console.error('Add tracks to playlist error:', error)
-        return handleError(error)
+        return handleServerError(error)
     }
 }
 
@@ -87,7 +86,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         return NextResponse.json(playlist.tracks)
     } catch (error) {
         console.error('Get playlist tracks error:', error)
-        return handleError(error)
+        return handleServerError(error)
     }
 }
 
@@ -135,6 +134,6 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         return NextResponse.json(playlist)
     } catch (error) {
         console.error('Remove tracks from playlist error:', error)
-        return handleError(error)
+        return handleServerError(error)
     }
 }

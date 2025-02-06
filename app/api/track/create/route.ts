@@ -1,9 +1,8 @@
-// /app/api/track/create/route.ts
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { BadRequestError, UnauthorizedError } from '@/lib/server/error/errors'
-import { handleError } from '@/lib/server/error/handleError'
+import { getUserIdFromRequest } from '@/app/_libServer/utils'
+import { BadRequestError, UnauthorizedError } from '@/app/_libServer/CustomErrors'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 
 export async function POST(request: Request) {
     try {
@@ -53,6 +52,6 @@ export async function POST(request: Request) {
         return NextResponse.json(newTrack)
     } catch (error) {
         console.error('Track creation error:', error)
-        return handleError(error)
+        return handleServerError(error)
     }
 }

@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { NotFoundError, UnauthorizedError } from '@/lib/server/error/errors'
-import { handleError } from '@/lib/server/error/handleError'
+import { getUserIdFromRequest } from '@/app/_libServer/utils'
+import { NotFoundError, UnauthorizedError } from '@/app/_libServer/CustomErrors'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 
 /**
  * 인증된 사용자의 정보를 반환하는 API 엔드포인트
@@ -35,6 +35,6 @@ export async function GET(request: Request): Promise<NextResponse> {
         return NextResponse.json(user)
     } catch (error) {
         console.error('User info search error:', error)
-        return handleError(error)
+        return handleServerError(error)
     }
 }

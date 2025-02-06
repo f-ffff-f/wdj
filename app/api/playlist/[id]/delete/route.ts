@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError } from '@/lib/server/error/errors'
-import { handleError } from '@/lib/server/error/handleError'
+import { getUserIdFromRequest } from '@/app/_libServer/utils'
+import { UnauthorizedError } from '@/app/_libServer/CustomErrors'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         const userId = getUserIdFromRequest(request)
@@ -21,6 +21,6 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         return NextResponse.json({ message: 'Playlist deleted successfully' })
     } catch (error) {
         console.error('Playlist deletion error:', error)
-        return handleError(error)
+        return handleServerError(error)
     }
 }

@@ -1,10 +1,10 @@
 import { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
-import { BadRequestError, NotFoundError, UnauthorizedError } from '@/lib/server/error/errors'
+import { BadRequestError, NotFoundError, UnauthorizedError } from '@/app/_libServer/CustomErrors'
 
-export const handleError = (error: unknown) => {
+export const handleServerError = (error: unknown) => {
     if (error instanceof UnauthorizedError || error instanceof BadRequestError || error instanceof NotFoundError) {
-        return NextResponse.json({ error: error.message }, { status: error.status })
+        return NextResponse.json({ error: error.customMessage }, { status: error.status })
     }
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -18,7 +18,6 @@ export const handleError = (error: unknown) => {
     }
 
     if (error instanceof Error) {
-        console.error('Unexpected error:', error)
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
     }
 

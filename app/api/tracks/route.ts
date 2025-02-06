@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError } from '@/lib/server/error/errors'
-import { handleError } from '@/lib/server/error/handleError'
+import { getUserIdFromRequest } from '@/app/_libServer/utils'
+import { UnauthorizedError } from '@/app/_libServer/CustomErrors'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 
 /**
  * 사용자의 트랙 목록 조회 API 엔드포인트
@@ -29,6 +29,6 @@ export async function GET(request: Request) {
         return NextResponse.json(tracks)
     } catch (error) {
         console.error('Track retrieval error:', error)
-        return handleError(error)
+        return handleServerError(error)
     }
 }

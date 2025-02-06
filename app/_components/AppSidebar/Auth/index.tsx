@@ -1,6 +1,6 @@
 import LoginForm from '@/app/_components/AppSidebar/Auth/LoginForm'
-import { useCurrentUser } from '@/app/_lib/hooks/useCurrentUser'
-import { useLogout } from '@/app/_lib/hooks/useLogout'
+import { useCurrentUser } from '@/app/_libClient/hooks/useCurrentUser'
+import { useLogout } from '@/app/_libClient/hooks/useLogout'
 import { Button } from '@/components/ui/button'
 import { SidebarGroupLabel } from '@/components/ui/sidebar'
 

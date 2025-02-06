@@ -1,5 +1,5 @@
-import { EDeckIds } from '@/app/_lib/constants'
-import { clampGain } from '@/app/_lib/audioManager/utils'
+import { EDeckIds } from '@/app/_libClient/constants'
+import { clampGain } from '@/app/_libClient/audioManager/utils'
 
 interface IDeck {
     id: EDeckIds

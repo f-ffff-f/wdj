@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError, BadRequestError } from '@/lib/server/error/errors'
-import { handleError } from '@/lib/server/error/handleError'
+import { getUserIdFromRequest } from '@/app/_libServer/utils'
+import { UnauthorizedError, BadRequestError } from '@/app/_libServer/CustomErrors'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 /**
  * 새로운 플레이리스트를 생성하는 API 엔드포인트
  * 인증된 사용자만 플레이리스트를 생성할 수 있음
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
         const { name } = await request.json()
 
         if (!name || typeof name !== 'string' || name.trim().length === 0) {
-            throw new BadRequestError('Playlist name is required')
+            throw new BadRequestError('Invalid playlist name')
         }
 
         // 플레이리스트 생성
@@ -36,9 +36,9 @@ export async function POST(request: Request) {
             },
         })
 
-        return NextResponse.json(playlist, { status: 201 })
+        return NextResponse.json(playlist)
     } catch (error) {
         console.error('Playlist creation error:', error)
-        return handleError(error)
+        return handleServerError(error)
     }
 }

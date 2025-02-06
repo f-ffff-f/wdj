@@ -1,8 +1,8 @@
-import { audioManager } from '@/app/_lib/audioManager/audioManagerSingleton'
-import { EDeckIds } from '@/app/_lib/constants'
-import { usePlaylist } from '@/app/_lib/hooks/usePlaylist'
-import { useTrack } from '@/app/_lib/hooks/useTrack'
-import { state } from '@/app/_lib/state'
+import { audioManager } from '@/app/_libClient/audioManager/audioManagerSingleton'
+import { EDeckIds } from '@/app/_libClient/constants'
+import { usePlaylist } from '@/app/_libClient/hooks/usePlaylist'
+import { useTrack } from '@/app/_libClient/hooks/useTrack'
+import { state } from '@/app/_libClient/state'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {

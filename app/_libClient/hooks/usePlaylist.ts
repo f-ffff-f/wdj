@@ -1,5 +1,5 @@
-import { fetchWithToken } from '@/app/_lib/utils'
-import { state } from '@/app/_lib/state'
+import { customFetcher } from '@/app/_libClient/hooks/util/customFetcher'
+import { state } from '@/app/_libClient/state'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 import { Playlist, Track } from '@prisma/client'
@@ -18,7 +18,7 @@ export const usePlaylist = () => {
      */
     const playlistsQuery = useQuery<Playlist[]>({
         queryKey,
-        queryFn: () => fetchWithToken('/api/playlist'),
+        queryFn: () => customFetcher('/api/playlist'),
         retry: false,
     })
 
@@ -27,7 +27,7 @@ export const usePlaylist = () => {
      */
     const createPlaylistMutation = useMutation<Playlist, Error, string>({
         mutationFn: async (name: string) => {
-            return fetchWithToken('/api/playlist/create', {
+            return customFetcher('/api/playlist/create', {
                 method: 'POST',
                 body: JSON.stringify({ name }),
             })
@@ -47,7 +47,7 @@ export const usePlaylist = () => {
         { onSuccess?: () => void }
     >({
         mutationFn: async (params: { id: string; name: string }) => {
-            return fetchWithToken(`/api/playlist/${params.id}/update`, {
+            return customFetcher(`/api/playlist/${params.id}/update`, {
                 method: 'PATCH',
                 body: JSON.stringify({ name: params.name }),
             })
@@ -65,7 +65,7 @@ export const usePlaylist = () => {
      */
     const deletePlaylistMutation = useMutation({
         mutationFn: async (id: string) => {
-            return fetchWithToken(`/api/playlist/${id}/delete`, {
+            return customFetcher(`/api/playlist/${id}/delete`, {
                 method: 'DELETE',
             })
         },
@@ -76,7 +76,7 @@ export const usePlaylist = () => {
 
     const addTracksToPlaylistMutation = useMutation<Playlist, Error, { id: string; trackIds: string[] }>({
         mutationFn: async ({ id, trackIds }) => {
-            return fetchWithToken(`/api/playlist/${id}/tracks`, {
+            return customFetcher(`/api/playlist/${id}/tracks`, {
                 method: 'POST',
                 body: JSON.stringify({ trackIds }),
             })
@@ -88,13 +88,13 @@ export const usePlaylist = () => {
 
     const playlistTracksQuery = useQuery<Track[]>({
         queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId],
-        queryFn: () => fetchWithToken(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`),
+        queryFn: () => customFetcher(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`),
         enabled: !!snapshot.UI.currentPlaylistId,
     })
 
     const deleteTracksFromPlaylistMutation = useMutation<Playlist, Error, string[]>({
         mutationFn: async (trackIds) => {
-            return fetchWithToken(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`, {
+            return customFetcher(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`, {
                 method: 'DELETE',
                 body: JSON.stringify({ trackIds }),
             })

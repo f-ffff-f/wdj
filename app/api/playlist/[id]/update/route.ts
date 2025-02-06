@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError, BadRequestError } from '@/lib/server/error/errors'
-import { handleError } from '@/lib/server/error/handleError'
+import { getUserIdFromRequest } from '@/app/_libServer/utils'
+import { UnauthorizedError, BadRequestError } from '@/app/_libServer/CustomErrors'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
     try {
         const userId = getUserIdFromRequest(request)
@@ -14,7 +14,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         const { name } = await request.json()
 
         if (!name || typeof name !== 'string' || name.trim().length === 0) {
-            throw new BadRequestError('Playlist name is required')
+            throw new BadRequestError('Invalid playlist name')
         }
 
         const playlist = await prisma.playlist.update({
@@ -35,6 +35,6 @@ export async function PATCH(request: Request, { params }: { params: { id: string
         return NextResponse.json(playlist)
     } catch (error) {
         console.error('Playlist update error:', error)
-        return handleError(error)
+        return handleServerError(error)
     }
 }

@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/lib/server/utils'
-import { NotFoundError, UnauthorizedError } from '@/lib/server/error/errors'
-import { handleError } from '@/lib/server/error/handleError'
+import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/app/_libServer/utils'
+import { NotFoundError, UnauthorizedError } from '@/app/_libServer/CustomErrors'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 // S3 클라이언트 인스턴스 생성
 const s3 = new S3Client({
     region: getEnv('AWS_REGION'),
@@ -50,6 +50,6 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         return NextResponse.json({ message: 'Track deleted successfully' })
     } catch (error) {
         console.error('Track deletion error:', error)
-        return handleError(error)
+        return handleServerError(error)
     }
 }

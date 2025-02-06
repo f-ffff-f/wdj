@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcrypt'
-import { BadRequestError } from '@/lib/server/error/errors'
-import { handleError } from '@/lib/server/error/handleError'
+import { BadRequestError } from '@/app/_libServer/CustomErrors'
+import { handleServerError } from '@/app/_libServer/handleServerError'
 export async function POST(request: Request) {
     try {
         const { email, password } = await request.json()
@@ -28,6 +28,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ message: 'User created', user }, { status: 201 })
     } catch (err) {
         console.error('User creation error:', err)
-        return handleError(err)
+        return handleServerError(err)
     }
 }
