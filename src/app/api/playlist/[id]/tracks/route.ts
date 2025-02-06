@@ -1,8 +1,11 @@
+export const dynamic = 'force-dynamic'
+
 import { getUserIdFromRequest } from '@/lib/server/utils'
 import { UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/CustomErrors'
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 import { handleServerError } from '@/lib/server/handleServerError'
+import { headers } from 'next/headers'
 
 /**
  * 플레이리스트에 트랙 추가 API 엔드포인트
@@ -11,7 +14,8 @@ import { handleServerError } from '@/lib/server/handleServerError'
 export async function POST(request: Request, { params }: { params: { id: string } }) {
     try {
         // 인증 처리
-        const userId = getUserIdFromRequest(request)
+        const headersList = headers()
+        const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
             throw new UnauthorizedError('User not authenticated')
@@ -58,7 +62,8 @@ export async function POST(request: Request, { params }: { params: { id: string 
  */
 export async function GET(request: Request, { params }: { params: { id: string } }) {
     try {
-        const userId = getUserIdFromRequest(request)
+        const headersList = headers()
+        const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
             throw new UnauthorizedError('User not authenticated')
@@ -96,7 +101,8 @@ export async function GET(request: Request, { params }: { params: { id: string }
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
         // 인증 처리
-        const userId = getUserIdFromRequest(request)
+        const headersList = headers()
+        const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
             throw new UnauthorizedError('User not authenticated')

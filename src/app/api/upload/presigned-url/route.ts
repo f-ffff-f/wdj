@@ -1,10 +1,13 @@
 // /app/api/upload/presigned-url/route.ts
+export const dynamic = 'force-dynamic'
+
 import { NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/lib/server/utils'
 import { BadRequestError, UnauthorizedError } from '@/lib/CustomErrors'
 import { handleServerError } from '@/lib/server/handleServerError'
+import { headers } from 'next/headers'
 
 const s3 = new S3Client({
     region: getEnv('AWS_REGION'),
@@ -16,7 +19,8 @@ const s3 = new S3Client({
 
 export const POST = async (req: Request) => {
     try {
-        const userId = getUserIdFromRequest(req)
+        const headersList = headers()
+        const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
             throw new UnauthorizedError('User not authenticated')

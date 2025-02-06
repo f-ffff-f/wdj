@@ -1,5 +1,5 @@
-export const getUserIdFromRequest = (request: Request): string | null => {
-    const userId = request.headers.get('x-user-id')
+export const getUserIdFromRequest = (headersList: Headers): string | null => {
+    const userId = headersList.get('x-user-id')
 
     return userId
 }

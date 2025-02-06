@@ -7,6 +7,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 import { Track } from '@prisma/client'
 import { handleClientError } from '@/lib/client/utils/handleClientError'
+import { useCallback } from 'react'
 
 export const useTrack = () => {
     const { isMember } = useCurrentUser()
@@ -115,31 +116,34 @@ export const useTrack = () => {
     })
 
     // 단일 트랙의 blob | presigned URL => blob 가져오기 함수
-    const getTrackBlobUrl = async (id: string): Promise<Blob> => {
-        const blob = await getTrackFromIndexedDB(id)
-        if (blob) {
-            return blob
-        } else {
-            if (isMember) {
-                const response = await customFetcher(`/api/tracks/${id}/presigned-url`, {
-                    method: 'GET',
-                })
-
-                if (response.error) {
-                    throw new Error('Failed to fetch track presigned URL')
-                }
-
-                const fileResponse = await fetch(response.presignedUrl)
-                const blob = await fileResponse.blob()
-
-                setTrackToIndexedDB(id, blob)
-
+    const getTrackBlobUrl = useCallback(
+        async (id: string): Promise<Blob> => {
+            const blob = await getTrackFromIndexedDB(id)
+            if (blob) {
                 return blob
             } else {
-                throw new Error('Track not found')
+                if (isMember) {
+                    const response = await customFetcher(`/api/tracks/${id}/presigned-url`, {
+                        method: 'GET',
+                    })
+
+                    if (response.error) {
+                        throw new Error('Failed to fetch track presigned URL')
+                    }
+
+                    const fileResponse = await fetch(response.presignedUrl)
+                    const blob = await fileResponse.blob()
+
+                    setTrackToIndexedDB(id, blob)
+
+                    return blob
+                } else {
+                    throw new Error('Track not found')
+                }
             }
-        }
-    }
+        },
+        [isMember],
+    )
 
     return {
         tracksQuery: tracksQuery.data,
