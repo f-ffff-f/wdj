@@ -28,7 +28,7 @@ export const useTrack = () => {
             // 1. db 저장 요청
             const playlistId = snapshot.UI.currentPlaylistId
 
-            const response = await customFetcher('/api/track/create', {
+            const response = await customFetcher('/api/tracks/create', {
                 method: 'POST',
                 body: JSON.stringify({
                     fileName: file.name,
@@ -81,7 +81,7 @@ export const useTrack = () => {
             deleteTrackFromIndexedDB(id)
 
             if (isMember) {
-                return customFetcher(`/api/track/${id}/delete`, {
+                return customFetcher(`/api/tracks/${id}/delete`, {
                     method: 'DELETE',
                 })
             }
@@ -121,7 +121,7 @@ export const useTrack = () => {
             return blob
         } else {
             if (isMember) {
-                const response = await customFetcher(`/api/track/${id}/presigned-url`, {
+                const response = await customFetcher(`/api/tracks/${id}/presigned-url`, {
                     method: 'GET',
                 })
 
