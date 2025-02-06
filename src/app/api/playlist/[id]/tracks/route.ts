@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { getUserIdFromRequest } from '@/lib/server/utils'
 import { UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/CustomErrors'
 import { prisma } from '@/lib/prisma'

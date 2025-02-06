@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 import { prisma } from '@/lib/prisma'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { getUserIdFromRequest } from '@/lib/server/utils'
