@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "postinstall": "prisma migrate deploy && prisma generate"
+    "postinstall": "if [ \"$VERCEL\" = \"1\" ]; then prisma migrate deploy && prisma generate; fi"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.738.0",
