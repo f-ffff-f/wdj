@@ -14,6 +14,7 @@ import {
 import { Check, MoreHorizontal, Plus, X } from 'lucide-react'
 import { useState } from 'react'
 import { useSnapshot } from 'valtio'
+import { UnauthorizedError } from '@/lib/CustomErrors'
 
 const Playlist = () => {
     const snapshot = useSnapshot(state)
@@ -108,7 +109,7 @@ const Playlist = () => {
                     {isLoading ? (
                         <div className="text-center py-2">loading...</div>
                     ) : error ? (
-                        error instanceof Error && error.message === 'Token is not exist' ? null : (
+                        error instanceof UnauthorizedError ? null : (
                             <div className="text-center py-2 text-destructive">에러: {error.message}</div>
                         )
                     ) : (

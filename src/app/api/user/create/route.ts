@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcrypt'
 import { BadRequestError } from '@/lib/CustomErrors'
 import { handleServerError } from '@/lib/server/handleServerError'
+
 export async function POST(request: Request) {
     try {
         const { email, password } = await request.json()

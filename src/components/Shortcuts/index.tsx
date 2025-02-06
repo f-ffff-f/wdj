@@ -130,7 +130,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         return () => {
             element?.removeEventListener('keydown', handleKeyDown)
         }
-    }, [tracksQuery, playlistTracksQuery])
+    }, [tracksQuery, playlistTracksQuery, getTrackBlobUrl])
 
     return (
         <div

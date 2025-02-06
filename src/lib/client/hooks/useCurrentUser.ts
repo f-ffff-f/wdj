@@ -16,6 +16,8 @@ export const useCurrentUser = () => {
                 return await customFetcher('/api/user/me')
             } catch (error) {
                 if (error instanceof UnauthorizedError || error instanceof NotFoundError) {
+                    localStorage.removeItem('token')
+
                     const guestRes = await fetch('/api/guest/create', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
