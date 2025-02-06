@@ -4,6 +4,7 @@ import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/lib/server/utils'
 import { NotFoundError, UnauthorizedError } from '@/lib/CustomErrors'
 import { handleServerError } from '@/lib/server/handleServerError'
+import { headers } from 'next/headers'
 // S3 클라이언트 인스턴스 생성
 const s3 = new S3Client({
     region: getEnv('AWS_REGION'),
@@ -15,7 +16,8 @@ const s3 = new S3Client({
 
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
-        const userId = getUserIdFromRequest(request)
+        const headersList = headers()
+        const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
             throw new UnauthorizedError('User not authenticated')

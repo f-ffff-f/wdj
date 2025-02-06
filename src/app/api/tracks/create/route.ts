@@ -3,10 +3,12 @@ import { prisma } from '@/lib/prisma'
 import { getUserIdFromRequest } from '@/lib/server/utils'
 import { BadRequestError, UnauthorizedError } from '@/lib/CustomErrors'
 import { handleServerError } from '@/lib/server/handleServerError'
+import { headers } from 'next/headers'
 
 export async function POST(request: Request) {
     try {
-        const userId = getUserIdFromRequest(request)
+        const headersList = headers()
+        const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
             throw new UnauthorizedError('User not authenticated')

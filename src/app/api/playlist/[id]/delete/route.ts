@@ -3,9 +3,12 @@ import { prisma } from '@/lib/prisma'
 import { getUserIdFromRequest } from '@/lib/server/utils'
 import { UnauthorizedError } from '@/lib/CustomErrors'
 import { handleServerError } from '@/lib/server/handleServerError'
+import { headers } from 'next/headers'
+
 export async function DELETE(request: Request, { params }: { params: { id: string } }) {
     try {
-        const userId = getUserIdFromRequest(request)
+        const headersList = headers()
+        const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
             throw new UnauthorizedError('User not authenticated')
