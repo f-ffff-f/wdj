@@ -5,6 +5,8 @@ export const useLogout = () => {
 
     const logout = () => {
         localStorage.removeItem('token')
+        sessionStorage.removeItem('guestToken')
+
         queryClient.setQueryData(['/api/user/me'], null)
         queryClient.invalidateQueries({ queryKey: ['/api/user/me'] })
         queryClient.invalidateQueries({ queryKey: ['/api/tracks'] })
