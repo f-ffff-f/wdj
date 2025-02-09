@@ -1,8 +1,6 @@
 import { usePlaylist } from '@/lib/client/hooks/usePlaylist'
 import { state } from '@/lib/client/state'
-import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
 import {
     SidebarGroupContent,
     SidebarGroupLabel,
@@ -11,16 +9,16 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { Check, MoreHorizontal, Plus, X } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
 import { useSnapshot } from 'valtio'
 import { UnauthorizedError } from '@/lib/CustomErrors'
+import PlaylistForm from './PlaylistForm'
 
 const Playlist = () => {
     const snapshot = useSnapshot(state)
-    const [newPlaylistName, setNewPlaylistName] = useState('')
-    const [editingPlaylistName, setEditingPlaylistName] = useState('')
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null)
+
     const {
         playlistsQuery,
         createPlaylist,
@@ -33,30 +31,18 @@ const Playlist = () => {
         error,
     } = usePlaylist()
 
-    const handleAddPlaylist = () => {
-        if (!newPlaylistName.trim()) return
-
-        createPlaylist(newPlaylistName)
-        setNewPlaylistName('') // 입력창 초기화
+    // 새 플레이리스트 추가 핸들러
+    const handleAddPlaylist = (data: { name: string }) => {
+        createPlaylist(data.name)
     }
 
-    const startRenamePlaylist = (playlistId: string) => {
-        const playlist = playlistsQuery?.find((p) => p.id === playlistId)
-        if (playlist) {
-            setEditingPlaylistId(playlistId)
-            setEditingPlaylistName(playlist.name)
-        }
-    }
-
-    const handleRenamePlaylist = (playlistId: string) => {
-        if (!editingPlaylistName.trim()) return
-
+    // 플레이리스트 수정 핸들러
+    const handleUpdatePlaylist = (playlistId: string, data: { name: string }) => {
         updatePlaylist(
-            { id: playlistId, name: editingPlaylistName },
+            { id: playlistId, name: data.name },
             {
                 onSuccess: () => {
                     setEditingPlaylistId(null)
-                    setEditingPlaylistName('')
                 },
             },
         )
@@ -64,34 +50,19 @@ const Playlist = () => {
 
     const handleDeletePlaylist = (playlistId: string) => {
         deletePlaylist(playlistId)
-        state.UI.currentPlaylistId = ''
+        if (state.UI.currentPlaylistId === playlistId) {
+            state.UI.currentPlaylistId = ''
+        }
     }
 
     return (
         <div>
             <SidebarGroupLabel>Playlists</SidebarGroupLabel>
 
-            <div className="flex w-full mb-1 items-center space-x-2">
-                <Input
-                    type="text"
-                    placeholder="New Playlist Name"
-                    value={newPlaylistName}
-                    onChange={(e) => setNewPlaylistName(e.target.value)}
-                    className="h-8"
-                    disabled={isCreating}
-                />
-                <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8"
-                    onClick={handleAddPlaylist}
-                    title="Add Playlist"
-                    disabled={isCreating}
-                >
-                    <Plus className="h-4 w-4" />
-                    <span className="sr-only">Add Playlist</span>
-                </Button>
-            </div>
+            {/* 새 플레이리스트 추가 폼 (생성 모드) */}
+            <PlaylistForm onSubmit={handleAddPlaylist} isSubmitting={isCreating} placeholder="New Playlist Name" />
+            <div className="mb-1" />
+
             <SidebarGroupContent>
                 <SidebarMenu>
                     <SidebarMenuItem>
@@ -134,7 +105,7 @@ const Playlist = () => {
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent side="right" align="start">
                                             <DropdownMenuItem
-                                                onClick={() => startRenamePlaylist(playlist.id)}
+                                                onClick={() => setEditingPlaylistId(playlist.id)}
                                                 disabled={isDeleting}
                                             >
                                                 <span>Rename Playlist</span>
@@ -150,37 +121,14 @@ const Playlist = () => {
                                     </DropdownMenu>
                                 </SidebarMenuItem>
                             ) : (
-                                <div className="flex w-full mb-1 items-center space-x-2" key={playlist.id}>
-                                    <Input
-                                        autoFocus
-                                        type="text"
-                                        placeholder="Change Playlist Name"
-                                        value={editingPlaylistName}
-                                        onChange={(e) => setEditingPlaylistName(e.target.value)}
-                                        className="h-8"
-                                    />
-                                    <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className="h-8 w-8"
-                                        onClick={() => setEditingPlaylistId(null)}
-                                        title="Cancel Playlist Name Change"
-                                    >
-                                        <X className="h-4 w-4" />
-                                        <span className="sr-only">Cancel Playlist Name Change</span>
-                                    </Button>
-                                    <Button
-                                        size="icon"
-                                        variant="ghost"
-                                        className="h-8 w-8"
-                                        onClick={() => handleRenamePlaylist(playlist.id)}
-                                        title="Change Playlist Name"
-                                        disabled={isUpdating}
-                                    >
-                                        <Check className="h-4 w-4" />
-                                        <span className="sr-only">Change Playlist Name</span>
-                                    </Button>
-                                </div>
+                                <PlaylistForm
+                                    key={playlist.id}
+                                    onSubmit={(data) => handleUpdatePlaylist(playlist.id, data)}
+                                    isSubmitting={isUpdating}
+                                    initialValue={playlist.name}
+                                    onCancel={() => setEditingPlaylistId(null)}
+                                    placeholder="Change Playlist Name"
+                                />
                             )
                         })
                     )}
