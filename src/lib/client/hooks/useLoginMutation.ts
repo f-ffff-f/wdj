@@ -24,6 +24,7 @@ export const useLoginMutation = (onSuccess?: (data: TResponse) => void) => {
         },
         onSuccess: (data) => {
             localStorage.setItem('token', data.token)
+            sessionStorage.removeItem('guestToken')
 
             queryClient.invalidateQueries({ queryKey: ['/api/user/me'] })
             queryClient.invalidateQueries({ queryKey: ['/api/playlist'] })
