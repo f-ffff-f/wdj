@@ -2,7 +2,7 @@ import { UnauthorizedError } from '@/lib/CustomErrors'
 import { test, expect } from '@playwright/test'
 
 // Mock 데이터
-test.describe('Guest 사용자 흐름 테스트', () => {
+test.describe('Guest 사용자 첫 접속 테스트', () => {
     test('API 요청 흐름 테스트', async ({ page }) => {
         page.on('request', (request) => {
             console.log(`➡️ 요청: ${request.method()} ${request.url()}`)
