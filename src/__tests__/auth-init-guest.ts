@@ -4,13 +4,6 @@ import { test, expect } from '@playwright/test'
 // Mock 데이터
 test.describe('Guest 사용자 첫 접속 테스트', () => {
     test('API 요청 흐름 테스트', async ({ page }) => {
-        page.on('request', (request) => {
-            console.log(`➡️ 요청: ${request.method()} ${request.url()}`)
-        })
-        page.on('response', async (response) => {
-            console.log(`⬅️ 응답: ${response.status()} ${response.url()}`)
-        })
-
         await page.goto('/')
 
         // 첫 번째 '/api/user/me' 호출 후 실패해야 함
