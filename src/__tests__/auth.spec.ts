@@ -40,7 +40,7 @@ const obtainMemberToken = async (page: Page): Promise<string> => {
 }
 
 test.describe('Guest 사용자 접속 테스트', () => {
-    test('1. 기본 토큰 부재 시나리오 (최초 방문/로그아웃 상태)', async ({ page }) => {
+    test('1. 기본 게스트 토큰 부재 시나리오 (최초 방문/로그아웃 상태)', async ({ page }) => {
         await page.goto('/')
 
         // 첫 번째 '/api/user/me' 호출은 토큰이 없으므로 UnauthorizedError 응답이어야 함
@@ -82,7 +82,7 @@ test.describe('Guest 사용자 접속 테스트', () => {
         await page.waitForResponse((res) => res.url().includes('/api/user/me') && res.status() === 200)
     })
 
-    test('3. 세션스토리지에 있는 토큰이 잘못된(유효하지 않은) 토큰인 경우', async ({ page }) => {
+    test('3. 세션스토리지에 있는 게스트 토큰이 잘못된(유효하지 않은) 토큰인 경우', async ({ page }) => {
         // 페이지 로드 전에 유효하지 않은 guest 토큰을 미리 설정
         await page.addInitScript(() => {
             sessionStorage.setItem('guestToken', 'invalid-guest-token')
@@ -133,7 +133,7 @@ test.describe('Member 사용자 접속 테스트', () => {
         expect(storedToken).toBe(responseMemberToken)
     })
 
-    test('2. 로컬스토리지에 있는 토큰이 잘못된(유효하지 않은) 토큰인 경우', async ({ page }) => {
+    test('2. 로컬스토리지에 있는 멤버 토큰이 잘못된(유효하지 않은) 토큰인 경우', async ({ page }) => {
         // 페이지 로드 전에 localStorage에 유효하지 않은 멤버 토큰을 설정합니다.
         await page.addInitScript(() => {
             localStorage.setItem('token', 'invalid-member-token')
