@@ -28,7 +28,7 @@ A modern DJ mixing web application that runs in the browser.
 -   [x] Full project refactoring
 -   [ ] Achieve 100% test coverage
 -   [x] Server Development
-    -   [ ] Advanced features
+    -   [x] Advanced features
 -   [ ] MIDI controls
 
 ## Tech Stack
