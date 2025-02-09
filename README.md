@@ -25,8 +25,10 @@ DJ 웹 애플리케이션입니다
 - [x] 키보드 컨트롤
 - [x] 오디오 이펙트
   - [x] 속도 조절
+- [x] 프로젝트 전체 리팩토링
+- [ ] 테스트 커버리지 100% 달성
 - [x] 서버 개발
-  - [ ] 고도화
+  - [x] 고도화
 - [ ] 미디 컨트롤
 
 ## 기술 스택
@@ -39,6 +41,7 @@ DJ 웹 애플리케이션입니다
 -   [TailwindCSS](https://tailwindcss.com/)
 -   [Prisma](https://www.prisma.io)
 -   [PostgreSQL](https://www.postgresql.org)
+-   [Playwright](https://playwright.dev)
 
 ## 라이선스
 
