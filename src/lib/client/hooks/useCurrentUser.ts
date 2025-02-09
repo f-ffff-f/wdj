@@ -17,6 +17,7 @@ export const useCurrentUser = () => {
             } catch (error) {
                 if (error instanceof UnauthorizedError || error instanceof NotFoundError) {
                     localStorage.removeItem('token')
+                    sessionStorage.removeItem('guestToken')
 
                     const guestRes = await fetch('/api/guest/create', {
                         method: 'POST',
