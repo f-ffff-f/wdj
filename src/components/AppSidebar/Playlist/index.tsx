@@ -9,7 +9,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { MoreHorizontal } from 'lucide-react'
+import { LoaderCircle, MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
 import { useSnapshot } from 'valtio'
 import { UnauthorizedError } from '@/lib/CustomErrors'
@@ -78,7 +78,9 @@ const Playlist = () => {
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     {isLoading ? (
-                        <div className="text-center py-2">loading...</div>
+                        <div className="flex items-center justify-center">
+                            <LoaderCircle className="animate-spin" />
+                        </div>
                     ) : error ? (
                         error instanceof UnauthorizedError ? null : (
                             <div className="text-center py-2 text-destructive">에러: {error.message}</div>
