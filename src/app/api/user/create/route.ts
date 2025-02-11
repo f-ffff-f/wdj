@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import bcrypt from 'bcrypt'
+import bcryptjs from 'bcryptjs'
 import { BadRequestError } from '@/lib/CustomErrors'
 import { handleServerError } from '@/lib/server/handleServerError'
 
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
         }
 
         // 2) 비밀번호 해싱
-        const hashedPassword = await bcrypt.hash(password, 10)
+        const hashedPassword = await bcryptjs.hash(password, 10)
 
         // 3) DB에 유저 생성
         const user = await prisma.user.create({
