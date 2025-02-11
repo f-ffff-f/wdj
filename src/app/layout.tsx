@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './globals.css'
 import { EnvironmentIndicator } from '@/components/Debugger/EnvironmentIndicator'
+import { Analytics } from '@vercel/analytics/next'
 
 export const metadata: Metadata = {
     title: 'Create Next App',
@@ -17,6 +18,7 @@ export default function RootLayout({
             <body className={`antialiased`}>
                 <EnvironmentIndicator />
                 {children}
+                <Analytics />
             </body>
         </html>
     )
