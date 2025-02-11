@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import bcrypt from 'bcrypt'
+import bcryptjs from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { NotFoundError, UnauthorizedError } from '@/lib/CustomErrors'
 import { handleServerError } from '@/lib/server/handleServerError'
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
         }
 
         // 2) 비밀번호 비교
-        const isMatch = await bcrypt.compare(password, user.password!)
+        const isMatch = await bcryptjs.compare(password, user.password!)
         if (!isMatch) {
             throw new UnauthorizedError('Invalid credentials')
         }

@@ -19,19 +19,32 @@ class AudioManager {
     private nextId = EDeckIds.DECK_1
     private decks: IDeck[] = []
     private crossFadeValue = 0.5
+
     constructor() {
         this.audioContext = new AudioContext()
-        this.addDeck()
-        this.addDeck()
+        this.init()
     }
 
-    /** 데크(Deck)를 새로 추가 */
-    addDeck() {
+    init() {
+        const masterGainNode = this.getMasterGainNode()
+        this.addDeck(masterGainNode)
+        this.addDeck(masterGainNode)
+    }
+
+    getMasterGainNode() {
+        const reductionNode = this.audioContext.createGain()
+        reductionNode.gain.value = 0.25
+        reductionNode.connect(this.audioContext.destination)
+        return reductionNode
+    }
+
+    /** Deck을 추가 */
+    addDeck(masterGainNode: GainNode) {
         const gainNode = this.audioContext.createGain()
         const crossFadeNode = this.audioContext.createGain()
         crossFadeNode.gain.value = this.crossFadeValue
 
-        gainNode.connect(crossFadeNode).connect(this.audioContext.destination)
+        gainNode.connect(crossFadeNode).connect(masterGainNode)
 
         const deck: IDeck = {
             id: this.nextId++ as EDeckIds,

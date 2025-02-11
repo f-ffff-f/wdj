@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
     app-dev:
         build:
             context: .
-            dockerfile: Dockerfile.dev
+            dockerfile: Dockerfile
         ports:
             - '3000:3000'
         volumes:
@@ -13,14 +11,35 @@ services:
         environment:
             CHOKIDAR_USEPOLLING: 'true'
             NODE_ENV: development
+            DATABASE_URL: 'postgresql://postgres:password@db:5432/mydb'
+        depends_on:
+            - db
         command: bun run dev
 
     app-prod:
         build:
             context: .
-            dockerfile: Dockerfile.prod
+            dockerfile: Dockerfile
         ports:
             - '3001:3001'
         environment:
             NODE_ENV: production
+            DATABASE_URL: 'postgresql://postgres:password@db:5432/mydb'
+        depends_on:
+            - db
         command: bun run start
+
+    db:
+        image: postgres:17 # PostgreSQL 17 버전 사용
+        restart: always
+        ports:
+            - '5432:5432'
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: password
+            POSTGRES_DB: mydb
+        volumes:
+            - pg_data:/var/lib/postgresql/data
+
+volumes:
+    pg_data:

@@ -15,6 +15,28 @@ A modern DJ mixing web application that runs in the browser.
 3. Return to Step 1
 4. Repeat Step 2 to load another audio file onto the opposite deck
 
+## Getting Started with Development
+
+Prerequisites
+
+-   **Docker** and **Docker Compose** must be installed
+
+Basic Commands
+
+```sh
+# Start containers in detached mode
+docker-compose up -d
+
+# Check running containers
+docker ps
+
+# Stop and remove containers
+docker-compose down
+
+# Start existing containers
+docker-compose start
+```
+
 ## Prototype Development Status
 
 -   [x] Dual Deck System
