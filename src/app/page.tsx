@@ -12,7 +12,6 @@ const DJController = dynamic(() => import('@/components/DJController'), { ssr: f
 
 const Home = () => {
     const isMobile = useIsMobile()
-    
     return (
         <QueryClientProvider client={new QueryClient()}>
             <SidebarProvider defaultOpen={true}>

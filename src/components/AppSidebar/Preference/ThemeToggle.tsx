@@ -1,3 +1,4 @@
+import { DialogDescription } from '@/components/ui/dialog'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@radix-ui/react-label'
 import React, { useState, useEffect } from 'react'
@@ -20,15 +21,17 @@ export const ThemeToggle = () => {
     }, [])
 
     return (
-        <RadioGroup value={theme} onValueChange={applyTheme} className="text-xs">
-            <div className="flex items-center space-x-2">
-                <RadioGroupItem value="light" id="light" />
-                <Label htmlFor="light">Light Mode</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-                <RadioGroupItem value="dark" id="dark" />
-                <Label htmlFor="dark">Dark Mode</Label>
-            </div>
-        </RadioGroup>
+        <DialogDescription>
+            <RadioGroup value={theme} onValueChange={applyTheme} className="text-xs">
+                <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="light" id="light" />
+                    <Label htmlFor="light">Light Mode</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="dark" id="dark" />
+                    <Label htmlFor="dark">Dark Mode</Label>
+                </div>
+            </RadioGroup>
+        </DialogDescription>
     )
 }
