@@ -85,9 +85,9 @@ const Item: React.FC<ITrackListItemProps> = ({ id, fileName, isFocused, handleLo
                 )}
                 onClick={() => handleClick(id)}
             >
-                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, id)}>1</Button>
+                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, id)}>load deck 1</Button>
                 <div className="text-center break-words overflow-hidden min-w-0">{fileName}</div>
-                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, id)}>2</Button>
+                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, id)}>load deck 2</Button>
                 {children}
             </Card>
         </div>
