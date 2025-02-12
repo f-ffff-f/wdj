@@ -1,16 +1,17 @@
+import { Button } from '@/components/ui/button'
+import { DialogDescription } from '@/components/ui/dialog'
+import { SidebarGroupLabel } from '@/components/ui/sidebar'
+import { clearAllTracksFromIndexedDB } from '@/lib/client/db/indexedDB'
 import { useCurrentUser } from '@/lib/client/hooks/useCurrentUser'
 import { useTrack } from '@/lib/client/hooks/useTrack'
-import { clearAllTracksFromIndexedDB } from '@/lib/client/db/indexedDB'
 import { state, updateStorageEstimate } from '@/lib/client/state'
-import { Button } from '@/components/ui/button'
-import { SidebarGroupLabel } from '@/components/ui/sidebar'
 import { Trash } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useSnapshot } from 'valtio'
 
-const Indicator = () => {
+const StorageIndicator = () => {
     const snapshot = useSnapshot(state)
-    const { data, isMember } = useCurrentUser()
+    const { isMember } = useCurrentUser()
     const { deleteAllTracks } = useTrack()
 
     const handleClearAllTracksFromIndexedDB = async () => {
@@ -45,22 +46,14 @@ const Indicator = () => {
     }
 
     return (
-        <div>
-            <SidebarGroupLabel>
-                {`This app is using ${getUsageValueString()} of storage`}
-                <Button
-                    size="icon"
-                    variant="ghost"
-                    className="h-8 w-8"
-                    onClick={handleClearAllTracksFromIndexedDB}
-                    title="Clear all"
-                >
-                    <Trash className="h-4 w-4" />
-                    <span className="sr-only">Clear all</span>
-                </Button>
-            </SidebarGroupLabel>
-        </div>
+        <DialogDescription className="flex items-center">
+            {`This app is using ${getUsageValueString()} of storage`}
+            <Button size="icon" variant="ghost" onClick={handleClearAllTracksFromIndexedDB} title="Clear all">
+                <Trash />
+                <span className="sr-only">Clear all</span>
+            </Button>
+        </DialogDescription>
     )
 }
 
-export default Indicator
+export default StorageIndicator

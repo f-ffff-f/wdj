@@ -94,6 +94,7 @@ export const DJController = () => {
                     <div key={deckUI.id} className="flex flex-col gap-4 flex-1">
                         <div
                             className={cn(
+                                'max-md:flex-wrap',
                                 'flex items-baseline gap-1',
                                 deckUI.id === EDeckIds.DECK_1 ? 'flex-row-reverse' : 'flex-row',
                             )}
@@ -155,7 +156,7 @@ export const DJController = () => {
                 />
                 <Label className="self-center">Crossfader</Label>
             </div>
-            <div className="flex flex-col items-center w-1/2 self-center gap-4">
+            <div className="flex flex-col items-center self-center gap-4 ">
                 <div>
                     <Label className="self-start" htmlFor="file-uploader">
                         add audio file
