@@ -8,9 +8,9 @@ import { Trash } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useSnapshot } from 'valtio'
 
-const Indicator = () => {
+const StorageIndicator = () => {
     const snapshot = useSnapshot(state)
-    const { data, isMember } = useCurrentUser()
+    const { isMember } = useCurrentUser()
     const { deleteAllTracks } = useTrack()
 
     const handleClearAllTracksFromIndexedDB = async () => {
@@ -63,4 +63,4 @@ const Indicator = () => {
     )
 }
 
-export default Indicator
+export default StorageIndicator

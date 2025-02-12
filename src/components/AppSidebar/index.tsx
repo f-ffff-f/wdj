@@ -1,5 +1,5 @@
 import Auth from '@/components/AppSidebar/Auth'
-import Indicator from '@/components/AppSidebar/Indicator'
+import StorageIndicator from '@/components/AppSidebar/StorageIndicator'
 import Playlist from '@/components/AppSidebar/Playlist'
 import { Separator } from '@/components/ui/separator'
 import { Sidebar, SidebarContent, SidebarGroup } from '@/components/ui/sidebar'
@@ -13,7 +13,7 @@ const AppSidebar = () => {
                 </SidebarGroup>
                 <Separator />
                 <SidebarGroup>
-                    <Indicator />
+                    <StorageIndicator />
                 </SidebarGroup>
                 <Separator />
                 <SidebarGroup>
