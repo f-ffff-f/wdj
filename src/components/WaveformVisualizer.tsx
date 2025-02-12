@@ -121,12 +121,11 @@ const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
     }
 
     return (
-        <div ref={containerRef} className="flex-1">
+        <div ref={containerRef} className="max-md:w-full md:flex-1">
             <canvas
                 ref={canvasRef}
-                // className="max-w-[100%]"
-                // width={1000}
-                // height={200}
+                width="100%"
+
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
