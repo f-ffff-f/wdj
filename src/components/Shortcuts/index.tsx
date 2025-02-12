@@ -7,6 +7,7 @@ import { useTrack } from '@/lib/client/hooks/useTrack'
 import { state } from '@/lib/client/state'
 import { Button } from '@/components/ui/button'
 import React, { useEffect, useRef, useState } from 'react'
+import { KeyboardIcon, XIcon } from 'lucide-react'
 
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {
     const ref = useRef<HTMLDivElement>(null)
@@ -141,12 +142,12 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         >
             {children}
             {showHelp ? (
-                <Button className="fixed bottom-4 left-4 z-50" onClick={() => setShowHelp(false)}>
-                    Hide Key Guide
+                <Button className="fixed bottom-4 right-4 z-50" onClick={() => setShowHelp(false)}>
+                    <XIcon />
                 </Button>
             ) : (
-                <Button className="fixed bottom-4 left-4 z-50" onClick={() => setShowHelp(true)}>
-                    Show Key Guide
+                <Button className="fixed bottom-4 right-4 z-50" onClick={() => setShowHelp(true)}>
+                    <KeyboardIcon />
                 </Button>
             )}
             <OverlayGuide visible={showHelp} />

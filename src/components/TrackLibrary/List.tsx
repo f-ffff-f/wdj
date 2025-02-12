@@ -36,7 +36,7 @@ const List = () => {
     }
 
     return (
-        <div className="w-full max-w-2xl mx-auto min-h-10 flex flex-col gap-1" id="vault-list">
+        <div className="max-w-2xl min-h-10 flex flex-col gap-1 overflow-x-hidden" id="track-list">
             {snapshot.UI.currentPlaylistId === ''
                 ? tracksQuery?.map((track) => (
                       <Item
@@ -80,14 +80,14 @@ const Item: React.FC<ITrackListItemProps> = ({ id, fileName, isFocused, handleLo
         <div className="flex">
             <Card
                 className={cn(
-                    'relative flex flex-1 items-center justify-between p-4 pr-6',
-                    isFocused && 'outline outline-1 outline-primary',
+                    'w-full relative flex items-center justify-between p-4 pr-6 shadow-none',
+                    isFocused && 'shadow-[inset_0_0_12px_1px] shadow-primary',
                 )}
                 onClick={() => handleClick(id)}
             >
-                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, id)}>load to deck 1</Button>
-                <span className="flex-1 text-center px-4">{fileName}</span>
-                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, id)}>load to deck 2</Button>
+                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, id)}>load deck 1</Button>
+                <div className="text-center break-words overflow-hidden min-w-0">{fileName}</div>
+                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, id)}>load deck 2</Button>
                 {children}
             </Card>
         </div>

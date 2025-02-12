@@ -42,8 +42,8 @@ export const UI_SHORTCUTS: AllShortcutsCheck = {
     [EShortcut.ShiftLeft]: { label: 'Shift Left', target: `#play-pause-${EDeckIds.DECK_1}` },
     [EShortcut.ShiftRight]: { label: 'Shift Right', target: `#play-pause-${EDeckIds.DECK_2}`, position: 'right' },
     [EShortcut.Enter]: { label: 'Enter', target: `#file-uploader` },
-    [EShortcut.ArrowUp]: { label: '↑', target: `#vault-list`, position: 'center' },
-    [EShortcut.ArrowDown]: { label: '↓', target: `#vault-list`, position: 'bottom' },
-    [EShortcut.ArrowLeft]: { label: '←', target: `#vault-list` },
-    [EShortcut.ArrowRight]: { label: '→', target: `#vault-list`, position: 'right' },
+    [EShortcut.ArrowUp]: { label: '↑', target: `#track-list`, position: 'center' },
+    [EShortcut.ArrowDown]: { label: '↓', target: `#track-list`, position: 'bottom' },
+    [EShortcut.ArrowLeft]: { label: '←', target: `#track-list` },
+    [EShortcut.ArrowRight]: { label: '→', target: `#track-list`, position: 'right' },
 }

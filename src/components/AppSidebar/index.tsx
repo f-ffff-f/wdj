@@ -1,8 +1,8 @@
 import Auth from '@/components/AppSidebar/Auth'
-import Indicator from '@/components/AppSidebar/Indicator'
 import Playlist from '@/components/AppSidebar/Playlist'
+import Preference from '@/components/AppSidebar/Preference'
 import { Separator } from '@/components/ui/separator'
-import { Sidebar, SidebarContent, SidebarGroup } from '@/components/ui/sidebar'
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup } from '@/components/ui/sidebar'
 
 const AppSidebar = () => {
     return (
@@ -13,13 +13,13 @@ const AppSidebar = () => {
                 </SidebarGroup>
                 <Separator />
                 <SidebarGroup>
-                    <Indicator />
-                </SidebarGroup>
-                <Separator />
-                <SidebarGroup>
                     <Playlist />
                 </SidebarGroup>
             </SidebarContent>
+            <Separator />
+            <SidebarFooter className="flex">
+                <Preference />
+            </SidebarFooter>
         </Sidebar>
     )
 }
