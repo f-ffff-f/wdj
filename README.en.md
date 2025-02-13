@@ -11,9 +11,9 @@ A modern DJ mixing web application that runs in the browser.
 ## Getting Started
 
 1. Press Enter or click "Choose File" to upload an audio file
-2. Load the audio file onto a deck by pressing left/right arrow keys or clicking the edge buttons of the item
+2. Load the audio file onto a deck using left/right arrow keys or edge buttons
 3. Return to Step 1
-4. Repeat Step 2 to load another audio file onto the opposite deck
+4. Load another audio file onto the opposite deck
 
 ## Getting Started with Development
 
@@ -39,18 +39,14 @@ docker-compose start
 
 ## Prototype Development Status
 
--   [x] Dual Deck System
--   [x] Crossfader controls
--   [x] Local music library management
+-   [x] DJ App Core
+-   [x] Backend
     -   [x] Advanced features
--   [x] Real-time waveform visualization
--   [x] Keyboard controls
--   [x] Audio Effects
-    -   [x] Speed control
--   [x] Full project refactoring
+-   [x] Full refactoring
+-   [x] Responsive UI
+-   [ ] User registration
+-   [ ] SEO implementation
 -   [ ] Achieve 100% test coverage
--   [x] Server Development
-    -   [x] Advanced features
 -   [ ] MIDI controls
 
 ## Tech Stack
@@ -79,4 +75,4 @@ GPL (GNU General Public License) - See [LICENSE](LICENSE) file for details.
 
 ## Credits
 
-This project was initially created using [create-next-app](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+This project is based on [create-next-app](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)

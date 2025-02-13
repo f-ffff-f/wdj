@@ -38,18 +38,14 @@ docker-compose start
 
 ## 프로토타입 개발 현황
 
-- [x] 듀얼 데크 시스템
-- [x] 크로스페이더 컨트롤
-- [x] 로컬 음악 라이브러리 관리
+- [x] DJ 앱 코어
+- [x] 백엔드
   - [x] 고도화
-- [x] 실시간 웨이브폼 시각화
-- [x] 키보드 컨트롤
-- [x] 오디오 이펙트
-  - [x] 속도 조절
-- [x] 프로젝트 전체 리팩토링
+- [x] 리팩토링
+- [x] 반응형 UI
+- [ ] 회원가입
+- [ ] seo 적용
 - [ ] 테스트 커버리지 100% 달성
-- [x] 서버 개발
-  - [x] 고도화
 - [ ] 미디 컨트롤
 
 ## 기술 스택
@@ -67,14 +63,6 @@ docker-compose start
 ## 라이선스
 
 GPL (GNU General Public License) - 자세한 내용은 [LICENSE](LICENSE) 파일을 참조하세요.
-
-## 기여하기
-
-1. 이 저장소를 포크합니다
-2. 새로운 기능 브랜치를 생성합니다 (`git checkout -b feat/amazing-feature`)
-3. 변경사항을 커밋합니다 (`git commit -m 'feat: add amazing feature'`)
-4. 브랜치에 푸시합니다 (`git push origin feat/amazing-feature`)
-5. Pull Request를 생성합니다
 
 ## 크레딧
 
