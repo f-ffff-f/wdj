@@ -1,6 +1,6 @@
 {
   "build": {
-    "ignoreBuildStep": "bash ignore-build.sh"
+    "command": "bash ignore-build.sh"
   },
   "crons": [
     {
