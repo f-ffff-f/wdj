@@ -1,4 +1,7 @@
 {
+  "build": {
+    "ignoreBuildStep": "bash ignore-build.sh"
+  },
   "crons": [
     {
       "path": "/api/guest/delete/old",
