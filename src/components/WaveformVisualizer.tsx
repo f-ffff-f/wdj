@@ -1,12 +1,11 @@
-import { audioManager } from '@/lib/client/audioManager/audioManagerSingleton'
+import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
-import { EDeckIds } from '@/lib/client/constants'
 
 const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
     const containerRef = useRef<HTMLDivElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
-    const audioBuffer = audioManager.getAudioBuffer(deckId)
-    const playbackTime = audioManager.getPlaybackTime(deckId)
+    const audioBuffer = deckoSingleton.getAudioBuffer(deckId)
+    const playbackTime = deckoSingleton.getPlaybackTime(deckId)
 
     const [isDragging, setIsDragging] = useState(false)
     const [dragX, setDragX] = useState<number | null>(null)
@@ -103,7 +102,7 @@ const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
         const time = (x / rect.width) * duration
 
         setDragX(x)
-        audioManager.seekDeck(deckId, time)
+        deckoSingleton.seekDeck(deckId, time)
     }
 
     const handleMouseUp = () => {
@@ -117,7 +116,7 @@ const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
 
         setIsDragging(false)
         setDragX(null)
-        audioManager.seekDeck(deckId, time)
+        deckoSingleton.seekDeck(deckId, time)
     }
 
     return (
@@ -125,7 +124,6 @@ const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
             <canvas
                 ref={canvasRef}
                 width="100%"
-
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}

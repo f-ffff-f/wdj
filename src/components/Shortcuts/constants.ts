@@ -1,4 +1,4 @@
-import { EDeckIds } from '@/lib/client/constants'
+import { EDeckIds } from '@ghr95223/decko'
 
 export enum EShortcut {
     KeyQ = 'KeyQ',
