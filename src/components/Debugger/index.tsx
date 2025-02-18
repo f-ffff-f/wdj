@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { audioManager } from '@/lib/client/audioManager/audioManagerSingleton'
 import { useSnapshot } from 'valtio'
 import { state } from '@/lib/client/state'
+import { deckoSingleton } from '@ghr95223/decko'
 
 const Debugger: React.FC = () => {
     const [audioManagerState, setAudioManagerState] = useState<string>('')
@@ -9,7 +9,7 @@ const Debugger: React.FC = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setAudioManagerState(audioManager.debugManager())
+            setAudioManagerState(deckoSingleton.debugManager())
         }, 1000)
 
         return () => clearInterval(interval)

@@ -1,7 +1,6 @@
 import { EShortcut } from '@/components/Shortcuts/constants'
 import OverlayGuide from '@/components/Shortcuts/OverlayGuide'
-import { audioManager } from '@/lib/client/audioManager/audioManagerSingleton'
-import { EDeckIds } from '@/lib/client/constants'
+import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
 import { usePlaylist } from '@/lib/client/hooks/usePlaylist'
 import { useTrack } from '@/lib/client/hooks/useTrack'
 import { state } from '@/lib/client/state'
@@ -42,25 +41,25 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
 
         const shortcutHandlers: Record<EShortcut, () => void> = {
             [EShortcut.KeyQ]: () =>
-                audioManager.setSpeed(EDeckIds.DECK_1, audioManager.getSpeed(EDeckIds.DECK_1) + 0.05),
+                deckoSingleton.setSpeed(EDeckIds.DECK_1, deckoSingleton.getSpeed(EDeckIds.DECK_1) + 0.05),
             [EShortcut.KeyA]: () =>
-                audioManager.setSpeed(EDeckIds.DECK_1, audioManager.getSpeed(EDeckIds.DECK_1) - 0.05),
+                deckoSingleton.setSpeed(EDeckIds.DECK_1, deckoSingleton.getSpeed(EDeckIds.DECK_1) - 0.05),
             [EShortcut.BracketRight]: () =>
-                audioManager.setSpeed(EDeckIds.DECK_2, audioManager.getSpeed(EDeckIds.DECK_2) + 0.05),
+                deckoSingleton.setSpeed(EDeckIds.DECK_2, deckoSingleton.getSpeed(EDeckIds.DECK_2) + 0.05),
             [EShortcut.Quote]: () =>
-                audioManager.setSpeed(EDeckIds.DECK_2, audioManager.getSpeed(EDeckIds.DECK_2) - 0.05),
+                deckoSingleton.setSpeed(EDeckIds.DECK_2, deckoSingleton.getSpeed(EDeckIds.DECK_2) - 0.05),
             [EShortcut.KeyW]: () =>
-                audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) + 0.05),
+                deckoSingleton.setVolume(EDeckIds.DECK_1, deckoSingleton.getVolume(EDeckIds.DECK_1) + 0.05),
             [EShortcut.KeyS]: () =>
-                audioManager.setVolume(EDeckIds.DECK_1, audioManager.getVolume(EDeckIds.DECK_1) - 0.05),
+                deckoSingleton.setVolume(EDeckIds.DECK_1, deckoSingleton.getVolume(EDeckIds.DECK_1) - 0.05),
             [EShortcut.BracketLeft]: () =>
-                audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) + 0.05),
+                deckoSingleton.setVolume(EDeckIds.DECK_2, deckoSingleton.getVolume(EDeckIds.DECK_2) + 0.05),
             [EShortcut.Semicolon]: () =>
-                audioManager.setVolume(EDeckIds.DECK_2, audioManager.getVolume(EDeckIds.DECK_2) - 0.05),
-            [EShortcut.KeyZ]: () => audioManager.setCrossFade(audioManager.getCrossFade() - 0.05),
-            [EShortcut.Slash]: () => audioManager.setCrossFade(audioManager.getCrossFade() + 0.05),
-            [EShortcut.ShiftLeft]: () => audioManager.playPauseDeck(EDeckIds.DECK_1),
-            [EShortcut.ShiftRight]: () => audioManager.playPauseDeck(EDeckIds.DECK_2),
+                deckoSingleton.setVolume(EDeckIds.DECK_2, deckoSingleton.getVolume(EDeckIds.DECK_2) - 0.05),
+            [EShortcut.KeyZ]: () => deckoSingleton.setCrossFade(deckoSingleton.getCrossFade() - 0.05),
+            [EShortcut.Slash]: () => deckoSingleton.setCrossFade(deckoSingleton.getCrossFade() + 0.05),
+            [EShortcut.ShiftLeft]: () => deckoSingleton.playPauseDeck(EDeckIds.DECK_1),
+            [EShortcut.ShiftRight]: () => deckoSingleton.playPauseDeck(EDeckIds.DECK_2),
             [EShortcut.Enter]: () => {
                 const fileInput = document.getElementById('file-uploader')
                 if (fileInput) fileInput.click()
@@ -101,7 +100,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                         const index = findIndex(tracksQuery, state.UI.focusedTrackId)
                         if (index >= 0) {
                             const url = await getTrackBlobUrl(tracksQuery[index].id)
-                            audioManager.loadTrack(EDeckIds.DECK_1, url)
+                            deckoSingleton.loadTrack(EDeckIds.DECK_1, url)
                         }
                     }
                 }
@@ -112,7 +111,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                         const index = findIndex(tracksQuery, state.UI.focusedTrackId)
                         if (index <= tracksQuery.length - 1) {
                             const url = await getTrackBlobUrl(tracksQuery[index].id)
-                            audioManager.loadTrack(EDeckIds.DECK_2, url)
+                            deckoSingleton.loadTrack(EDeckIds.DECK_2, url)
                         }
                     }
                 }
