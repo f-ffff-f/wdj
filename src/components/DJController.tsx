@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import FileUploader from '@/components/TrackLibrary/FileUploader'
 import List from '@/components/TrackLibrary/List'
-import { audioManager } from '@/lib/client/audioManager/audioManagerSingleton'
+import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
 import { formatTimeUI } from '@/lib/client/utils'
 import WaveformVisualizer from '@/components/WaveformVisualizer'
 import { SliderCrossfade } from '@/components/ui/sliderCrossfade'
@@ -10,7 +10,6 @@ import { SliderVolume } from '@/components/ui/sliderVolume'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { cn } from '@/lib/client/utils'
-import { EDeckIds } from '@/lib/client/constants'
 
 interface IDeckUI {
     id: EDeckIds
@@ -30,25 +29,25 @@ interface IDJContollerUI {
 const INITIAL_UI: IDJContollerUI = {
     deckList: [
         {
-            id: audioManager.getDeck(EDeckIds.DECK_1)?.id ?? EDeckIds.DECK_1,
-            volume: audioManager.getDeck(EDeckIds.DECK_1)?.gainNode.gain.value ?? 0,
-            speed: audioManager.getDeck(EDeckIds.DECK_1)?.speed ?? 1,
+            id: deckoSingleton.getDeck(EDeckIds.DECK_1)?.id ?? EDeckIds.DECK_1,
+            volume: deckoSingleton.getDeck(EDeckIds.DECK_1)?.gainNode.gain.value ?? 0,
+            speed: deckoSingleton.getDeck(EDeckIds.DECK_1)?.speed ?? 1,
             playbackTime: 0,
             audioBufferDuration: 0,
-            isPlaying: audioManager.getDeck(EDeckIds.DECK_1)?.isPlaying ?? false,
-            isSeeking: audioManager.getDeck(EDeckIds.DECK_1)?.isSeeking ?? false,
+            isPlaying: deckoSingleton.getDeck(EDeckIds.DECK_1)?.isPlaying ?? false,
+            isSeeking: deckoSingleton.getDeck(EDeckIds.DECK_1)?.isSeeking ?? false,
         },
         {
-            id: audioManager.getDeck(EDeckIds.DECK_2)?.id ?? EDeckIds.DECK_2,
-            volume: audioManager.getDeck(EDeckIds.DECK_2)?.gainNode.gain.value ?? 0,
-            speed: audioManager.getDeck(EDeckIds.DECK_2)?.speed ?? 1,
+            id: deckoSingleton.getDeck(EDeckIds.DECK_2)?.id ?? EDeckIds.DECK_2,
+            volume: deckoSingleton.getDeck(EDeckIds.DECK_2)?.gainNode.gain.value ?? 0,
+            speed: deckoSingleton.getDeck(EDeckIds.DECK_2)?.speed ?? 1,
             playbackTime: 0,
             audioBufferDuration: 0,
-            isPlaying: audioManager.getDeck(EDeckIds.DECK_2)?.isPlaying ?? false,
-            isSeeking: audioManager.getDeck(EDeckIds.DECK_2)?.isSeeking ?? false,
+            isPlaying: deckoSingleton.getDeck(EDeckIds.DECK_2)?.isPlaying ?? false,
+            isSeeking: deckoSingleton.getDeck(EDeckIds.DECK_2)?.isSeeking ?? false,
         },
     ],
-    crossFade: audioManager.getCrossFade(),
+    crossFade: deckoSingleton.getCrossFade(),
 }
 
 export const DJController = () => {
@@ -61,12 +60,12 @@ export const DJController = () => {
             setStateUI((prev) => ({
                 ...prev,
                 deckList: prev.deckList.map((deck) => {
-                    const playbackTime = audioManager.getPlaybackTime(deck.id)
-                    const audioBufferDuration = audioManager.getAudioBufferDuration(deck.id)
-                    const volume = audioManager.getVolume(deck.id)
-                    const speed = audioManager.getSpeed(deck.id)
-                    const isPlaying = audioManager.isPlaying(deck.id)
-                    const isSeeking = audioManager.isSeeking(deck.id)
+                    const playbackTime = deckoSingleton.getPlaybackTime(deck.id)
+                    const audioBufferDuration = deckoSingleton.getAudioBufferDuration(deck.id)
+                    const volume = deckoSingleton.getVolume(deck.id)
+                    const speed = deckoSingleton.getSpeed(deck.id)
+                    const isPlaying = deckoSingleton.isPlaying(deck.id)
+                    const isSeeking = deckoSingleton.isSeeking(deck.id)
                     return {
                         ...deck,
                         playbackTime,
@@ -77,7 +76,7 @@ export const DJController = () => {
                         isSeeking,
                     }
                 }),
-                crossFade: audioManager.getCrossFade(),
+                crossFade: deckoSingleton.getCrossFade(),
             }))
             rafId = requestAnimationFrame(updateDecks)
         }
@@ -106,7 +105,7 @@ export const DJController = () => {
                                     max={1}
                                     step={0.01}
                                     value={[deckUI.volume]}
-                                    onValueChange={(numbers) => audioManager.setVolume(deckUI.id, numbers[0])}
+                                    onValueChange={(numbers) => deckoSingleton.setVolume(deckUI.id, numbers[0])}
                                 />
                                 <Label>Volume</Label>
                             </div>
@@ -117,7 +116,7 @@ export const DJController = () => {
                                     max={1.5}
                                     step={0.01}
                                     value={[deckUI.speed]}
-                                    onValueChange={(numbers) => audioManager.setSpeed(deckUI.id, numbers[0])}
+                                    onValueChange={(numbers) => deckoSingleton.setSpeed(deckUI.id, numbers[0])}
                                 />
                                 <Label>Speed</Label>
                             </div>
@@ -130,7 +129,7 @@ export const DJController = () => {
                             )}
                         >
                             <Button
-                                onClick={() => audioManager.playPauseDeck(deckUI.id)}
+                                onClick={() => deckoSingleton.playPauseDeck(deckUI.id)}
                                 id={`play-pause-${deckUI.id}`}
                             >
                                 {deckUI.isPlaying ? 'pause' : 'play'}
@@ -152,7 +151,7 @@ export const DJController = () => {
                     max={1}
                     step={0.01}
                     value={[stateUI.crossFade]}
-                    onValueChange={(numbers) => audioManager.setCrossFade(numbers[0])}
+                    onValueChange={(numbers) => deckoSingleton.setCrossFade(numbers[0])}
                 />
                 <Label className="self-center">Crossfader</Label>
             </div>

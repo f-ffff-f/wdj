@@ -10,8 +10,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenuAction } from '@/components/ui/sidebar'
-import { audioManager } from '@/lib/client/audioManager/audioManagerSingleton'
-import { EDeckIds } from '@/lib/client/constants'
+import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
 import { usePlaylist } from '@/lib/client/hooks/usePlaylist'
 import { useTrack } from '@/lib/client/hooks/useTrack'
 import { state } from '@/lib/client/state'
@@ -29,7 +28,7 @@ const List = () => {
 
     const handleLoadToDeck = async (deckId: EDeckIds, id: string) => {
         const url = await getTrackBlobUrl(id)
-        audioManager.loadTrack(deckId, url)
+        deckoSingleton.loadTrack(deckId, url)
     }
     const handleClick = (id: string) => {
         state.UI.focusedTrackId = id
