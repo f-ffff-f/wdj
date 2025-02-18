@@ -40,9 +40,9 @@ A modern DJ mixing web application that runs in the browser.
 
 #### 1.2 Audio Processing System
 
--   Singleton pattern audio manager based on Web Audio API
--   DJ features including crossfade, volume control, and speed adjustment
--   Buffer management system to prevent memory leaks
+-   [decko](https://www.npmjs.com/package/@ghr95223/decko) package
+    -   Custom-built package based on Web Audio API
+    -   Implements DJ features: seek, crossfade, volume control, speed adjustment
 
 #### 1.3 State Management
 
@@ -100,6 +100,7 @@ A modern DJ mixing web application that runs in the browser.
     -   [x] Advanced features
 -   [x] Full refactoring
 -   [x] Responsive UI
+-   [x] Core module packaging
 -   [ ] User registration
 -   [ ] SEO implementation
 -   [ ] Achieve 100% test coverage
