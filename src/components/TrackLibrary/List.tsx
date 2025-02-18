@@ -10,13 +10,14 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenuAction } from '@/components/ui/sidebar'
-import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
 import { usePlaylist } from '@/lib/client/hooks/usePlaylist'
 import { useTrack } from '@/lib/client/hooks/useTrack'
 import { state } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
-import { MoreVertical } from 'lucide-react'
-import React from 'react'
+import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
+import { ArrowUpCircle, MoreVertical } from 'lucide-react'
+import React, { useEffect, useRef, useState } from 'react'
+import Marquee from 'react-fast-marquee'
 import { useSnapshot } from 'valtio'
 
 const List = () => {
@@ -40,25 +41,25 @@ const List = () => {
                 ? tracksQuery?.map((track) => (
                       <Item
                           key={track.id}
-                          id={track.id}
+                          trackId={track.id}
                           fileName={track.fileName}
                           isFocused={focusedTrackId === track.id}
                           handleLoadToDeck={handleLoadToDeck}
                           handleClick={handleClick}
                       >
-                          <LibraryDropdownMenu id={track.id} />
+                          <LibraryDropdownMenu trackId={track.id} />
                       </Item>
                   ))
                 : playlistTracksQuery?.map((track) => (
                       <Item
                           key={track.id}
-                          id={track.id}
+                          trackId={track.id}
                           fileName={track.fileName}
                           isFocused={focusedTrackId === track.id}
                           handleLoadToDeck={handleLoadToDeck}
                           handleClick={handleClick}
                       >
-                          <PlaylistDropdownMenu id={track.id} />
+                          <PlaylistDropdownMenu trackId={track.id} />
                       </Item>
                   ))}
         </div>
@@ -66,7 +67,7 @@ const List = () => {
 }
 
 interface ITrackListItemProps {
-    id: string
+    trackId: string
     fileName: string
     isFocused: boolean
     handleLoadToDeck: (deckId: EDeckIds, url: string) => void
@@ -74,7 +75,14 @@ interface ITrackListItemProps {
     children: React.ReactNode
 }
 
-const Item: React.FC<ITrackListItemProps> = ({ id, fileName, isFocused, handleLoadToDeck, handleClick, children }) => {
+const Item: React.FC<ITrackListItemProps> = ({
+    trackId,
+    fileName,
+    isFocused,
+    handleLoadToDeck,
+    handleClick,
+    children,
+}) => {
     return (
         <div className="flex">
             <Card
@@ -82,18 +90,53 @@ const Item: React.FC<ITrackListItemProps> = ({ id, fileName, isFocused, handleLo
                     'w-full relative flex items-center justify-between p-4 pr-6 shadow-none',
                     isFocused && 'shadow-[inset_0_0_12px_1px] shadow-primary',
                 )}
-                onClick={() => handleClick(id)}
+                onClick={() => handleClick(trackId)}
             >
-                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, id)}>load deck 1</Button>
-                <div className="text-center break-words overflow-hidden min-w-0">{fileName}</div>
-                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, id)}>load deck 2</Button>
+                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, trackId)}>
+                    <ArrowUpCircle />
+                </Button>
+                <MarqueeText text={fileName} />
+                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, trackId)}>
+                    <ArrowUpCircle />
+                </Button>
                 {children}
             </Card>
         </div>
     )
 }
 
-const LibraryDropdownMenu = ({ id }: { id: string }) => {
+const MarqueeText = ({ text }: { text: string }) => {
+    const containerRef = useRef<HTMLDivElement>(null)
+    const textRef = useRef<HTMLSpanElement>(null)
+    const [shouldScroll, setShouldScroll] = useState(false)
+
+    useEffect(() => {
+        if (containerRef.current && textRef.current) {
+            const textWidth = textRef.current.scrollWidth
+            const containerWidth = containerRef.current.clientWidth
+            setShouldScroll(textWidth > containerWidth)
+        }
+    }, [text])
+
+    return (
+        <div ref={containerRef} className="w-[200px] md:w-[300px] overflow-hidden text-center">
+            {shouldScroll ? (
+                <Marquee gradient={false} speed={50} pauseOnHover>
+                    <span ref={textRef} className="mx-8">
+                        {text}
+                    </span>
+                    <span className="mx-10">{text}</span>
+                </Marquee>
+            ) : (
+                <span ref={textRef} className="block truncate">
+                    {text}
+                </span>
+            )}
+        </div>
+    )
+}
+
+const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
     const { deleteTrack } = useTrack()
     const { playlistsQuery, addTracksToPlaylist } = usePlaylist()
 
@@ -114,7 +157,7 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
                             <DropdownMenuItem
                                 key={playlist.id}
                                 onClick={() => {
-                                    addTracksToPlaylist({ id: playlist.id, trackIds: [id] })
+                                    addTracksToPlaylist({ id: playlist.id, trackIds: [trackId] })
                                 }}
                             >
                                 <span>{playlist.name}</span>
@@ -122,7 +165,7 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
                         ))}
                     </DropdownMenuSubContent>
                 </DropdownMenuSub>
-                <DropdownMenuItem onClick={() => deleteTrack(id)}>
+                <DropdownMenuItem onClick={() => deleteTrack(trackId)}>
                     <span>Delete Track from Library</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
@@ -130,7 +173,7 @@ const LibraryDropdownMenu = ({ id }: { id: string }) => {
     )
 }
 
-const PlaylistDropdownMenu = ({ id }: { id: string }) => {
+const PlaylistDropdownMenu = ({ trackId }: { trackId: string }) => {
     const { deleteTracksFromPlaylist } = usePlaylist()
 
     return (
@@ -141,7 +184,7 @@ const PlaylistDropdownMenu = ({ id }: { id: string }) => {
                 </SidebarMenuAction>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="center">
-                <DropdownMenuItem onClick={() => deleteTracksFromPlaylist([id])}>
+                <DropdownMenuItem onClick={() => deleteTracksFromPlaylist([trackId])}>
                     <span>Delete Track from Playlist</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
