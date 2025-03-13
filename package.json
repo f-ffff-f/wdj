@@ -14,7 +14,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.758.0",
     "@aws-sdk/s3-request-presigner": "^3.758.0",
-    "@ghr95223/decko": "^1.0.4",
+    "@ghr95223/decko": "^1.0.5",
     "@hookform/resolvers": "^3.10.0",
     "@prisma/client": "^6.5.0",
     "@radix-ui/react-avatar": "^1.1.3",
