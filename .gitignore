@@ -15,6 +15,7 @@ prisma/dev.db-journal
 
 # testing
 /coverage
+test-results
 
 # next.js
 /.next/
