@@ -1,7 +1,9 @@
+import { DevEnvIndicator } from '@/lib/client/components/DevEnvIndicator'
+import { QueryProvider } from '@/lib/client/components/QueryProvider'
+import { UserInitializer } from '@/lib/client/components/UserInitializer'
+import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import './globals.css'
-import { EnvironmentIndicator } from '@/components/Debugger/EnvironmentIndicator'
-import { Analytics } from '@vercel/analytics/next'
 
 export const metadata: Metadata = {
     title: 'Create Next App',
@@ -16,9 +18,12 @@ export default function RootLayout({
     return (
         <html lang="en" className="dark">
             <body className={`antialiased`}>
-                <EnvironmentIndicator />
-                {children}
-                <Analytics />
+                <QueryProvider>
+                    {children}
+                    <UserInitializer />
+                    <DevEnvIndicator />
+                    <Analytics />
+                </QueryProvider>
             </body>
         </html>
     )

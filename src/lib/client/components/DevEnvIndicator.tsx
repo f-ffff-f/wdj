@@ -1,6 +1,6 @@
 import React from 'react'
 
-export const EnvironmentIndicator = () => {
+export const DevEnvIndicator = () => {
     if (process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_REF === 'main') return null
 
     return (
