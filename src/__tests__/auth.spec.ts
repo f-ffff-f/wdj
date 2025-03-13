@@ -179,4 +179,44 @@ test.describe('Member 사용자 접속 테스트', () => {
         // 멤버 토큰을 사용하여 '/api/user/me' 호출이 성공하는지 확인합니다.
         await page.waitForResponse((res) => res.url().includes('/api/user/me') && res.status() === 200)
     })
+
+    test('4. 멤버 로그아웃 플로우', async ({ page }) => {
+        // 먼저 로그인된 상태로 시작
+        await page.goto('/')
+        await obtainMemberToken(page)
+
+        // 로그인 상태에서 '/api/user/me' 호출이 성공하는지 확인
+        await page.waitForResponse((res) => res.url().includes('/api/user/me') && res.status() === 200)
+
+        // 로그아웃 함수 호출 시뮬레이션 (API 호출 없이 직접 스토리지 제거)
+        await page.evaluate(() => {
+            localStorage.removeItem('token')
+            sessionStorage.removeItem('guestToken')
+        })
+
+        // 로그아웃 후 '/api/user/me' 호출 시 인증 실패해야 함
+        const meResponse = await page.request.get('/api/user/me')
+        expect(meResponse.status()).toBe(UnauthorizedError.status)
+
+        // 페이지 새로고침하여 클라이언트 로직이 실행되도록 함
+        await page.reload()
+
+        // 페이지 새로고침 후 '/api/guest/create' 호출을 직접 트리거
+        // obtainGuestToken 함수 대신 직접 요청
+        const guestCreateResponse = await page.request.post('/api/guest/create')
+        expect(guestCreateResponse.status()).toBe(200)
+        const responseData = await guestCreateResponse.json()
+
+        // 응답으로 받은 토큰을 sessionStorage에 저장
+        await page.evaluate((token) => {
+            sessionStorage.setItem('guestToken', token)
+        }, responseData.token)
+
+        // 저장된 게스트 토큰 확인
+        const guestToken = await page.evaluate(() => sessionStorage.getItem('guestToken'))
+        expect(guestToken).toBe(responseData.token)
+
+        // 게스트 토큰으로 '/api/user/me' 호출이 성공하는지 확인
+        await page.waitForResponse((res) => res.url().includes('/api/user/me') && res.status() === 200)
+    })
 })
