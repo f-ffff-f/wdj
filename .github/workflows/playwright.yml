@@ -16,11 +16,7 @@ jobs:
               run: npm install && npx playwright install --with-deps
             - name: Build the application
               run: npm run build
-            - name: Start local server
-              run: |
-                  nohup npm run start &
-                  npx wait-on http://localhost:3000
-            - name: Run tests
-              run: npx playwright test
+            - name: Start server and run tests
+              run: npx start-server-and-test 'npm run start' http://localhost:3000 'npx playwright test'
               env:
                   BASE_URL: 'http://localhost:3000'
