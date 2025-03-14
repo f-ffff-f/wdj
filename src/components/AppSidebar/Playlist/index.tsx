@@ -91,7 +91,7 @@ const Playlist = () => {
                                 <SidebarMenuItem key={playlist.id}>
                                     <SidebarMenuButton
                                         isActive={snapshot.UI.currentPlaylistId === playlist.id}
-                                        className="cursor-pointer"
+                                        className="cursor-pointer playlist-item"
                                         asChild
                                         onClick={() => {
                                             state.UI.currentPlaylistId = playlist.id

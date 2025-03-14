@@ -1,6 +1,7 @@
 import { DevEnvIndicator } from '@/lib/client/components/DevEnvIndicator'
 import { QueryProvider } from '@/lib/client/components/QueryProvider'
 import { UserInitializer } from '@/lib/client/components/UserInitializer'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import './globals.css'
@@ -20,6 +21,7 @@ export default function RootLayout({
             <body className={`antialiased`}>
                 <QueryProvider>
                     {children}
+                    <ReactQueryDevtools />
                     <UserInitializer />
                     <DevEnvIndicator />
                     <Analytics />
