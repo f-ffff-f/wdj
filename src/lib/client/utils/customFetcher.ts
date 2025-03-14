@@ -1,5 +1,5 @@
 /**
- * Custom fetch wrapper with default headers and error handling
+ * Custom fetch wrapper with default headers with token and error handling
  * @param url - API endpoint URL
  * @returns Promise with parsed JSON response
  */
