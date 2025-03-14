@@ -26,12 +26,37 @@ export const usePlaylist = () => {
     /**
      * 플레이리스트 생성 뮤테이션
      */
-    const createPlaylistMutation = useMutation<Playlist, Error, string>({
+    const createPlaylistMutation = useMutation({
         mutationFn: async (name: string) => {
             return customFetcher('/api/playlist/create', {
                 method: 'POST',
                 body: JSON.stringify({ name }),
             })
+        },
+        onMutate: async (name) => {
+            await queryClient.cancelQueries({ queryKey })
+            const previousPlaylists = queryClient.getQueryData<Playlist[]>(queryKey)
+
+            const tempId = `temp-${Date.now()}`
+
+            if (previousPlaylists) {
+                const newPlaylist: Playlist = {
+                    id: tempId,
+                    name,
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    userId: '', // 실제 값은 서버에서 설정됨
+                }
+
+                queryClient.setQueryData<Playlist[]>(queryKey, [newPlaylist, ...previousPlaylists])
+            }
+
+            return { previousPlaylists }
+        },
+        onError: (err, name, context) => {
+            if (context?.previousPlaylists) {
+                queryClient.setQueryData(queryKey, context.previousPlaylists)
+            }
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
@@ -41,20 +66,34 @@ export const usePlaylist = () => {
     /**
      * 플레이리스트 수정 뮤테이션
      */
-    const updatePlaylistMutation = useMutation<
-        Playlist,
-        Error,
-        { id: string; name: string },
-        { onSuccess?: () => void }
-    >({
+    const updatePlaylistMutation = useMutation({
         mutationFn: async (params: { id: string; name: string }) => {
             return customFetcher(`/api/playlist/${params.id}/update`, {
                 method: 'PATCH',
                 body: JSON.stringify({ name: params.name }),
             })
         },
-        onSuccess: (data, variables, context) => {
-            context?.onSuccess?.()
+        onMutate: async (params) => {
+            await queryClient.cancelQueries({ queryKey })
+            const previousPlaylists = queryClient.getQueryData<Playlist[]>(queryKey)
+
+            if (previousPlaylists) {
+                queryClient.setQueryData<Playlist[]>(
+                    queryKey,
+                    previousPlaylists.map((playlist) =>
+                        playlist.id === params.id
+                            ? { ...playlist, name: params.name, updatedAt: new Date() }
+                            : playlist,
+                    ),
+                )
+            }
+
+            return { previousPlaylists }
+        },
+        onError: (err, params, context) => {
+            if (context?.previousPlaylists) {
+                queryClient.setQueryData(queryKey, context.previousPlaylists)
+            }
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
@@ -69,6 +108,24 @@ export const usePlaylist = () => {
             return customFetcher(`/api/playlist/${id}/delete`, {
                 method: 'DELETE',
             })
+        },
+        onMutate: async (id) => {
+            await queryClient.cancelQueries({ queryKey })
+            const previousPlaylists = queryClient.getQueryData<Playlist[]>(queryKey)
+
+            if (previousPlaylists) {
+                queryClient.setQueryData<Playlist[]>(
+                    queryKey,
+                    previousPlaylists.filter((playlist) => playlist.id !== id),
+                )
+            }
+
+            return { previousPlaylists }
+        },
+        onError: (err, id, context) => {
+            if (context?.previousPlaylists) {
+                queryClient.setQueryData(queryKey, context.previousPlaylists)
+            }
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
@@ -94,15 +151,32 @@ export const usePlaylist = () => {
         staleTime: 1000 * 60 * 10,
     })
 
-    const deleteTracksFromPlaylistMutation = useMutation<Playlist, Error, string[]>({
-        mutationFn: async (trackIds) => {
+    const deleteTracksFromPlaylistMutation = useMutation({
+        mutationFn: async (trackIds: string[]) => {
             return customFetcher(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`, {
                 method: 'DELETE',
                 body: JSON.stringify({ trackIds }),
             })
         },
+        onMutate: async (trackIds) => {
+            await queryClient.cancelQueries({ queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId] })
+            const previousTracks = queryClient.getQueryData<Track[]>(['/api/playlist', snapshot.UI.currentPlaylistId])
+
+            if (previousTracks) {
+                queryClient.setQueryData<Track[]>(
+                    ['/api/playlist', snapshot.UI.currentPlaylistId],
+                    previousTracks.filter((track) => !trackIds.includes(track.id)),
+                )
+            }
+
+            return { previousTracks }
+        },
+        onError: (err, trackIds, context) => {
+            if (context?.previousTracks) {
+                queryClient.setQueryData(['/api/playlist', snapshot.UI.currentPlaylistId], context.previousTracks)
+            }
+        },
         onSettled: () => {
-            // queryClient.invalidateQueries({ queryKey })
             queryClient.invalidateQueries({ queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId] })
         },
     })
