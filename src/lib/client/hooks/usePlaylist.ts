@@ -53,10 +53,11 @@ export const usePlaylist = () => {
 
             return { previousPlaylists }
         },
-        onError: (err, name, context) => {
+        onError: (error, name, context) => {
             if (context?.previousPlaylists) {
                 queryClient.setQueryData(queryKey, context.previousPlaylists)
             }
+            alert(error)
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
@@ -90,10 +91,11 @@ export const usePlaylist = () => {
 
             return { previousPlaylists }
         },
-        onError: (err, params, context) => {
+        onError: (error, params, context) => {
             if (context?.previousPlaylists) {
                 queryClient.setQueryData(queryKey, context.previousPlaylists)
             }
+            alert(error)
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
@@ -122,10 +124,11 @@ export const usePlaylist = () => {
 
             return { previousPlaylists }
         },
-        onError: (err, id, context) => {
+        onError: (error, id, context) => {
             if (context?.previousPlaylists) {
                 queryClient.setQueryData(queryKey, context.previousPlaylists)
             }
+            alert(error)
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
@@ -141,6 +144,9 @@ export const usePlaylist = () => {
         },
         onSettled: ({ ...data }) => {
             queryClient.invalidateQueries({ queryKey: ['/api/playlist', data?.id] })
+        },
+        onError: (error) => {
+            alert(error)
         },
     })
 
@@ -171,10 +177,11 @@ export const usePlaylist = () => {
 
             return { previousTracks }
         },
-        onError: (err, trackIds, context) => {
+        onError: (error, trackIds, context) => {
             if (context?.previousTracks) {
                 queryClient.setQueryData(['/api/playlist', snapshot.UI.currentPlaylistId], context.previousTracks)
             }
+            alert(error)
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId] })

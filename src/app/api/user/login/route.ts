@@ -34,8 +34,8 @@ export async function POST(request: Request) {
             ...user,
             token,
         })
-    } catch (err) {
-        console.error('Login error:', err)
-        return handleServerError(err)
+    } catch (error) {
+        console.error('Login error:', error)
+        return handleServerError(error)
     }
 }

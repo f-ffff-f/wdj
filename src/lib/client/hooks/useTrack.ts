@@ -1,4 +1,3 @@
-// /app/_lib/hooks/useTrack.ts
 import { customFetcher } from '@/lib/client/utils/customFetcher'
 import { useCurrentUser } from '@/lib/client/hooks/useCurrentUser'
 import { deleteTrackFromIndexedDB, getTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/db/indexedDB'
@@ -67,7 +66,9 @@ export const useTrack = () => {
 
             return response
         },
-        onError: (error) => {},
+        onError: (error) => {
+            alert(error)
+        },
         onSuccess: (response) => {
             state.UI.focusedTrackId = response.id
         },
@@ -96,8 +97,9 @@ export const useTrack = () => {
 
             return { previousTracks }
         },
-        onError: (err, id, context) => {
+        onError: (error, id, context) => {
             queryClient.setQueryData(queryKey, context?.previousTracks)
+            alert(error)
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey })
