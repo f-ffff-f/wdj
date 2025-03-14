@@ -14,9 +14,7 @@ jobs:
               run: echo "${{ secrets.TEST_ENV_FILE }}" > .env
             - name: Install dependencies
               run: npm install && npx playwright install --with-deps
-            - name: Build the application
-              run: npm run build
             - name: Start server and run tests
-              run: npx start-server-and-test 'npm run start' http://localhost:3000 'npx playwright test'
+              run: npx playwright test
               env:
                   BASE_URL: 'http://localhost:3000'
