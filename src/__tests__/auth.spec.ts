@@ -238,7 +238,7 @@ test.describe('Member 사용자 접속 테스트', () => {
         ])
 
         // UI 반영 검사
-        const trackLength = await page.evaluate(() => document.querySelectorAll('#track-list').length)
+        const trackLength = await page.evaluate(() => document.querySelectorAll('#track-list > div').length)
         expect(trackLength).toBe(0)
 
         const playlistItem = await page.evaluate(() => document.querySelector('.playlist-item'))
