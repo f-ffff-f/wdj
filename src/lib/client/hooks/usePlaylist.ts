@@ -20,6 +20,7 @@ export const usePlaylist = () => {
         queryKey,
         queryFn: () => customFetcher('/api/playlist'),
         retry: false,
+        staleTime: 1000 * 60 * 10,
     })
 
     /**
@@ -81,8 +82,8 @@ export const usePlaylist = () => {
                 body: JSON.stringify({ trackIds }),
             })
         },
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey })
+        onSettled: ({ ...data }) => {
+            queryClient.invalidateQueries({ queryKey: ['/api/playlist', data?.id] })
         },
     })
 
@@ -90,6 +91,7 @@ export const usePlaylist = () => {
         queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId],
         queryFn: () => customFetcher(`/api/playlist/${snapshot.UI.currentPlaylistId}/tracks`),
         enabled: !!snapshot.UI.currentPlaylistId,
+        staleTime: 1000 * 60 * 10,
     })
 
     const deleteTracksFromPlaylistMutation = useMutation<Playlist, Error, string[]>({
@@ -100,7 +102,8 @@ export const usePlaylist = () => {
             })
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey })
+            // queryClient.invalidateQueries({ queryKey })
+            queryClient.invalidateQueries({ queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId] })
         },
     })
 

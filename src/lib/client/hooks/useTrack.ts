@@ -21,6 +21,7 @@ export const useTrack = () => {
         queryKey,
         queryFn: () => customFetcher('/api/tracks'),
         retry: false,
+        staleTime: 1000 * 60 * 10,
     })
 
     // 트랙 생성 뮤테이션
