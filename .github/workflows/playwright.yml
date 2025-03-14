@@ -10,14 +10,16 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v2
+            - name: Create .env file
+              run: echo "${{ secrets.TEST_ENV_FILE }}" > .env
             - name: Install dependencies
               run: npm install && npx playwright install --with-deps
             - name: Build the application
               run: npm run build
             - name: Start local server
               run: |
-                  nohup npm run start &   # 서버를 백그라운드에서 실행
-                  npx wait-on http://localhost:3000  # 서버가 준비될 때까지 대기
+                  nohup npm run start &
+                  npx wait-on http://localhost:3000
             - name: Run tests
               run: npx playwright test
               env:
