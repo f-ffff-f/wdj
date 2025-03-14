@@ -7,8 +7,9 @@ export const useLogout = () => {
         localStorage.removeItem('token')
         sessionStorage.removeItem('guestToken')
 
+        await queryClient.invalidateQueries({ queryKey: ['/api/user/me'] })
+
         await Promise.all([
-            queryClient.invalidateQueries({ queryKey: ['/api/user/me'] }),
             queryClient.invalidateQueries({ queryKey: ['/api/tracks'] }),
             queryClient.invalidateQueries({ queryKey: ['/api/playlist'] }),
         ])

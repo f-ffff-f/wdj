@@ -218,5 +218,30 @@ test.describe('Member 사용자 접속 테스트', () => {
 
         // 게스트 토큰으로 '/api/user/me' 호출이 성공하는지 확인
         await page.waitForResponse((res) => res.url().includes('/api/user/me') && res.status() === 200)
+
+        await page.reload()
+
+        // track과 playlist 데이터 조회 시 200 응답이 나오지만 데이터가 없어야 함
+        await Promise.all([
+            page.waitForResponse(
+                (res) =>
+                    res.url().includes('/api/tracks') &&
+                    res.status() === 200 &&
+                    res.json().then((data) => data.length === 0),
+            ),
+            page.waitForResponse(
+                (res) =>
+                    res.url().includes('/api/playlist') &&
+                    res.status() === 200 &&
+                    res.json().then((data) => data.length === 0),
+            ),
+        ])
+
+        // UI 반영 검사
+        const trackLength = await page.evaluate(() => document.querySelectorAll('#track-list > div').length)
+        expect(trackLength).toBe(0)
+
+        const playlistItem = await page.evaluate(() => document.querySelector('.playlist-item'))
+        expect(playlistItem).toBeNull()
     })
 })

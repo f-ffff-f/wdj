@@ -33,6 +33,8 @@ export const useLoginMutation = (onSuccess?: (data: TResponse) => void) => {
 
             if (onSuccess) onSuccess(data)
         },
-        onError: (error) => {},
+        onError: (error) => {
+            alert(error)
+        },
     })
 }
