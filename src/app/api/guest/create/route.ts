@@ -29,8 +29,8 @@ export async function POST(request: Request) {
             },
             token, // 클라이언트에 전달할 토큰 추가
         })
-    } catch (err) {
-        console.error('Guest creation error:', err)
-        return handleServerError(err)
+    } catch (error) {
+        console.error('Guest creation error:', error)
+        return handleServerError(error)
     }
 }
