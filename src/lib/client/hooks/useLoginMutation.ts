@@ -1,4 +1,5 @@
 import { customFetcher } from '@/lib/client/utils/customFetcher'
+import { setToken } from '@/lib/client/utils/tokenStorage'
 import { User } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -16,8 +17,8 @@ export const useLoginMutation = (onSuccess?: (data: TResponse) => void) => {
             })
         },
         onSuccess: (data) => {
-            localStorage.setItem('token', data.token)
-            sessionStorage.removeItem('guestToken')
+            // 멤버 토큰 저장 (게스트 토큰은 자동으로 제거됨)
+            setToken(data.token, 'member')
 
             queryClient.invalidateQueries({ queryKey: ['/api/user/me'] })
             queryClient.invalidateQueries({ queryKey: ['/api/playlist'] })

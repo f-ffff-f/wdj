@@ -1,12 +1,14 @@
 import { useQueryClient } from '@tanstack/react-query'
+import { clearAllTokens } from '@/lib/client/utils/tokenStorage'
 
 export const useLogout = () => {
     const queryClient = useQueryClient()
 
     const logout = async () => {
-        localStorage.removeItem('token')
-        sessionStorage.removeItem('guestToken')
+        // 모든 토큰 제거
+        clearAllTokens()
 
+        // 캐시된 쿼리 무효화
         await queryClient.invalidateQueries({ queryKey: ['/api/user/me'] })
 
         await Promise.all([

@@ -5,9 +5,11 @@
  */
 
 import { handleClientError } from '@/lib/client/utils/handleClientError'
+import { getToken } from '@/lib/client/utils/tokenStorage'
 
 export const customFetcher = async (url: string, options: RequestInit = {}) => {
-    const token = localStorage.getItem('token') || sessionStorage.getItem('guestToken')
+    // 토큰 가져오기
+    const token = getToken()
 
     // 기본 헤더 설정
     const defaultHeaders = {

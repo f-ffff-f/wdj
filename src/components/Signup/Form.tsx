@@ -1,17 +1,17 @@
 'use client'
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useCurrentUser } from '@/lib/client/hooks/useCurrentUser'
-import { useLoginMutation } from '@/lib/client/hooks/useLoginMutation'
-import { useSignupMutation } from '@/lib/client/hooks/useSignupMutation'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { useLoginMutation } from '@/lib/client/hooks/useLoginMutation'
+import { useSignupMutation } from '@/lib/client/hooks/useSignupMutation'
+import { getGuestToken, getMemberToken, isMemberAuthenticated } from '@/lib/client/utils/tokenStorage'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 // Signup form schema definition
 const signupSchema = z
@@ -29,7 +29,6 @@ type SignupFormValues = z.infer<typeof signupSchema>
 
 export const SignupForm = () => {
     const router = useRouter()
-    const { data: user, isLoading: isUserLoading } = useCurrentUser()
 
     // React Hook Form setup
     const form = useForm<SignupFormValues>({
@@ -60,8 +59,8 @@ export const SignupForm = () => {
     // Check authentication state on client side
     useEffect(() => {
         // If user is a member or no guest token exists, redirect to home
-        const memberToken = localStorage.getItem('token')
-        const guestToken = sessionStorage.getItem('guestToken')
+        const memberToken = getMemberToken()
+        const guestToken = getGuestToken()
 
         if (memberToken || !guestToken) {
             router.push('/')
@@ -70,10 +69,10 @@ export const SignupForm = () => {
 
     // Also redirect if user data indicates they're already a member
     useEffect(() => {
-        if (user?.role === 'MEMBER') {
+        if (isMemberAuthenticated()) {
             router.push('/')
         }
-    }, [user, router])
+    }, [router])
 
     // Signup form submission handler
     const onSubmit = async (values: SignupFormValues) => {
