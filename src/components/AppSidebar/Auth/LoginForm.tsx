@@ -19,7 +19,7 @@ type LoginFormValues = z.infer<typeof formSchema>
 
 const LoginForm = () => {
     const { isLoading } = useCurrentUser()
-    const { mutate, isPending, error } = useLoginMutation((data) => {})
+    const { mutate, isPending } = useLoginMutation((data) => {})
 
     const onSubmit = (data: LoginFormValues) => {
         mutate(data)
