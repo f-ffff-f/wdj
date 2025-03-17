@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query'
 import { customFetcher } from '@/lib/client/utils/customFetcher'
 import { User } from '@prisma/client'
 import { NotFoundError, UnauthorizedError } from '@/lib/CustomErrors'
-import { handleClientError } from '@/lib/client/utils/handleClientError'
 /**
  * 현재 인증된 사용자의 정보를 관리하는 커스텀 훅
  */
@@ -14,20 +13,16 @@ export const useCurrentUser = () => {
             try {
                 return await customFetcher('/api/user/me')
             } catch (error) {
+                // 토큰 없거나 토큰 만료 시 초기화 하고 새로운 게스트 생성
                 if (error instanceof UnauthorizedError || error instanceof NotFoundError) {
                     localStorage.removeItem('token')
                     sessionStorage.removeItem('guestToken')
 
-                    const guestRes = await fetch('/api/guest/create', {
+                    const guestResponse = await customFetcher('/api/guest/create', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
                     })
 
-                    if (!guestRes.ok) {
-                        await handleClientError(guestRes)
-                    }
-
-                    const { token } = await guestRes.json()
+                    const token = guestResponse.token
                     sessionStorage.setItem('guestToken', token)
                     return customFetcher('/api/user/me') // 재시도
                 } else {

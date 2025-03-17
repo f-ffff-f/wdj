@@ -4,6 +4,8 @@ import { jwtVerify } from 'jose'
 import { UnauthorizedError } from '@/lib/CustomErrors'
 import { handleServerError } from '@/lib/server/handleServerError'
 
+/** @TODO AUTH_BYPASS_PATHS '/api/guest/create' 제외하고는 필요 없다. 해당 path 사용하는 hook에 가서 customFetcher 사용하도록 바꾸기*/
+
 /**
  * 인증 미들웨어
  * 1. 토큰 검증
@@ -11,7 +13,7 @@ import { handleServerError } from '@/lib/server/handleServerError'
  * 3. 토큰 검증 실패 시 UnauthorizedError 401 에러 반환
  */
 
-const AUTH_BYPASS_PATHS = ['/api/user/create', '/api/user/login', '/api/guest/create']
+const AUTH_BYPASS_PATHS = ['/api/guest/create']
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET)
 

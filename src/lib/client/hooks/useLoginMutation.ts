@@ -1,4 +1,4 @@
-import { handleClientError } from '@/lib/client/utils/handleClientError'
+import { customFetcher } from '@/lib/client/utils/customFetcher'
 import { User } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -10,17 +10,10 @@ export const useLoginMutation = (onSuccess?: (data: TResponse) => void) => {
 
     return useMutation<TResponse, Error, TRequest>({
         mutationFn: async ({ email, password }: TRequest) => {
-            const res = await fetch('/api/user/login', {
+            return customFetcher('/api/user/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
             })
-
-            if (!res.ok) {
-                await handleClientError(res)
-            }
-
-            return res.json()
         },
         onSuccess: (data) => {
             localStorage.setItem('token', data.token)
