@@ -6,10 +6,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input'
 import { useLoginMutation } from '@/lib/client/hooks/useLoginMutation'
 import { useSignupMutation } from '@/lib/client/hooks/useSignupMutation'
-import { getGuestToken, getMemberToken, isMemberAuthenticated } from '@/lib/client/utils/tokenStorage'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 
@@ -55,24 +53,6 @@ export const SignupForm = () => {
             password: form.getValues('password'),
         })
     })
-
-    // Check authentication state on client side
-    useEffect(() => {
-        // If user is a member or no guest token exists, redirect to home
-        const memberToken = getMemberToken()
-        const guestToken = getGuestToken()
-
-        if (memberToken || !guestToken) {
-            router.push('/')
-        }
-    }, [router])
-
-    // Also redirect if user data indicates they're already a member
-    useEffect(() => {
-        if (isMemberAuthenticated()) {
-            router.push('/')
-        }
-    }, [router])
 
     // Signup form submission handler
     const onSubmit = async (values: SignupFormValues) => {
