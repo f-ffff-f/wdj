@@ -27,8 +27,8 @@ const Playlist = () => {
         isCreating,
         isUpdating,
         isDeleting,
-        isLoading,
-        error,
+        isLoadingPlaylists,
+        errorPlaylists,
     } = usePlaylist()
 
     // 새 플레이리스트 추가 핸들러
@@ -77,13 +77,13 @@ const Playlist = () => {
                             <span>Library</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
-                    {isLoading ? (
+                    {isLoadingPlaylists ? (
                         <div className="flex items-center justify-center">
                             <LoaderCircle className="animate-spin" />
                         </div>
-                    ) : error ? (
-                        error instanceof UnauthorizedError ? null : (
-                            <div className="text-center py-2 text-destructive">에러: {error.message}</div>
+                    ) : errorPlaylists ? (
+                        errorPlaylists instanceof UnauthorizedError ? null : (
+                            <div className="text-center py-2 text-destructive">{errorPlaylists.message}</div>
                         )
                     ) : (
                         playlistsQuery?.map((playlist) => {

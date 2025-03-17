@@ -190,8 +190,8 @@ export const usePlaylist = () => {
 
     return {
         playlistsQuery: playlistsQuery.data,
-        isLoading: playlistsQuery.isLoading,
-        error: playlistsQuery.error,
+        isLoadingPlaylists: playlistsQuery.isLoading,
+        errorPlaylists: playlistsQuery.error,
         createPlaylist: createPlaylistMutation.mutate,
         isCreating: createPlaylistMutation.isPending,
         updatePlaylist: updatePlaylistMutation.mutate,
