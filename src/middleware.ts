@@ -12,7 +12,7 @@ import { handleServerError } from '@/lib/server/handleServerError'
  * 4. 토큰 검증 실패 시 UnauthorizedError 401 에러 반환
  */
 
-const AUTH_BYPASS_PATHS = ['/api/guest/create']
+const AUTH_BYPASS_PATHS = ['/api/guest/create', '/api/user/create', '/api/user/login', '/api/user/logout']
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET)
 
