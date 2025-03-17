@@ -18,7 +18,6 @@ const formSchema = z.object({
 type LoginFormValues = z.infer<typeof formSchema>
 
 const LoginForm = () => {
-    const { isLoading } = useCurrentUser()
     const { mutate, isPending } = useLoginMutation((data) => {})
 
     const onSubmit = (data: LoginFormValues) => {
@@ -36,41 +35,32 @@ const LoginForm = () => {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                {isLoading ? (
-                    <div className="flex items-center justify-center">
-                        <LoaderCircle className="animate-spin" />
-                    </div>
-                ) : (
-                    <>
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>email</FormLabel>
-                                    <FormControl>
-                                        <Input type="email" disabled={isPending} {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>password</FormLabel>
-                                    <FormControl>
-                                        <Input type="password" disabled={isPending} {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </>
-                )}
-
+                <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>email</FormLabel>
+                            <FormControl>
+                                <Input type="email" disabled={isPending} {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+                <FormField
+                    control={form.control}
+                    name="password"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>password</FormLabel>
+                            <FormControl>
+                                <Input type="password" disabled={isPending} {...field} />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
                 <Button type="submit" className="w-full" disabled={isPending}>
                     {isPending ? 'Logging in...' : 'Login'}
                 </Button>
