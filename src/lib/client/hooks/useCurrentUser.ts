@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
 import { customFetcher } from '@/lib/client/utils/customFetcher'
-import { clearAllTokens, setToken } from '@/lib/client/utils/tokenStorage'
 import { User } from '@prisma/client'
 import { NotFoundError, UnauthorizedError } from '@/lib/CustomErrors'
 /**

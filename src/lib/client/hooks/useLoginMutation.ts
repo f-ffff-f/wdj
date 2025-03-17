@@ -1,5 +1,4 @@
 import { customFetcher } from '@/lib/client/utils/customFetcher'
-import { setToken } from '@/lib/client/utils/tokenStorage'
 import { User } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
