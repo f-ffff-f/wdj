@@ -4,13 +4,12 @@ import { jwtVerify } from 'jose'
 import { UnauthorizedError } from '@/lib/CustomErrors'
 import { handleServerError } from '@/lib/server/handleServerError'
 
-/** @TODO AUTH_BYPASS_PATHS '/api/guest/create' 제외하고는 필요 없다. 해당 path 사용하는 hook에 가서 customFetcher 사용하도록 바꾸기*/
-
 /**
  * 인증 미들웨어
- * 1. 토큰 검증
- * 2. 토큰 디코딩
- * 3. 토큰 검증 실패 시 UnauthorizedError 401 에러 반환
+ * 1. 쿠키에서 토큰 추출
+ * 2. 토큰 검증
+ * 3. 토큰 디코딩
+ * 4. 토큰 검증 실패 시 UnauthorizedError 401 에러 반환
  */
 
 const AUTH_BYPASS_PATHS = ['/api/guest/create']
@@ -33,13 +32,10 @@ export async function middleware(request: NextRequest) {
         }
 
         try {
-            const authHeader = request.headers.get('Authorization')
-
-            if (!authHeader) {
-                throw new UnauthorizedError('No Authorization header provided')
-            }
-
-            const token = authHeader.split(' ')[1]
+            // 쿠키에서 토큰 추출 (멤버 토큰 우선)
+            const memberToken = request.cookies.get('memberToken')?.value
+            const guestToken = request.cookies.get('guestToken')?.value
+            const token = memberToken || guestToken
 
             if (!token) {
                 throw new UnauthorizedError('Token is not exist')
@@ -51,6 +47,7 @@ export async function middleware(request: NextRequest) {
 
             const decoded = await verifyJWT(token)
 
+            // 사용자 ID를 헤더에 포함하여 다음 핸들러로 전달
             const requestHeaders = new Headers(request.headers)
             requestHeaders.set('x-user-id', decoded.userId as string)
 
