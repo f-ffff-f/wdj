@@ -4,7 +4,6 @@ import { SidebarGroupLabel } from '@/components/ui/sidebar'
 import { useCurrentUser } from '@/lib/client/hooks/useCurrentUser'
 import { useLogout } from '@/lib/client/hooks/useLogout'
 import { LoaderCircle } from 'lucide-react'
-import Link from 'next/link'
 
 const Auth = () => {
     const { data, error, isLoading, isMember } = useCurrentUser()
@@ -27,12 +26,7 @@ const Auth = () => {
                     <Button onClick={logout}>Logout</Button>
                 </div>
             ) : (
-                <>
-                    <LoginForm />
-                    <Button asChild variant="outline" size="sm">
-                        <Link href="/signup">Sign Up</Link>
-                    </Button>
-                </>
+                <LoginForm />
             )}
         </div>
     )

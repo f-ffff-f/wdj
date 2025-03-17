@@ -1,14 +1,13 @@
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import * as z from 'zod'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useLoginMutation } from '@/lib/client/hooks/useLoginMutation'
-import { LoaderCircle } from 'lucide-react'
-import { useCurrentUser } from '@/lib/client/hooks/useCurrentUser'
+import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
 const formSchema = z.object({
     email: z.string().email('Please enter a valid email'),
@@ -61,9 +60,14 @@ const LoginForm = () => {
                         </FormItem>
                     )}
                 />
-                <Button type="submit" className="w-full" disabled={isPending}>
-                    {isPending ? 'Logging in...' : 'Login'}
-                </Button>
+                <div className="flex justify-between">
+                    <Button type="submit" className="w-full" disabled={isPending}>
+                        {isPending ? 'Logging in...' : 'Login'}
+                    </Button>
+                    <Button asChild variant="link" size="sm">
+                        <Link href="/signup">Sign Up</Link>
+                    </Button>
+                </div>
             </form>
         </Form>
     )
