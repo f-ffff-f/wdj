@@ -30,10 +30,26 @@ export async function POST(request: Request) {
             expiresIn: '7d',
         })
 
-        return NextResponse.json({
-            ...user,
-            token,
+        // 응답 객체 생성
+        const response = NextResponse.json({
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            createdAt: user.createdAt,
+            // 응답 본문에서 token 제거 (쿠키로 전송됨)
         })
+
+        // 7일 유효기간의 멤버 쿠키 설정
+        const ONE_WEEK_IN_SECONDS = 60 * 60 * 24 * 7
+        response.cookies.set('memberToken', token, {
+            httpOnly: true, // JavaScript에서 접근 불가
+            secure: process.env.NODE_ENV === 'production', // HTTPS에서만 전송
+            sameSite: 'strict', // CSRF 방지
+            path: '/',
+            maxAge: ONE_WEEK_IN_SECONDS, // 7일 유효기간 설정
+        })
+
+        return response
     } catch (error) {
         console.error('Login error:', error)
         return handleServerError(error)
