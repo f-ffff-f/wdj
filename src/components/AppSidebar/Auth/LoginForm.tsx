@@ -1,12 +1,13 @@
 'use client'
 
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import * as z from 'zod'
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { useLoginMutation } from '@/lib/client/hooks/useLoginMutation'
+import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
 const formSchema = z.object({
     email: z.string().email('Please enter a valid email'),
@@ -16,19 +17,19 @@ const formSchema = z.object({
 type LoginFormValues = z.infer<typeof formSchema>
 
 const LoginForm = () => {
-    const form = useForm<LoginFormValues>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            email: 'test@example.com',
-            password: '1234',
-        },
-    })
-
-    const { mutate, isPending, error } = useLoginMutation((data) => {})
+    const { mutate, isPending } = useLoginMutation((data) => {})
 
     const onSubmit = (data: LoginFormValues) => {
         mutate(data)
     }
+
+    const form = useForm<LoginFormValues>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            email: '',
+            password: '',
+        },
+    })
 
     return (
         <Form {...form}>
@@ -40,7 +41,7 @@ const LoginForm = () => {
                         <FormItem>
                             <FormLabel>email</FormLabel>
                             <FormControl>
-                                <Input type="email" placeholder="name@example.com" disabled={isPending} {...field} />
+                                <Input type="email" disabled={isPending} {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -59,12 +60,14 @@ const LoginForm = () => {
                         </FormItem>
                     )}
                 />
-
-                {error && <div className="text-sm text-destructive">{error.message}</div>}
-
-                <Button type="submit" className="w-full" disabled={isPending}>
-                    {isPending ? 'Logging in...' : 'Login'}
-                </Button>
+                <div className="flex justify-between">
+                    <Button type="submit" className="w-full" disabled={isPending}>
+                        {isPending ? 'Logging in...' : 'Login'}
+                    </Button>
+                    <Button asChild variant="link" size="sm">
+                        <Link href="/signup">Sign Up</Link>
+                    </Button>
+                </div>
             </form>
         </Form>
     )

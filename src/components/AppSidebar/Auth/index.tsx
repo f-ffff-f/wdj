@@ -1,12 +1,12 @@
 import LoginForm from '@/components/AppSidebar/Auth/LoginForm'
-import { useCurrentUser } from '@/lib/client/hooks/useCurrentUser'
-import { useLogout } from '@/lib/client/hooks/useLogout'
 import { Button } from '@/components/ui/button'
 import { SidebarGroupLabel } from '@/components/ui/sidebar'
+import { useCurrentUser } from '@/lib/client/hooks/useCurrentUser'
+import { useLogout } from '@/lib/client/hooks/useLogout'
 import { LoaderCircle } from 'lucide-react'
 
 const Auth = () => {
-    const { data, isLoading, error, isMember } = useCurrentUser()
+    const { data, error, isLoading, isMember } = useCurrentUser()
     const { logout } = useLogout()
 
     if (isLoading)
@@ -15,6 +15,7 @@ const Auth = () => {
                 <LoaderCircle className="animate-spin" />
             </div>
         )
+
     if (error) return <SidebarGroupLabel>{error.message}</SidebarGroupLabel>
 
     return (
