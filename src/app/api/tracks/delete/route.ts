@@ -10,7 +10,7 @@ import { headers } from 'next/headers'
 
 export async function DELETE() {
     try {
-        const headersList = headers()
+        const headersList = await headers()
         const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {

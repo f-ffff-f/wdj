@@ -20,7 +20,7 @@ const s3 = new S3Client({
 
 export const POST = async (req: Request) => {
     try {
-        const headersList = headers()
+        const headersList = await headers()
         const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {

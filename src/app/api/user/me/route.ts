@@ -16,7 +16,7 @@ import { headers } from 'next/headers'
 // app/api/user/me/route.ts
 export async function GET(): Promise<NextResponse> {
     try {
-        const headersList = headers()
+        const headersList = await headers()
         const userId = getUserIdFromRequest(headersList)
         if (!userId) {
             throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)

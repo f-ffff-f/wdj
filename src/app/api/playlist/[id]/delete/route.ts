@@ -7,9 +7,10 @@ import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { headers } from 'next/headers'
 import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     try {
-        const headersList = headers()
+        const headersList = await headers()
         const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
