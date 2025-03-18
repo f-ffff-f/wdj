@@ -25,7 +25,10 @@ const createGuestUser = async (page: Page): Promise<void> => {
  */
 const loginAsMember = async (page: Page): Promise<void> => {
     const loginResponse = await page.request.post('/api/user/login', {
-        data: { email: 'test@example.com', password: '1234' },
+        data: {
+            email: process.env.PLAYWRIGHT_TEST_USER_EMAIL,
+            password: process.env.PLAYWRIGHT_TEST_USER_PASSWORD,
+        },
     })
 
     expect(loginResponse.status()).toBe(200)
