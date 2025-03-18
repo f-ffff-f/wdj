@@ -1,11 +1,13 @@
 export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/shared/prisma'
 import { getUserIdFromRequest } from '@/lib/server/utils'
-import { BadRequestError, UnauthorizedError } from '@/lib/CustomErrors'
+import { BadRequestError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { headers } from 'next/headers'
+import { BadRequestErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { CreateTrackSchema } from '@/lib/shared/validations/trackSchema'
 
 export async function POST(request: Request) {
     try {
@@ -13,15 +15,18 @@ export async function POST(request: Request) {
         const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
-            throw new UnauthorizedError('User not authenticated')
+            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
         }
 
-        // fileName, playlistId를 받을 수 있게 구조분해 할당
-        const { fileName, playlistId } = await request.json()
+        const body = await request.json()
 
-        if (!fileName || typeof fileName !== 'string' || fileName.trim().length === 0) {
-            throw new BadRequestError('Invalid file name')
+        // Zod로 입력 유효성 검사
+        const parseResult = CreateTrackSchema.safeParse(body)
+        if (!parseResult.success) {
+            throw new BadRequestError(BadRequestErrorMessage.INVALID_FILE_NAME)
         }
+
+        const { fileName, playlistId } = parseResult.data
 
         // playlistId가 존재하는 경우만 connect 로직을 추가
         const createData = {
@@ -30,7 +35,7 @@ export async function POST(request: Request) {
             playlists: {},
         }
 
-        if (playlistId && typeof playlistId === 'string' && playlistId.trim().length > 0) {
+        if (playlistId && playlistId.trim().length > 0) {
             // playlistId가 있고, 문자열이 유효하면 Track 생성 시 해당 Playlist와 연결
             createData.playlists = {
                 connect: [{ id: playlistId }],

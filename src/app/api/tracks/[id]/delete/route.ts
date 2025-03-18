@@ -1,10 +1,11 @@
 export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/shared/prisma'
 import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3'
 import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/lib/server/utils'
-import { NotFoundError, UnauthorizedError } from '@/lib/CustomErrors'
+import { NotFoundError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
+import { NotFoundErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { headers } from 'next/headers'
 // S3 클라이언트 인스턴스 생성
@@ -22,7 +23,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
-            throw new UnauthorizedError('User not authenticated')
+            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
         }
 
         // 트랙이 존재하며, 현재 사용자 소유인지 확인
@@ -34,7 +35,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         })
 
         if (!track) {
-            throw new NotFoundError('Track not found or unauthorized')
+            throw new NotFoundError(NotFoundErrorMessage.TRACK_UNAUTHORIZED)
         }
 
         const fileKey = generateS3FileKey(userId, track.id)

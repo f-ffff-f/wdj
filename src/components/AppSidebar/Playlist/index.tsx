@@ -12,7 +12,7 @@ import {
 import { LoaderCircle, MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
 import { useSnapshot } from 'valtio'
-import { UnauthorizedError } from '@/lib/CustomErrors'
+import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import PlaylistForm from './PlaylistForm'
 
 const Playlist = () => {

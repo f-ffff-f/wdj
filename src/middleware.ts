@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
-import { UnauthorizedError } from '@/lib/CustomErrors'
+import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { handleServerError } from '@/lib/server/handleServerError'
+import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 
 /**
  * 인증 미들웨어
@@ -12,7 +13,7 @@ import { handleServerError } from '@/lib/server/handleServerError'
  * 4. 토큰 검증 실패 시 UnauthorizedError 401 에러 반환
  */
 
-const AUTH_BYPASS_PATHS = ['/api/guest/create', '/api/user/create', '/api/user/login', '/api/user/logout']
+const AUTH_BYPASS_PATHS = ['/api/guest/create', '/api/user/login']
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET)
 
@@ -21,7 +22,7 @@ async function verifyJWT(token: string) {
         const { payload } = await jwtVerify(token, secret)
         return payload
     } catch (error) {
-        throw new UnauthorizedError('Invalid token')
+        throw new UnauthorizedError(UnauthorizedErrorMessage.INVALID_TOKEN)
     }
 }
 
@@ -38,7 +39,7 @@ export async function middleware(request: NextRequest) {
             const token = memberToken || guestToken
 
             if (!token) {
-                throw new UnauthorizedError('Token is not exist')
+                throw new UnauthorizedError(UnauthorizedErrorMessage.TOKEN_NOT_EXIST)
             }
 
             if (!process.env.JWT_SECRET) {

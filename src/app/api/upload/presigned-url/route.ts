@@ -5,10 +5,11 @@ import { NextResponse } from 'next/server'
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/lib/server/utils'
-import { BadRequestError, UnauthorizedError } from '@/lib/CustomErrors'
+import { BadRequestError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { headers } from 'next/headers'
-
+import { BadRequestErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { UploadUrlRequestSchema } from '@/lib/shared/validations/trackSchema'
 const s3 = new S3Client({
     region: getEnv('AWS_REGION'),
     credentials: {
@@ -23,15 +24,18 @@ export const POST = async (req: Request) => {
         const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
-            throw new UnauthorizedError('User not authenticated')
+            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
         }
 
-        const { fileName, fileType, id } = await req.json()
+        const body = await req.json()
 
-        // 입력 유효성 검사
-        if (!fileName || !fileType) {
-            throw new BadRequestError('fileName and fileType are required')
+        // Zod로 입력 유효성 검사
+        const parseResult = UploadUrlRequestSchema.safeParse(body)
+        if (!parseResult.success) {
+            throw new BadRequestError(BadRequestErrorMessage.MISSING_FILE_INFO)
         }
+
+        const { fileName, fileType, id } = parseResult.data
 
         // 고유 파일 키 생성
         const fileKey = generateS3FileKey(userId, id)
