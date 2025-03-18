@@ -1,23 +1,8 @@
-// Custom message types for each error class
-type TBadRequestErrorMessage =
-    | 'Invalid track IDs format'
-    | 'Invalid playlist name'
-    | 'Invalid file name'
-    | 'fileName and fileType are required'
-    | 'User already exists'
-
-type TUnauthorizedErrorMessage =
-    | 'Invalid token'
-    | 'No Authorization header provided'
-    | 'Token is not exist'
-    | 'User not authenticated'
-    | 'Invalid credentials'
-
-type TNotFoundErrorMessage =
-    | 'User not found'
-    | 'Playlist not found'
-    | 'Track not found'
-    | 'Track not found or unauthorized'
+import {
+    BadRequestErrorMessage,
+    UnauthorizedErrorMessage,
+    NotFoundErrorMessage,
+} from '@/lib/shared/errors/ErrorMessage'
 
 interface ICustomError {
     status: number
@@ -27,8 +12,8 @@ interface ICustomError {
 export class BadRequestError extends Error implements ICustomError {
     static status = 400 as const
     status: typeof BadRequestError.status
-    customMessage: TBadRequestErrorMessage
-    constructor(customMessage: TBadRequestErrorMessage) {
+    customMessage: BadRequestErrorMessage
+    constructor(customMessage: BadRequestErrorMessage) {
         super(customMessage)
         this.customMessage = customMessage
         this.status = BadRequestError.status
@@ -40,8 +25,8 @@ export class BadRequestError extends Error implements ICustomError {
 export class UnauthorizedError extends Error implements ICustomError {
     static status = 401 as const
     status: typeof UnauthorizedError.status
-    customMessage: TUnauthorizedErrorMessage
-    constructor(customMessage: TUnauthorizedErrorMessage) {
+    customMessage: UnauthorizedErrorMessage
+    constructor(customMessage: UnauthorizedErrorMessage) {
         super(customMessage)
         this.customMessage = customMessage
         this.status = UnauthorizedError.status
@@ -53,8 +38,8 @@ export class UnauthorizedError extends Error implements ICustomError {
 export class NotFoundError extends Error implements ICustomError {
     static status = 404 as const
     status: typeof NotFoundError.status
-    customMessage: TNotFoundErrorMessage
-    constructor(customMessage: TNotFoundErrorMessage) {
+    customMessage: NotFoundErrorMessage
+    constructor(customMessage: NotFoundErrorMessage) {
         super(customMessage)
         this.customMessage = customMessage
         this.status = NotFoundError.status

@@ -10,12 +10,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { EmailSchema, PasswordSchema } from '@/lib/shared/validations/userSchemas'
 
 // Signup form schema definition
 const signupSchema = z
     .object({
-        email: z.string().email('Please enter a valid email address'),
-        password: z.string().min(8, 'Password must be at least 8 characters'),
+        email: EmailSchema,
+        password: PasswordSchema,
         confirmPassword: z.string(),
     })
     .refine((data) => data.password === data.confirmPassword, {

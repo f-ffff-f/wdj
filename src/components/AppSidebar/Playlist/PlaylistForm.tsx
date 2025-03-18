@@ -5,15 +5,9 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, Check, X } from 'lucide-react'
 import { FC, useEffect } from 'react'
+import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
 
-const playlistSchema = z.object({
-    name: z
-        .string()
-        .min(1, 'Playlist name must be at least 1 character')
-        .max(50, 'Playlist name cannot exceed 50 characters'),
-})
-
-type PlaylistFormData = z.infer<typeof playlistSchema>
+type PlaylistFormData = z.infer<typeof PlaylistSchema>
 
 type Props = {
     onSubmit: (data: PlaylistFormData) => void
@@ -32,7 +26,7 @@ const PlaylistForm: FC<Props> = ({ onSubmit, isSubmitting, initialValue = '', on
         reset,
         formState: { errors },
     } = useForm<PlaylistFormData>({
-        resolver: zodResolver(playlistSchema),
+        resolver: zodResolver(PlaylistSchema),
         defaultValues: { name: initialValue },
     })
 

@@ -1,4 +1,4 @@
-import { BadRequestError, NotFoundError, UnauthorizedError } from '@/lib/CustomErrors'
+import { BadRequestError, NotFoundError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
 
 /**
  * 클라이언트 오류 핸들러

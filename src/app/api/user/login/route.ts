@@ -1,24 +1,38 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/shared/prisma'
 import bcryptjs from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import { NotFoundError, UnauthorizedError } from '@/lib/CustomErrors'
+import { NotFoundError, UnauthorizedError, BadRequestError } from '@/lib/shared/errors/CustomError'
 import { handleServerError } from '@/lib/server/handleServerError'
+import {
+    NotFoundErrorMessage,
+    UnauthorizedErrorMessage,
+    BadRequestErrorMessage,
+} from '@/lib/shared/errors/ErrorMessage'
+import { LoginSchema } from '@/lib/shared/validations/userSchemas'
 
 export async function POST(request: Request) {
     try {
-        const { email, password } = await request.json()
+        const body = await request.json()
+
+        // Zod로 입력 유효성 검사
+        const parseResult = LoginSchema.safeParse(body)
+        if (!parseResult.success) {
+            throw new BadRequestError(BadRequestErrorMessage.INVALID_INPUT)
+        }
+
+        const { email, password } = parseResult.data
 
         // 1) 이메일로 유저 조회
         const user = await prisma.user.findUnique({ where: { email } })
         if (!user) {
-            throw new NotFoundError('User not found')
+            throw new NotFoundError(NotFoundErrorMessage.USER_NOT_FOUND)
         }
 
         // 2) 비밀번호 비교
         const isMatch = await bcryptjs.compare(password, user.password!)
         if (!isMatch) {
-            throw new UnauthorizedError('Invalid credentials')
+            throw new UnauthorizedError(UnauthorizedErrorMessage.INVALID_CREDENTIALS)
         }
 
         // 3) 로그인 성공 - 새 멤버 토큰 발급

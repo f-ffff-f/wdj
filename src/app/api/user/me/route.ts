@@ -1,9 +1,10 @@
 export const dynamic = 'force-dynamic'
 
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/shared/prisma'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { getUserIdFromRequest } from '@/lib/server/utils'
-import { NotFoundError, UnauthorizedError } from '@/lib/CustomErrors'
+import { NotFoundError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
+import { UnauthorizedErrorMessage, NotFoundErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { NextResponse } from 'next/server'
 import { headers } from 'next/headers'
 
@@ -18,7 +19,7 @@ export async function GET(): Promise<NextResponse> {
         const headersList = headers()
         const userId = getUserIdFromRequest(headersList)
         if (!userId) {
-            throw new UnauthorizedError('User not authenticated')
+            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
         }
 
         // 디코딩된 userId로 사용자 정보 조회
@@ -33,7 +34,7 @@ export async function GET(): Promise<NextResponse> {
         })
 
         if (!user) {
-            throw new NotFoundError('User not found')
+            throw new NotFoundError(NotFoundErrorMessage.USER_NOT_FOUND)
         }
 
         return NextResponse.json(user)

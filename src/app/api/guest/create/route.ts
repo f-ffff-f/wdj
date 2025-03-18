@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { prisma } from '@/lib/shared/prisma'
 import jwt from 'jsonwebtoken'
 import { handleServerError } from '@/lib/server/handleServerError'
+import { Role } from '@prisma/client'
 
 export async function POST(request: Request) {
     try {
         const user = await prisma.user.create({
             data: {
-                role: 'GUEST',
+                role: Role.GUEST,
                 email: null,
                 password: null,
             },

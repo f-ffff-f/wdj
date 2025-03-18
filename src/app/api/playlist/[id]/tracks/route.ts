@@ -1,11 +1,18 @@
 export const dynamic = 'force-dynamic'
 
 import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/CustomErrors'
-import { prisma } from '@/lib/prisma'
+import { UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/shared/errors/CustomError'
+import { prisma } from '@/lib/shared/prisma'
 import { NextResponse } from 'next/server'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { headers } from 'next/headers'
+import {
+    BadRequestErrorMessage,
+    NotFoundErrorMessage,
+    UnauthorizedErrorMessage,
+} from '@/lib/shared/errors/ErrorMessage'
+import { z } from 'zod'
+import { TrackIdsSchema } from '@/lib/shared/validations/trackSchema'
 
 /**
  * 플레이리스트에 트랙 추가 API 엔드포인트
@@ -18,14 +25,18 @@ export async function POST(request: Request, { params }: { params: { id: string 
         const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
-            throw new UnauthorizedError('User not authenticated')
+            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
         }
 
-        // 요청 본문 유효성 검사
-        const { trackIds } = await request.json()
-        if (!Array.isArray(trackIds) || trackIds.some((id) => typeof id !== 'string')) {
-            throw new BadRequestError('Invalid track IDs format')
+        const body = await request.json()
+
+        // Zod로 입력 유효성 검사
+        const parseResult = TrackIdsSchema.safeParse(body)
+        if (!parseResult.success) {
+            throw new BadRequestError(BadRequestErrorMessage.INVALID_TRACK_IDS)
         }
+
+        const { trackIds } = parseResult.data
 
         // 플레이리스트 소유권 확인
         const playlist = await prisma.playlist.update({
@@ -66,7 +77,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
         const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
-            throw new UnauthorizedError('User not authenticated')
+            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
         }
 
         const playlist = await prisma.playlist.findUnique({
@@ -86,7 +97,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
             },
         })
 
-        if (!playlist) throw new NotFoundError('Playlist not found')
+        if (!playlist) throw new NotFoundError(NotFoundErrorMessage.PLAYLIST_NOT_FOUND)
 
         return NextResponse.json(playlist.tracks)
     } catch (error) {
@@ -105,14 +116,18 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
         const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {
-            throw new UnauthorizedError('User not authenticated')
+            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
         }
 
-        // 요청 본문 유효성 검사
-        const { trackIds } = await request.json()
-        if (!Array.isArray(trackIds) || trackIds.some((id) => typeof id !== 'string')) {
-            throw new BadRequestError('Invalid track IDs format')
+        const body = await request.json()
+
+        // Zod로 입력 유효성 검사
+        const parseResult = TrackIdsSchema.safeParse(body)
+        if (!parseResult.success) {
+            throw new BadRequestError(BadRequestErrorMessage.INVALID_TRACK_IDS)
         }
+
+        const { trackIds } = parseResult.data
 
         // 플레이리스트 소유권 확인 및 트랙 제거
         const playlist = await prisma.playlist.update({

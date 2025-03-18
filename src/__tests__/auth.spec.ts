@@ -1,5 +1,6 @@
-import { UnauthorizedError } from '@/lib/CustomErrors'
+import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { test, expect, Page } from '@playwright/test'
+import { Role } from '@prisma/client'
 
 /**
  * 게스트 사용자 생성 및 성공 확인
@@ -15,7 +16,7 @@ const createGuestUser = async (page: Page): Promise<void> => {
     const guestResponseBody = await guestResponse.json()
     expect(guestResponseBody.message).toBe('Guest created')
     expect(guestResponseBody.user).toBeTruthy()
-    expect(guestResponseBody.user.role).toBe('GUEST')
+    expect(guestResponseBody.user.role).toBe(Role.GUEST)
 }
 
 /**
@@ -32,7 +33,7 @@ const loginAsMember = async (page: Page): Promise<void> => {
     // 응답 본문에서 회원 정보 확인
     const loginData = await loginResponse.json()
     expect(loginData.id).toBeTruthy()
-    expect(loginData.role).toBe('MEMBER')
+    expect(loginData.role).toBe(Role.MEMBER)
 
     // 페이지를 새로고침하여 클라이언트가 로그인 후 동작을 실행하도록 유도
     await page.reload()
@@ -70,7 +71,7 @@ test.describe('Guest 사용자 접속 테스트', () => {
 
         // 응답에서 게스트 역할 확인
         const userData = await meResponse.json()
-        expect(userData.role).toBe('GUEST')
+        expect(userData.role).toBe(Role.GUEST)
     })
 
     test('2. 유효한 게스트 인증 상태 시나리오', async ({ page }) => {
@@ -90,7 +91,7 @@ test.describe('Guest 사용자 접속 테스트', () => {
 
         // 응답에서 게스트 역할 확인
         const userData = await meResponse.json()
-        expect(userData.role).toBe('GUEST')
+        expect(userData.role).toBe(Role.GUEST)
     })
 
     test('3. 잘못된 인증 정보 시나리오', async ({ page, context }) => {
@@ -121,7 +122,7 @@ test.describe('Guest 사용자 접속 테스트', () => {
 
         // 응답에서 게스트 역할 확인
         const userData = await meResponse.json()
-        expect(userData.role).toBe('GUEST')
+        expect(userData.role).toBe(Role.GUEST)
     })
 
     test('4. 토큰 검사 미들웨어 예외 엔드포인트 (/api/guest/create) 접근 테스트', async ({ request }) => {
@@ -146,7 +147,7 @@ test.describe('Member 사용자 접속 테스트', () => {
 
         // 응답에서 멤버 역할 확인
         const userData = await meResponse.json()
-        expect(userData.role).toBe('MEMBER')
+        expect(userData.role).toBe(Role.MEMBER)
 
         // 페이지를 새로고침(refresh)합니다.
         await page.reload()
@@ -157,7 +158,7 @@ test.describe('Member 사용자 접속 테스트', () => {
         )
 
         const userDataAfterReload = await meResponseAfterReload.json()
-        expect(userDataAfterReload.role).toBe('MEMBER')
+        expect(userDataAfterReload.role).toBe(Role.MEMBER)
     })
 
     test('2. 만료된 인증 토큰 시나리오', async ({ page }) => {
@@ -182,7 +183,7 @@ test.describe('Member 사용자 접속 테스트', () => {
         const meResponse = await page.request.get('/api/user/me')
         expect(meResponse.status()).toBe(200)
         const userData = await meResponse.json()
-        expect(userData.role).toBe('GUEST')
+        expect(userData.role).toBe(Role.GUEST)
     })
 
     test('3. 멤버 로그인 플로우', async ({ page }) => {
@@ -196,7 +197,7 @@ test.describe('Member 사용자 접속 테스트', () => {
         )
 
         const guestUserData = await guestMeResponse.json()
-        expect(guestUserData.role).toBe('GUEST')
+        expect(guestUserData.role).toBe(Role.GUEST)
 
         // 이제 멤버 로그인을 실행
         await loginAsMember(page)
@@ -207,7 +208,7 @@ test.describe('Member 사용자 접속 테스트', () => {
         )
 
         const memberUserData = await memberMeResponse.json()
-        expect(memberUserData.role).toBe('MEMBER')
+        expect(memberUserData.role).toBe(Role.MEMBER)
     })
 
     test('4. 멤버 로그아웃 플로우', async ({ page }) => {
@@ -221,7 +222,7 @@ test.describe('Member 사용자 접속 테스트', () => {
         )
 
         const memberUserData = await memberMeResponse.json()
-        expect(memberUserData.role).toBe('MEMBER')
+        expect(memberUserData.role).toBe(Role.MEMBER)
 
         // 로그아웃 API 호출
         await logoutUser(page)
@@ -242,7 +243,7 @@ test.describe('Member 사용자 접속 테스트', () => {
         )
 
         const guestUserData = await guestMeResponse.json()
-        expect(guestUserData.role).toBe('GUEST')
+        expect(guestUserData.role).toBe(Role.GUEST)
 
         await page.reload()
 

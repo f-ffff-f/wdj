@@ -8,13 +8,9 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
+import { LoginSchema } from '@/lib/shared/validations/userSchemas'
 
-const formSchema = z.object({
-    email: z.string().email('Please enter a valid email'),
-    password: z.string().min(4, 'Password must be at least 4 characters'),
-})
-
-type LoginFormValues = z.infer<typeof formSchema>
+type LoginFormValues = z.infer<typeof LoginSchema>
 
 const LoginForm = () => {
     const { mutate, isPending } = useLoginMutation((data) => {})
@@ -24,7 +20,7 @@ const LoginForm = () => {
     }
 
     const form = useForm<LoginFormValues>({
-        resolver: zodResolver(formSchema),
+        resolver: zodResolver(LoginSchema),
         defaultValues: {
             email: '',
             password: '',

@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
-import { UnauthorizedError } from '@/lib/CustomErrors'
+import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { handleServerError } from '@/lib/server/handleServerError'
+import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 
 /**
  * 인증 미들웨어
@@ -21,7 +22,7 @@ async function verifyJWT(token: string) {
         const { payload } = await jwtVerify(token, secret)
         return payload
     } catch (error) {
-        throw new UnauthorizedError('Invalid token')
+        throw new UnauthorizedError(UnauthorizedErrorMessage.INVALID_TOKEN)
     }
 }
 
@@ -38,7 +39,7 @@ export async function middleware(request: NextRequest) {
             const token = memberToken || guestToken
 
             if (!token) {
-                throw new UnauthorizedError('Token is not exist')
+                throw new UnauthorizedError(UnauthorizedErrorMessage.TOKEN_NOT_EXIST)
             }
 
             if (!process.env.JWT_SECRET) {

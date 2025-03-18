@@ -1,6 +1,6 @@
 import { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
-import { BadRequestError, NotFoundError, UnauthorizedError } from '@/lib/CustomErrors'
+import { BadRequestError, NotFoundError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
 
 export const handleServerError = (error: unknown) => {
     if (error instanceof UnauthorizedError || error instanceof BadRequestError || error instanceof NotFoundError) {

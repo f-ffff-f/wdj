@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { customFetcher } from '@/lib/client/utils/customFetcher'
-import { User } from '@prisma/client'
-import { NotFoundError, UnauthorizedError } from '@/lib/CustomErrors'
+import { User, Role } from '@prisma/client'
+import { NotFoundError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
 /**
  * 현재 인증된 사용자의 정보를 관리하는 커스텀 훅
  */
@@ -37,6 +37,6 @@ export const useCurrentUser = () => {
         data,
         isLoading,
         error,
-        isMember: data?.role === 'MEMBER',
+        isMember: data?.role === Role.MEMBER,
     }
 }
