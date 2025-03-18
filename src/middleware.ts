@@ -13,7 +13,7 @@ import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
  * 4. 토큰 검증 실패 시 UnauthorizedError 401 에러 반환
  */
 
-const AUTH_BYPASS_PATHS = ['/api/guest/create']
+const AUTH_BYPASS_PATHS = ['/api/guest/create', '/api/user/login']
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET)
 

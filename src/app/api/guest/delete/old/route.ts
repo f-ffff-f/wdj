@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { Role } from '@prisma/client'
+
 const prisma = new PrismaClient()
 
-export const runtime = 'nodejs' // Vercel Serverless 환경에서 실행 가능하게 설정
+export const runtime = 'nodejs'
 
 export async function GET(req: NextRequest) {
     const twentyFourHoursAgo = new Date()
