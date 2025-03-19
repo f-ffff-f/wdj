@@ -1,4 +1,4 @@
-import LoginForm from '@/components/AppSidebar/Auth/LoginForm'
+import LoginForm from '@/components/Auth/Login/Form'
 import { Button } from '@/components/ui/button'
 import { SidebarGroupLabel } from '@/components/ui/sidebar'
 import { useAuth } from '@/lib/client/hooks/useAuth'
