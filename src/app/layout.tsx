@@ -1,6 +1,6 @@
 import { DevEnvIndicator } from '@/lib/client/components/DevEnvIndicator'
-import { QueryProvider } from '@/lib/client/components/QueryProvider'
-import { UserInitializer } from '@/lib/client/components/UserInitializer'
+import { QueryProvider } from '@/lib/client/providers/QueryProvider'
+import { SessionProvider } from '@/lib/client/providers/SessionProvider'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
@@ -19,13 +19,14 @@ export default function RootLayout({
     return (
         <html lang="en" className="dark">
             <body className={`antialiased`}>
-                <QueryProvider>
-                    {children}
-                    <ReactQueryDevtools />
-                    <UserInitializer />
-                    <DevEnvIndicator />
-                    <Analytics />
-                </QueryProvider>
+                <SessionProvider>
+                    <QueryProvider>
+                        {children}
+                        <ReactQueryDevtools />
+                        <DevEnvIndicator />
+                        <Analytics />
+                    </QueryProvider>
+                </SessionProvider>
             </body>
         </html>
     )
