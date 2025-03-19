@@ -1,13 +1,11 @@
 import LoginForm from '@/components/AppSidebar/Auth/LoginForm'
 import { Button } from '@/components/ui/button'
 import { SidebarGroupLabel } from '@/components/ui/sidebar'
-import { useCurrentUser } from '@/lib/client/hooks/useCurrentUser'
-import { useLogout } from '@/lib/client/hooks/useLogout'
+import { useAuth } from '@/lib/client/hooks/useAuth'
 import { LoaderCircle } from 'lucide-react'
 
 const Auth = () => {
-    const { data, error, isLoading, isMember } = useCurrentUser()
-    const { logout } = useLogout()
+    const { user, isLoading, isMember, logout } = useAuth()
 
     if (isLoading)
         return (
@@ -16,13 +14,11 @@ const Auth = () => {
             </div>
         )
 
-    if (error) return <SidebarGroupLabel>{error.message}</SidebarGroupLabel>
-
     return (
         <div>
             {isMember ? (
                 <div className="flex items-center justify-between">
-                    <SidebarGroupLabel>{data?.email}</SidebarGroupLabel>
+                    <SidebarGroupLabel>{user?.email || 'Member'}</SidebarGroupLabel>
                     <Button onClick={logout}>Logout</Button>
                 </div>
             ) : (

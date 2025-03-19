@@ -1,5 +1,5 @@
 import { customFetcher } from '@/lib/client/utils/customFetcher'
-import { useCurrentUser } from '@/lib/client/hooks/useCurrentUser'
+import { useAuth } from '@/lib/client/hooks/useAuth'
 import { deleteTrackFromIndexedDB, getTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/db/indexedDB'
 import { state } from '@/lib/client/state'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -9,7 +9,7 @@ import { handleClientError } from '@/lib/client/utils/handleClientError'
 import { useCallback } from 'react'
 
 export const useTrack = () => {
-    const { isMember } = useCurrentUser()
+    const { isMember } = useAuth()
     const snapshot = useSnapshot(state)
 
     const queryClient = useQueryClient()

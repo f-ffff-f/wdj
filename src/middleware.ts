@@ -1,69 +1,86 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { jwtVerify } from 'jose'
-import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
-import { handleServerError } from '@/lib/server/handleServerError'
-import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { getToken } from 'next-auth/jwt'
 
 /**
- * 인증 미들웨어
- * 1. 쿠키에서 토큰 추출
- * 2. 토큰 검증
- * 3. 토큰 디코딩
- * 4. 토큰 검증 실패 시 UnauthorizedError 401 에러 반환
+ * Authentication middleware using NextAuth
+ * 1. Extract JWT token from request
+ * 2. Verify token
+ * 3. Allow access or redirect based on authentication status
  */
 
-const AUTH_BYPASS_PATHS = ['/api/guest/create', '/api/user/login']
+// Routes that don't require authentication
+const PUBLIC_PATHS = ['/', '/signup', '/api/auth']
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET)
-
-async function verifyJWT(token: string) {
-    try {
-        const { payload } = await jwtVerify(token, secret)
-        return payload
-    } catch (error) {
-        throw new UnauthorizedError(UnauthorizedErrorMessage.INVALID_TOKEN)
-    }
-}
+// Routes that should be protected
+const PROTECTED_PATHS = ['/api/tracks', '/api/playlist', '/api/upload']
 
 export async function middleware(request: NextRequest) {
-    if (request.nextUrl.pathname.startsWith('/api')) {
-        if (AUTH_BYPASS_PATHS.includes(request.nextUrl.pathname)) {
-            return NextResponse.next()
-        }
+    const { pathname } = request.nextUrl
 
-        try {
-            // 쿠키에서 토큰 추출 (멤버 토큰 우선)
-            const memberToken = request.cookies.get('memberToken')?.value
-            const guestToken = request.cookies.get('guestToken')?.value
-            const token = memberToken || guestToken
+    // Check if path needs to be protected
+    const isPublicPath = PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))
 
-            if (!token) {
-                throw new UnauthorizedError(UnauthorizedErrorMessage.TOKEN_NOT_EXIST)
-            }
+    const needsProtection = PROTECTED_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))
 
-            if (!process.env.JWT_SECRET) {
-                throw new Error('JWT_SECRET is not defined')
-            }
-
-            const decoded = await verifyJWT(token)
-
-            // 사용자 ID를 헤더에 포함하여 다음 핸들러로 전달
-            const requestHeaders = new Headers(request.headers)
-            requestHeaders.set('x-user-id', decoded.userId as string)
-
-            return NextResponse.next({
-                request: {
-                    headers: requestHeaders,
-                },
-            })
-        } catch (error) {
-            console.error('Middleware error:', error)
-            return handleServerError(error)
-        }
+    if (!needsProtection || isPublicPath) {
+        return NextResponse.next()
     }
 
-    return NextResponse.next()
+    try {
+        // Get the token using NextAuth's getToken helper
+        const token = await getToken({
+            req: request,
+            secret: process.env.JWT_SECRET,
+        })
+
+        if (!token) {
+            // For API routes, return 401 Unauthorized
+            if (pathname.startsWith('/api/')) {
+                return new NextResponse(
+                    JSON.stringify({
+                        success: false,
+                        message: 'Authentication required',
+                    }),
+                    {
+                        status: 401,
+                        headers: { 'content-type': 'application/json' },
+                    },
+                )
+            }
+
+            // For other protected routes, redirect to home
+            return NextResponse.redirect(new URL('/', request.url))
+        }
+
+        // User is authenticated, add userId to headers
+        const requestHeaders = new Headers(request.headers)
+        requestHeaders.set('x-user-id', token.userId as string)
+
+        return NextResponse.next({
+            request: {
+                headers: requestHeaders,
+            },
+        })
+    } catch (error) {
+        console.error('Middleware error:', error)
+
+        // Handle authentication errors
+        if (pathname.startsWith('/api/')) {
+            return new NextResponse(
+                JSON.stringify({
+                    success: false,
+                    message: 'Authentication error',
+                }),
+                {
+                    status: 401,
+                    headers: { 'content-type': 'application/json' },
+                },
+            )
+        }
+
+        return NextResponse.redirect(new URL('/', request.url))
+    }
 }
 
 export const config = {
