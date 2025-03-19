@@ -4,8 +4,12 @@ import { prisma } from '@/lib/shared/prisma'
 import bcryptjs from 'bcryptjs'
 import { Role } from '@prisma/client'
 import { SigninSchema } from '@/lib/shared/validations/userSchemas'
-import { BadRequestError } from '@/lib/shared/errors/CustomError'
-import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { BadRequestError, NotFoundError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
+import {
+    BadRequestErrorMessage,
+    NotFoundErrorMessage,
+    UnauthorizedErrorMessage,
+} from '@/lib/shared/errors/ErrorMessage'
 
 export const authOptions: NextAuthOptions = {
     // Configure one or more authentication providers
@@ -45,12 +49,12 @@ export const authOptions: NextAuthOptions = {
                 })
 
                 if (!user || !user.password) {
-                    return null
+                    throw new NotFoundError(NotFoundErrorMessage.USER_NOT_FOUND)
                 }
 
                 const isPasswordValid = await bcryptjs.compare(parsed.data.password, user.password)
                 if (!isPasswordValid) {
-                    return null
+                    throw new UnauthorizedError(UnauthorizedErrorMessage.INVALID_CREDENTIALS)
                 }
 
                 return {

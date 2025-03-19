@@ -20,8 +20,7 @@ const SigninForm = () => {
             await signIn(data)
             router.push('/main')
         } catch (error) {
-            console.error('Signin error:', error)
-            // Handle errors appropriately
+            alert(error)
         }
     }
 
@@ -30,8 +29,7 @@ const SigninForm = () => {
             await signInAsGuest()
             router.push('/main')
         } catch (error) {
-            console.error('Guest signin error:', error)
-            // Handle errors appropriately
+            alert(error)
         }
     }
 
