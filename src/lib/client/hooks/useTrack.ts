@@ -8,17 +8,19 @@ import { Track } from '@prisma/client'
 import { handleClientError } from '@/lib/client/utils/handleClientError'
 import { useCallback } from 'react'
 
+const BASE_URL = '/api/tracks'
+
 export const useTrack = () => {
-    const { isMember } = useAuth()
+    const { isMember, session } = useAuth()
     const snapshot = useSnapshot(state)
 
     const queryClient = useQueryClient()
-    const queryKey = ['/api/tracks']
+    const dynamicQueryKey = [session?.user.id, BASE_URL]
 
     // 트랙 목록 조회 쿼리
     const tracksQuery = useQuery<Track[]>({
-        queryKey,
-        queryFn: () => customFetcher('/api/tracks'),
+        queryKey: dynamicQueryKey,
+        queryFn: () => customFetcher(BASE_URL),
         retry: false,
         staleTime: 1000 * 60 * 10,
     })
@@ -29,7 +31,7 @@ export const useTrack = () => {
             // 1. db 저장 요청
             const playlistId = snapshot.UI.currentPlaylistId
 
-            const response = await customFetcher('/api/tracks/create', {
+            const response = await customFetcher(`${BASE_URL}/create`, {
                 method: 'POST',
                 body: JSON.stringify({
                     fileName: file.name,
@@ -73,8 +75,10 @@ export const useTrack = () => {
             state.UI.focusedTrackId = response.id
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey })
-            queryClient.invalidateQueries({ queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId] })
+            queryClient.invalidateQueries({ queryKey: dynamicQueryKey })
+            queryClient.invalidateQueries({
+                queryKey: [session?.user.id, '/api/playlist', snapshot.UI.currentPlaylistId],
+            })
         },
     })
 
@@ -83,38 +87,36 @@ export const useTrack = () => {
         mutationFn: async (id: string) => {
             deleteTrackFromIndexedDB(id)
 
-            if (isMember) {
-                return customFetcher(`/api/tracks/${id}/delete`, {
-                    method: 'DELETE',
-                })
-            }
+            return customFetcher(`${BASE_URL}/${id}/delete`, {
+                method: 'DELETE',
+            })
         },
         onMutate: async (id) => {
-            await queryClient.cancelQueries({ queryKey })
+            await queryClient.cancelQueries({ queryKey: dynamicQueryKey })
 
-            const previousTracks = queryClient.getQueryData<Track[]>(queryKey)
-            queryClient.setQueryData<Track[]>(queryKey, (old = []) => old.filter((track) => track.id !== id))
+            const previousTracks = queryClient.getQueryData<Track[]>(dynamicQueryKey)
+            queryClient.setQueryData<Track[]>(dynamicQueryKey, (old = []) => old.filter((track) => track.id !== id))
 
             return { previousTracks }
         },
         onError: (error, id, context) => {
-            queryClient.setQueryData(queryKey, context?.previousTracks)
+            queryClient.setQueryData(dynamicQueryKey, context?.previousTracks)
             alert(error)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey })
+            queryClient.invalidateQueries({ queryKey: dynamicQueryKey })
         },
     })
 
     // 모든 트랙 삭제
     const deleteAllTracksMutation = useMutation({
         mutationFn: async () => {
-            return customFetcher('/api/tracks/delete', {
+            return customFetcher(`${BASE_URL}/delete`, {
                 method: 'DELETE',
             })
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey })
+            queryClient.invalidateQueries({ queryKey: dynamicQueryKey })
         },
     })
 
@@ -126,7 +128,7 @@ export const useTrack = () => {
                 return blob
             } else {
                 if (isMember) {
-                    const response = await customFetcher(`/api/tracks/${id}/presigned-url`, {
+                    const response = await customFetcher(`${BASE_URL}/${id}/presigned-url`, {
                         method: 'GET',
                     })
 
