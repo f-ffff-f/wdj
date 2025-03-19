@@ -9,7 +9,6 @@ import { Role } from '@prisma/client'
 
 export async function POST(request: Request) {
     try {
-        console.log(request)
         const body = await request.json()
         const parseResult = CreateUserSchema.safeParse(body)
         if (!parseResult.success) {
@@ -35,7 +34,7 @@ export async function POST(request: Request) {
             },
         })
 
-        return NextResponse.json({ message: 'User created', user }, { status: 201 })
+        return NextResponse.json(user)
     } catch (error) {
         console.error('User creation error:', error)
         return handleServerError(error)
