@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
+import { handleServerError } from '@/lib/server/handleServerError'
+import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
+import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 
 /**
  * Authentication middleware using NextAuth
@@ -9,21 +12,14 @@ import { getToken } from 'next-auth/jwt'
  * 3. Allow access or redirect based on authentication status
  */
 
-// Routes that don't require authentication
-const PUBLIC_PATHS = ['/', '/signup', '/api/auth']
-
 // Routes that should be protected
-const PROTECTED_PATHS = ['/api/tracks', '/api/playlist', '/api/upload']
+const PROTECTED_API_PATH = ['/api/tracks', '/api/playlist', '/api/upload']
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl
+    const needsProtection = PROTECTED_API_PATH.some((path) => pathname === path || pathname.startsWith(`${path}/`))
 
-    // Check if path needs to be protected
-    const isPublicPath = PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))
-
-    const needsProtection = PROTECTED_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`))
-
-    if (!needsProtection || isPublicPath) {
+    if (!needsProtection) {
         return NextResponse.next()
     }
 
@@ -48,9 +44,7 @@ export async function middleware(request: NextRequest) {
                     },
                 )
             }
-
-            // For other protected routes, redirect to home
-            return NextResponse.redirect(new URL('/', request.url))
+            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
         }
 
         // User is authenticated, add userId to headers
@@ -64,22 +58,7 @@ export async function middleware(request: NextRequest) {
         })
     } catch (error) {
         console.error('Middleware error:', error)
-
-        // Handle authentication errors
-        if (pathname.startsWith('/api/')) {
-            return new NextResponse(
-                JSON.stringify({
-                    success: false,
-                    message: 'Authentication error',
-                }),
-                {
-                    status: 401,
-                    headers: { 'content-type': 'application/json' },
-                },
-            )
-        }
-
-        return NextResponse.redirect(new URL('/', request.url))
+        return handleServerError(error)
     }
 }
 

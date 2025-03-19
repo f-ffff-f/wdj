@@ -1,7 +1,8 @@
 import { Role } from '@prisma/client'
 import { signIn, signOut, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-
+import { LoginSchema } from '@/lib/shared/validations/userSchemas'
+import { z } from 'zod'
 /**
  * Custom authentication hook that wraps NextAuth's useSession
  * Provides convenient methods for login, logout, and checking authentication status
@@ -18,11 +19,10 @@ export const useAuth = () => {
     /**
      * Login with credentials
      */
-    const login = async (email: string, password: string) => {
+    const login = async (data: z.infer<typeof LoginSchema>) => {
         try {
             const result = await signIn('credentials', {
-                email,
-                password,
+                ...data,
                 redirect: false,
             })
 
@@ -43,8 +43,8 @@ export const useAuth = () => {
     const loginAsGuest = async () => {
         try {
             const result = await signIn('credentials', {
-                email: 'guest',
-                password: 'guest',
+                email: '',
+                password: '',
                 redirect: false,
             })
 

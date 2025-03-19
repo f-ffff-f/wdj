@@ -6,41 +6,31 @@ import { Input } from '@/components/ui/input'
 import { useAuth } from '@/lib/client/hooks/useAuth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { LoginSchema } from '@/lib/shared/validations/userSchemas'
 
-type LoginFormValues = z.infer<typeof LoginSchema>
-
 const LoginForm = () => {
-    const { login, loginAsGuest } = useAuth()
-    const [isPending, setIsPending] = useState(false)
+    const { login, loginAsGuest, isLoading } = useAuth()
 
-    const onSubmit = async (data: LoginFormValues) => {
+    const onSubmit = async (data: z.infer<typeof LoginSchema>) => {
         try {
-            setIsPending(true)
-            await login(data.email, data.password)
+            await login(data)
         } catch (error) {
             console.error('Login error:', error)
             // Handle errors appropriately
-        } finally {
-            setIsPending(false)
         }
     }
 
     const handleGuestLogin = async () => {
         try {
-            setIsPending(true)
             await loginAsGuest()
         } catch (error) {
             console.error('Guest login error:', error)
-        } finally {
-            setIsPending(false)
         }
     }
 
-    const form = useForm<LoginFormValues>({
+    const form = useForm<z.infer<typeof LoginSchema>>({
         resolver: zodResolver(LoginSchema),
         defaultValues: {
             email: '',
@@ -58,7 +48,7 @@ const LoginForm = () => {
                         <FormItem>
                             <FormLabel>email</FormLabel>
                             <FormControl>
-                                <Input type="email" disabled={isPending} {...field} />
+                                <Input type="email" disabled={isLoading} {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
@@ -71,15 +61,15 @@ const LoginForm = () => {
                         <FormItem>
                             <FormLabel>password</FormLabel>
                             <FormControl>
-                                <Input type="password" disabled={isPending} {...field} />
+                                <Input type="password" disabled={isLoading} {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}
                 />
                 <div className="flex flex-col gap-2">
-                    <Button type="submit" className="w-full" disabled={isPending}>
-                        {isPending ? 'Logging in...' : 'Login'}
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? 'Logging in...' : 'Login'}
                     </Button>
                     <div className="flex justify-between">
                         <Button
@@ -87,7 +77,7 @@ const LoginForm = () => {
                             variant="outline"
                             size="sm"
                             onClick={handleGuestLogin}
-                            disabled={isPending}
+                            disabled={isLoading}
                         >
                             Continue as Guest
                         </Button>

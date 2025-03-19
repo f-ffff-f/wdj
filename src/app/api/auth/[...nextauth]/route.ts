@@ -23,15 +23,12 @@ const authOptions: NextAuthOptions = {
                 }
 
                 // Handle guest authentication
-                if (
-                    parsed.data.email === process.env.GUEST_EMAIL &&
-                    parsed.data.password === process.env.GUEST_PASSWORD
-                ) {
+                if (parsed.data.email === '' && parsed.data.password === '') {
                     const guestUser = await prisma.user.create({
                         data: {
-                            role: Role.GUEST,
                             email: null,
                             password: null,
+                            role: Role.GUEST,
                         },
                     })
 
