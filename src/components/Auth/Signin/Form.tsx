@@ -9,13 +9,16 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { SigninSchema } from '@/lib/shared/validations/userSchemas'
+import { useRouter } from 'next/navigation'
 
 const SigninForm = () => {
     const { signIn, signInAsGuest, isLoading } = useAuth()
+    const router = useRouter()
 
     const onSubmit = async (data: z.infer<typeof SigninSchema>) => {
         try {
             await signIn(data)
+            router.push('/main')
         } catch (error) {
             console.error('Signin error:', error)
             // Handle errors appropriately
@@ -25,8 +28,10 @@ const SigninForm = () => {
     const handleGuestSignIn = async () => {
         try {
             await signInAsGuest()
+            router.push('/main')
         } catch (error) {
             console.error('Guest signin error:', error)
+            // Handle errors appropriately
         }
     }
 
