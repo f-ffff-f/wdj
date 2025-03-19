@@ -3,6 +3,9 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/shared/prisma'
 import bcryptjs from 'bcryptjs'
 import { Role } from '@prisma/client'
+import { LoginSchema } from '@/lib/shared/validations/userSchemas'
+import { BadRequestError } from '@/lib/shared/errors/CustomError'
+import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 
 const authOptions: NextAuthOptions = {
     // Configure one or more authentication providers
@@ -14,13 +17,16 @@ const authOptions: NextAuthOptions = {
                 password: { label: 'Password', type: 'password' },
             },
             async authorize(credentials) {
-                if (!credentials?.email || !credentials?.password) {
-                    return null
+                const parsed = LoginSchema.safeParse(credentials)
+                if (!parsed.success) {
+                    throw new BadRequestError(BadRequestErrorMessage.INVALID_INPUT)
                 }
 
                 // Handle guest authentication
-                if (credentials.email === 'guest' && credentials.password === 'guest') {
-                    // Create a new guest user
+                if (
+                    parsed.data.email === process.env.GUEST_EMAIL &&
+                    parsed.data.password === process.env.GUEST_PASSWORD
+                ) {
                     const guestUser = await prisma.user.create({
                         data: {
                             role: Role.GUEST,
@@ -36,18 +42,16 @@ const authOptions: NextAuthOptions = {
                     }
                 }
 
-                // Find user by email
+                // Handle regular user authentication
                 const user = await prisma.user.findUnique({
-                    where: { email: credentials.email },
+                    where: { email: parsed.data.email },
                 })
 
-                // Check if user exists and validate password
                 if (!user || !user.password) {
                     return null
                 }
 
-                const isPasswordValid = await bcryptjs.compare(credentials.password, user.password)
-
+                const isPasswordValid = await bcryptjs.compare(parsed.data.password, user.password)
                 if (!isPasswordValid) {
                     return null
                 }

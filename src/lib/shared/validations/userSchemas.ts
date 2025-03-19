@@ -9,7 +9,14 @@ export const CreateUserSchema = z.object({
     password: PasswordSchema,
 })
 
-export const LoginSchema = z.object({
-    email: EmailSchema,
-    password: PasswordSchema,
+const GuestLoginSchema = z.object({
+    email: z.literal(process.env.GUEST_EMAIL!),
+    password: z.literal(process.env.GUEST_PASSWORD!),
 })
+
+const RegularLoginSchema = z.object({
+    email: z.string().email({ message: BadRequestErrorMessage.INVALID_EMAIL }),
+    password: z.string().min(8, { message: BadRequestErrorMessage.INVALID_PASSWORD }),
+})
+
+export const LoginSchema = z.union([GuestLoginSchema, RegularLoginSchema])
