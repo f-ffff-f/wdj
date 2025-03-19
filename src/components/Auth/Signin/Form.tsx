@@ -8,30 +8,30 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-import { LoginSchema } from '@/lib/shared/validations/userSchemas'
+import { SigninSchema } from '@/lib/shared/validations/userSchemas'
 
-const LoginForm = () => {
-    const { login, loginAsGuest, isLoading } = useAuth()
+const SigninForm = () => {
+    const { signIn, signInAsGuest, isLoading } = useAuth()
 
-    const onSubmit = async (data: z.infer<typeof LoginSchema>) => {
+    const onSubmit = async (data: z.infer<typeof SigninSchema>) => {
         try {
-            await login(data)
+            await signIn(data)
         } catch (error) {
-            console.error('Login error:', error)
+            console.error('Signin error:', error)
             // Handle errors appropriately
         }
     }
 
-    const handleGuestLogin = async () => {
+    const handleGuestSignIn = async () => {
         try {
-            await loginAsGuest()
+            await signInAsGuest()
         } catch (error) {
-            console.error('Guest login error:', error)
+            console.error('Guest signin error:', error)
         }
     }
 
-    const form = useForm<z.infer<typeof LoginSchema>>({
-        resolver: zodResolver(LoginSchema),
+    const form = useForm<z.infer<typeof SigninSchema>>({
+        resolver: zodResolver(SigninSchema),
         defaultValues: {
             email: '',
             password: '',
@@ -76,7 +76,7 @@ const LoginForm = () => {
                             type="button"
                             variant="outline"
                             size="sm"
-                            onClick={handleGuestLogin}
+                            onClick={handleGuestSignIn}
                             disabled={isLoading}
                         >
                             Continue as Guest
@@ -91,4 +91,4 @@ const LoginForm = () => {
     )
 }
 
-export default LoginForm
+export default SigninForm

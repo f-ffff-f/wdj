@@ -1,11 +1,11 @@
 import { Role } from '@prisma/client'
-import { signIn, signOut, useSession } from 'next-auth/react'
+import { signIn as signInNextAuth, signOut as signOutNextAuth, useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { LoginSchema } from '@/lib/shared/validations/userSchemas'
+import { SigninSchema } from '@/lib/shared/validations/userSchemas'
 import { z } from 'zod'
 /**
  * Custom authentication hook that wraps NextAuth's useSession
- * Provides convenient methods for login, logout, and checking authentication status
+ * Provides convenient methods for signin, signout, and checking authentication status
  */
 export const useAuth = () => {
     const { data: session, status } = useSession()
@@ -17,11 +17,11 @@ export const useAuth = () => {
     const isGuest = session?.user?.role === Role.GUEST
 
     /**
-     * Login with credentials
+     * Sign In with credentials
      */
-    const login = async (data: z.infer<typeof LoginSchema>) => {
+    const signIn = async (data: z.infer<typeof SigninSchema>) => {
         try {
-            const result = await signIn('credentials', {
+            const result = await signInNextAuth('credentials', {
                 ...data,
                 redirect: false,
             })
@@ -32,17 +32,17 @@ export const useAuth = () => {
 
             return result
         } catch (error) {
-            console.error('Login error:', error)
+            console.error('Signin error:', error)
             throw error
         }
     }
 
     /**
-     * Create and login as guest user
+     * Create and Sign In as guest user
      */
-    const loginAsGuest = async () => {
+    const signInAsGuest = async () => {
         try {
-            const result = await signIn('credentials', {
+            const result = await signInNextAuth('credentials', {
                 email: '',
                 password: '',
                 redirect: false,
@@ -54,17 +54,17 @@ export const useAuth = () => {
 
             return result
         } catch (error) {
-            console.error('Guest login error:', error)
+            console.error('Guest signin error:', error)
             throw error
         }
     }
 
     /**
-     * Logout current user
+     * Sign Out current user
      */
-    const logout = async () => {
+    const signOut = async () => {
         try {
-            await signOut({ redirect: false })
+            await signOutNextAuth({ redirect: false })
             router.refresh()
         } catch (error) {
             console.error('Logout error:', error)
@@ -79,8 +79,8 @@ export const useAuth = () => {
         isAuthenticated,
         isMember,
         isGuest,
-        login,
-        loginAsGuest,
-        logout,
+        signIn,
+        signInAsGuest,
+        signOut,
     }
 }

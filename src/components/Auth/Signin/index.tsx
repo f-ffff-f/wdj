@@ -1,11 +1,11 @@
-import LoginForm from '@/components/Auth/Login/Form'
+import SigninForm from '@/components/Auth/Signin/Form'
 import { Button } from '@/components/ui/button'
 import { SidebarGroupLabel } from '@/components/ui/sidebar'
 import { useAuth } from '@/lib/client/hooks/useAuth'
 import { LoaderCircle } from 'lucide-react'
 
-const Auth = () => {
-    const { user, isLoading, isMember, logout } = useAuth()
+const Signin = () => {
+    const { user, isLoading, signOut } = useAuth()
 
     if (isLoading)
         return (
@@ -16,16 +16,16 @@ const Auth = () => {
 
     return (
         <div>
-            {isMember ? (
+            {user ? (
                 <div className="flex items-center justify-between">
-                    <SidebarGroupLabel>{user?.email || 'Member'}</SidebarGroupLabel>
-                    <Button onClick={logout}>Logout</Button>
+                    <SidebarGroupLabel>{user?.email || 'Guest'}</SidebarGroupLabel>
+                    <Button onClick={signOut}>Logout</Button>
                 </div>
             ) : (
-                <LoginForm />
+                <SigninForm />
             )}
         </div>
     )
 }
 
-export default Auth
+export default Signin

@@ -1,4 +1,4 @@
-import Auth from '@/components/AppSidebar/Auth'
+import SignIn from '@/components/Auth/Signin'
 import Playlist from '@/components/AppSidebar/Playlist'
 import Preference from '@/components/AppSidebar/Preference'
 import { Separator } from '@/components/ui/separator'
@@ -9,7 +9,7 @@ const AppSidebar = () => {
         <Sidebar variant="floating">
             <SidebarContent>
                 <SidebarGroup>
-                    <Auth />
+                    <SignIn />
                 </SidebarGroup>
                 <Separator />
                 <SidebarGroup>

@@ -3,7 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/shared/prisma'
 import bcryptjs from 'bcryptjs'
 import { Role } from '@prisma/client'
-import { LoginSchema } from '@/lib/shared/validations/userSchemas'
+import { SigninSchema } from '@/lib/shared/validations/userSchemas'
 import { BadRequestError } from '@/lib/shared/errors/CustomError'
 import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 
@@ -17,7 +17,7 @@ const authOptions: NextAuthOptions = {
                 password: { label: 'Password', type: 'password' },
             },
             async authorize(credentials) {
-                const parsed = LoginSchema.safeParse(credentials)
+                const parsed = SigninSchema.safeParse(credentials)
                 if (!parsed.success) {
                     throw new BadRequestError(BadRequestErrorMessage.INVALID_INPUT)
                 }
