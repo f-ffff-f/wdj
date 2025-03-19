@@ -4,31 +4,6 @@ import { prisma } from '@/lib/shared/prisma'
 import bcryptjs from 'bcryptjs'
 import { Role } from '@prisma/client'
 
-// Extend NextAuth types
-declare module 'next-auth' {
-    interface User {
-        role: Role
-        id: string
-    }
-
-    interface Session {
-        user: {
-            id: string
-            role: Role
-            email?: string | null
-            name?: string | null
-            image?: string | null
-        }
-    }
-}
-
-declare module 'next-auth/jwt' {
-    interface JWT {
-        userId: string
-        role: Role
-    }
-}
-
 const authOptions: NextAuthOptions = {
     // Configure one or more authentication providers
     providers: [
