@@ -3,7 +3,7 @@ import SigninForm from '@/components/Auth/Signin/Form'
 
 const Signin = () => {
     return (
-        <div className="max-w-md m-auto">
+        <div className="max-w-md m-auto p-4">
             <SigninForm />
         </div>
     )

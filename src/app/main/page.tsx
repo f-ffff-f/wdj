@@ -14,15 +14,14 @@ const DJController = dynamic(() => import('@/components/DJController'), { ssr: f
 
 const Main = () => {
     const isMobile = useIsMobile()
-    const { user, isLoading } = useAuth()
+    const { user } = useAuth()
     const router = useRouter()
 
     useEffect(() => {
-        if (isLoading) return
         if (!user) {
             router.push('/')
         }
-    }, [user, isLoading, router])
+    }, [user, router])
     return (
         <SidebarProvider defaultOpen={true}>
             <AppSidebar />
