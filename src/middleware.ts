@@ -1,69 +1,65 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { jwtVerify } from 'jose'
-import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
+import { getToken } from 'next-auth/jwt'
 import { handleServerError } from '@/lib/server/handleServerError'
+import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 
 /**
- * 인증 미들웨어
- * 1. 쿠키에서 토큰 추출
- * 2. 토큰 검증
- * 3. 토큰 디코딩
- * 4. 토큰 검증 실패 시 UnauthorizedError 401 에러 반환
+ * Authentication middleware using NextAuth
+ * 1. Extract JWT token from request
+ * 2. Verify token
+ * 3. Allow access or redirect based on authentication status
  */
 
-const AUTH_BYPASS_PATHS = ['/api/guest/create', '/api/user/login']
-
-const secret = new TextEncoder().encode(process.env.JWT_SECRET)
-
-async function verifyJWT(token: string) {
-    try {
-        const { payload } = await jwtVerify(token, secret)
-        return payload
-    } catch (error) {
-        throw new UnauthorizedError(UnauthorizedErrorMessage.INVALID_TOKEN)
-    }
-}
+// Routes that should be protected
+const PROTECTED_API_PATH = ['/api/tracks', '/api/playlist', '/api/upload']
 
 export async function middleware(request: NextRequest) {
-    if (request.nextUrl.pathname.startsWith('/api')) {
-        if (AUTH_BYPASS_PATHS.includes(request.nextUrl.pathname)) {
-            return NextResponse.next()
-        }
+    const { pathname } = request.nextUrl
+    const needsProtection = PROTECTED_API_PATH.some((path) => pathname === path || pathname.startsWith(`${path}/`))
 
-        try {
-            // 쿠키에서 토큰 추출 (멤버 토큰 우선)
-            const memberToken = request.cookies.get('memberToken')?.value
-            const guestToken = request.cookies.get('guestToken')?.value
-            const token = memberToken || guestToken
-
-            if (!token) {
-                throw new UnauthorizedError(UnauthorizedErrorMessage.TOKEN_NOT_EXIST)
-            }
-
-            if (!process.env.JWT_SECRET) {
-                throw new Error('JWT_SECRET is not defined')
-            }
-
-            const decoded = await verifyJWT(token)
-
-            // 사용자 ID를 헤더에 포함하여 다음 핸들러로 전달
-            const requestHeaders = new Headers(request.headers)
-            requestHeaders.set('x-user-id', decoded.userId as string)
-
-            return NextResponse.next({
-                request: {
-                    headers: requestHeaders,
-                },
-            })
-        } catch (error) {
-            console.error('Middleware error:', error)
-            return handleServerError(error)
-        }
+    if (!needsProtection) {
+        return NextResponse.next()
     }
 
-    return NextResponse.next()
+    try {
+        // Get the token using NextAuth's getToken helper
+        const token = await getToken({
+            req: request,
+            secret: process.env.JWT_SECRET,
+        })
+
+        if (!token) {
+            // For API routes, return 401 Unauthorized
+            if (pathname.startsWith('/api/')) {
+                return new NextResponse(
+                    JSON.stringify({
+                        success: false,
+                        message: 'Authentication required',
+                    }),
+                    {
+                        status: 401,
+                        headers: { 'content-type': 'application/json' },
+                    },
+                )
+            }
+            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
+        }
+
+        // User is authenticated, add userId to headers
+        const requestHeaders = new Headers(request.headers)
+        requestHeaders.set('x-user-id', token.userId as string)
+
+        return NextResponse.next({
+            request: {
+                headers: requestHeaders,
+            },
+        })
+    } catch (error) {
+        console.error('Middleware error:', error)
+        return handleServerError(error)
+    }
 }
 
 export const config = {

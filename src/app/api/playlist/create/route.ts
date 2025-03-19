@@ -16,7 +16,7 @@ import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
 export async function POST(request: Request) {
     try {
         // 토큰에서 사용자 ID 확인
-        const headersList = headers()
+        const headersList = await headers()
         const userId = getUserIdFromRequest(headersList)
 
         if (!userId) {

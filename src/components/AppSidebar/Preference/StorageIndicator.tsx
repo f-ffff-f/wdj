@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { DialogDescription } from '@/components/ui/dialog'
 import { SidebarGroupLabel } from '@/components/ui/sidebar'
 import { clearAllTracksFromIndexedDB } from '@/lib/client/db/indexedDB'
-import { useCurrentUser } from '@/lib/client/hooks/useCurrentUser'
+import { useAuth } from '@/lib/client/hooks/useAuth'
 import { useTrack } from '@/lib/client/hooks/useTrack'
 import { state, updateStorageEstimate } from '@/lib/client/state'
 import { Trash } from 'lucide-react'
@@ -11,7 +11,7 @@ import { useSnapshot } from 'valtio'
 
 const StorageIndicator = () => {
     const snapshot = useSnapshot(state)
-    const { isMember } = useCurrentUser()
+    const { isMember } = useAuth()
     const { deleteAllTracks } = useTrack()
 
     const handleClearAllTracksFromIndexedDB = async () => {
