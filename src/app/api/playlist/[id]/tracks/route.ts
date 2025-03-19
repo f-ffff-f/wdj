@@ -19,7 +19,7 @@ import { TrackIdsSchema } from '@/lib/shared/validations/trackSchema'
  * 인증된 사용자만 자신의 플레이리스트에 트랙 추가 가능
  */
 export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
-    const params = await props.params;
+    const params = await props.params
     try {
         // 인증 처리
         const headersList = await headers()
@@ -73,7 +73,7 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
  * 특정 플레이리스트의 트랙 목록 조회 API
  */
 export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
-    const params = await props.params;
+    const params = await props.params
     try {
         const headersList = await headers()
         const userId = getUserIdFromRequest(headersList)
@@ -112,7 +112,7 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
  * 플레이리스트에서 트랙 삭제 API
  */
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
-    const params = await props.params;
+    const params = await props.params
     try {
         // 인증 처리
         const headersList = await headers()
