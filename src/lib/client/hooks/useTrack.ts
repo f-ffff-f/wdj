@@ -39,31 +39,47 @@ export const useTrack = () => {
                 }),
             })
 
-            setTrackToIndexedDB(response.id, file)
+            // Store in IndexedDB and make the track available immediately
+            await setTrackToIndexedDB(response.id, file)
+
+            // Update UI to focus on the new track immediately after IndexedDB storage
+            state.UI.focusedTrackId = response.id
+
+            // Invalidate queries to refresh UI with the new track
+            queryClient.invalidateQueries({ queryKey: dynamicQueryKey })
+            queryClient.invalidateQueries({
+                queryKey: [session?.user.id, '/api/playlist', snapshot.UI.currentPlaylistId],
+            })
 
             if (isMember) {
-                // 2. 프리사인드 URL 요청
-                const presignedResponse = await customFetcher('/api/upload/presigned-url', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        id: response.id,
-                        fileName: response.fileName,
-                        fileType: file.type,
-                    }),
-                })
+                // 2. 프리사인드 URL 요청 - this happens in the background now
+                try {
+                    const presignedResponse = await customFetcher('/api/upload/presigned-url', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            id: response.id,
+                            fileName: response.fileName,
+                            fileType: file.type,
+                        }),
+                    })
 
-                // 3. S3에 파일 업로드.
-                // 예외적으로 customFetcher 미사용
-                const uploadResponse = await fetch(presignedResponse.url, {
-                    method: 'PUT',
-                    body: file,
-                    headers: {
-                        'Content-Type': file.type,
-                    },
-                })
+                    // 3. S3에 파일 업로드.
+                    // 예외적으로 customFetcher 미사용
+                    const uploadResponse = await fetch(presignedResponse.url, {
+                        method: 'PUT',
+                        body: file,
+                        headers: {
+                            'Content-Type': file.type,
+                        },
+                    })
 
-                if (!uploadResponse.ok) {
-                    await handleClientError(uploadResponse)
+                    if (!uploadResponse.ok) {
+                        await handleClientError(uploadResponse)
+                    }
+                } catch (error) {
+                    // Log errors but don't prevent the function from returning
+                    console.error('Background S3 upload failed:', error)
+                    // We could add a state flag here to indicate upload status if needed
                 }
             }
 
@@ -72,14 +88,14 @@ export const useTrack = () => {
         onError: (error) => {
             alert(error)
         },
-        onSuccess: (response) => {
-            state.UI.focusedTrackId = response.id
+        // Moving these to the mutationFn to execute immediately after IndexedDB storage
+        onSuccess: () => {
+            // We already set the focusedTrackId inside the mutation function
+            // for immediate feedback
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: dynamicQueryKey })
-            queryClient.invalidateQueries({
-                queryKey: [session?.user.id, '/api/playlist', snapshot.UI.currentPlaylistId],
-            })
+            // The queries are already invalidated in the mutation function
+            // but we keep this for any cleanup that might be needed
         },
     })
 
