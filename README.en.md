@@ -10,109 +10,121 @@ A modern DJ mixing web application that runs in the browser.
 
 ## Getting Started
 
-1. Press Enter or click "Choose File" to upload an audio file
-2. Load the audio file onto a deck using left/right arrow keys or edge buttons
-3. Return to Step 1
-4. Load another audio file onto the opposite deck
+1. Start as a **Guest** or **Log in**.
+2. Press Enter or click "Choose File" to upload an audio file.
+3. Load the audio file onto a deck using left/right arrow keys or edge buttons.
+4. Return to Step 2 and load another audio file onto the opposite deck.
 
 ## Tech Stack
 
--   [Next.js 14](https://nextjs.org/)
--   [TypeScript](https://www.typescriptlang.org/)
--   [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)
--   [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API)
--   [Valtio](https://github.com/pmndrs/valtio)
--   [TailwindCSS](https://tailwindcss.com/)
--   [Prisma](https://www.prisma.io)
--   [PostgreSQL](https://www.postgresql.org)
--   [Playwright](https://playwright.dev)
+- [Next.js 15](https://nextjs.org/) - Full-stack framework
+- [TypeScript](https://www.typescriptlang.org/) - Static type system
+- [React Query](https://tanstack.com/query/latest) - Server state management
+- [Valtio](https://github.com/pmndrs/valtio) - Client state management
+- [NextAuth](https://next-auth.js.org/) - Authentication system
+- [Prisma](https://www.prisma.io) - ORM
+- [PostgreSQL](https://www.postgresql.org) - Database
+- [Zod](https://zod.dev/) - Schema validation
+- [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) - Audio processing
+- [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) - Audio graph visualization
+- [TailwindCSS](https://tailwindcss.com/) - UI styling
+- [shadcn/ui](https://ui.shadcn.com/) - UI components
+- [Playwright](https://playwright.dev) - E2E testing
 
 ## System Architecture
 
-### 1. Frontend Architecture
+### 1. Shared Architecture
 
-#### 1.1 UI/UX
+1. **NextAuth**
 
--   Modern UI implementation using Tailwind CSS and shadcn/ui
-    -   Dark/Light mode support
-    -   Responsive design
-    -   Reusable component system
+    - Supports OAuth and credential-based login
+    - Middleware-based session management and authentication protection
 
-#### 1.2 Audio Processing System
+2. **Zod**
+    - Validates user input on the frontend
+    - Ensures API request and response data integrity on the backend
+    - Integrated with Prisma for safe database interactions
 
--   [decko](https://www.npmjs.com/package/@ghr95223/decko) package
-    -   Custom-built package based on Web Audio API
-    -   Implements DJ features: seek, crossfade, volume control, speed adjustment
+---
 
-#### 1.3 State Management
+### 2. Frontend Architecture
 
--   Global state management with Valtio
--   Server state management using React Query
--   Local audio file caching with IndexedDB
+1. **UI/UX**
 
-### 2. Backend Architecture
+    - Modern UI built with Tailwind CSS and shadcn/ui
+    - Dark/Light mode support
+    - Responsive design
+    - Reusable component system
 
-#### 2.1 Authentication System
+2. **Audio Processing System**
 
--   JWT-based authentication
--   Guest/Member role distinction
--   Authentication handling through middleware
+    - [decko](https://www.npmjs.com/package/@ghr95223/decko)
+        - Custom-built package based on Web Audio API
+        - Implements DJ features: seek, crossfade, volume control, speed adjustment
 
-#### 2.2 Database Design
+3. **State Management**
+    - Server state management using React Query
+        - Caches API responses for optimized performance
+        - Automatic refetching and synchronization
+        - Ensures consistency in asynchronous data handling
+        - Improves UX with optimistic rendering
+    - Global state management using Valtio
+    - Local audio file caching using IndexedDB
 
--   Type safety using Prisma ORM
--   PostgreSQL database implementation
+---
 
-### 3. Infrastructure
+### 3. Backend Architecture
 
-#### 3.1 Serverless Deployment
+1. **Authentication System**
 
--   Serverless deployment using Vercel
-    -   Utilizing Next.js Edge Runtime
-    -   Automated CI/CD pipeline
-    -   Global CDN for static assets
+    - JWT-based authentication
+    - Middleware-based authentication protection
 
-#### 3.2 Database
+2. **Database Design**
+    - Type-safe database interaction using Prisma ORM
+    - PostgreSQL database implementation
 
--   Neon Serverless PostgreSQL
-    -   Auto-scaling capabilities
-    -   Development/Production environment separation using branching
-    -   Global region support
+---
 
-#### 3.3 Storage
+### 4. Infrastructure
 
--   Audio file storage using AWS S3
--   Enhanced security with Presigned URLs
+1. **Serverless Deployment**
 
-#### 3.4 Containerization
+    - Deployed on Vercel
+    - Utilizes Next.js Edge Runtime
+    - Automated CI/CD pipeline
+    - Global CDN for static assets
 
--   Local development environment using Docker and Docker Compose
--   Development/Production environment consistency
+2. **Cloud Database**
 
-### 4. Testing and Quality Control
+    - Neon Serverless PostgreSQL
+        - Auto-scaling
+        - Branching support for development and production environments
+        - Global region support
 
--   E2E testing with Playwright
+3. **Cloud Storage**
 
-## Development Status
+    - Audio file storage using AWS S3
+    - Enhanced security with Presigned URLs
 
--   [x] DJ App Core
--   [x] Backend
-    -   [x] Advanced features
--   [x] Full refactoring
--   [x] Responsive UI
--   [x] Core module packaging
--   [ ] User registration
--   [ ] SEO implementation
--   [ ] Achieve 100% test coverage
--   [ ] MIDI controls
+4. **Containerized Development Environment**
+    - Local development environment using Docker and Docker Compose
+    - Ensures consistency across development and production environments
+
+---
+
+### 5. Testing & Quality Assurance
+
+1. **E2E Testing**
+    - Comprehensive UI and functionality testing using Playwright
 
 ## Getting Started with Development
 
-Prerequisites
+### Prerequisites
 
--   **Docker** and **Docker Compose** must be installed
+- **Docker** and **Docker Compose** must be installed.
 
-Basic Commands
+### Basic Commands
 
 ```sh
 # Start containers in detached mode
@@ -130,8 +142,8 @@ docker-compose start
 
 ## License
 
-GPL (GNU General Public License) - See [LICENSE](LICENSE) file for details.
+GPL (GNU General Public License) - See the [LICENSE](LICENSE) file for details.
 
 ## Credits
 
-This project is based on [create-next-app](https://github.com/vercel/next.js/tree/canary/packages/create-next-app)
+This project is based on [create-next-app](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
