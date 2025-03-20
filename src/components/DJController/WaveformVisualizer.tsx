@@ -1,3 +1,4 @@
+import WaveformSkeleton from '@/components/DJController/WaveformSkeleton'
 import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
 
@@ -6,6 +7,7 @@ const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const audioBuffer = deckoSingleton.getAudioBuffer(deckId)
     const playbackTime = deckoSingleton.getPlaybackTime(deckId)
+    const isTrackLoading = deckoSingleton.isTrackLoading(deckId)
 
     const [isDragging, setIsDragging] = useState(false)
     const [dragX, setDragX] = useState<number | null>(null)
@@ -121,14 +123,18 @@ const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
 
     return (
         <div ref={containerRef} className="max-md:w-full md:flex-1">
-            <canvas
-                ref={canvasRef}
-                width="100%"
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={handleMouseUp}
-                onMouseLeave={handleMouseUp} // 드래그 중 캔버스 벗어나도 정리
-            />
+            {isTrackLoading ? (
+                <WaveformSkeleton />
+            ) : (
+                <canvas
+                    ref={canvasRef}
+                    width="100%"
+                    onMouseDown={handleMouseDown}
+                    onMouseMove={handleMouseMove}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseUp} // 드래그 중 캔버스 벗어나도 정리
+                />
+            )}
         </div>
     )
 }
