@@ -16,7 +16,6 @@ export const useSignupMutation = (handleSuccess?: (data: User) => void) => {
             })
         },
         onSuccess: (data) => {
-            console.log('signup success', data)
             if (handleSuccess) handleSuccess(data)
         },
         onError: (error) => {
