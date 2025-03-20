@@ -70,21 +70,15 @@ const SigninForm = () => {
                         </FormItem>
                     )}
                 />
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1">
                     <Button type="submit" className="w-full" disabled={isLoading}>
                         Login
                     </Button>
-                    <div className="flex justify-between">
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={handleGuestSignIn}
-                            disabled={isLoading}
-                        >
+                    <div className="flex flex-col items-end gap-2">
+                        <Button type="button" variant="link" size="sm" onClick={handleGuestSignIn} disabled={isLoading}>
                             Continue as Guest
                         </Button>
-                        <Button asChild variant="link" size="sm">
+                        <Button variant="link" size="sm">
                             <Link href="/signup">Sign Up</Link>
                         </Button>
                     </div>
