@@ -88,15 +88,6 @@ export const useTrack = () => {
         onError: (error) => {
             alert(error)
         },
-        // Moving these to the mutationFn to execute immediately after IndexedDB storage
-        onSuccess: () => {
-            // We already set the focusedTrackId inside the mutation function
-            // for immediate feedback
-        },
-        onSettled: () => {
-            // The queries are already invalidated in the mutation function
-            // but we keep this for any cleanup that might be needed
-        },
     })
 
     // 트랙 삭제 뮤테이션
