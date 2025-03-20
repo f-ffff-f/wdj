@@ -52,7 +52,8 @@ export const useTrack = () => {
                     }),
                 })
 
-                // 3. S3에 파일 업로드
+                // 3. S3에 파일 업로드.
+                // 예외적으로 customFetcher 미사용
                 const uploadResponse = await fetch(presignedResponse.url, {
                     method: 'PUT',
                     body: file,
