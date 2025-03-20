@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { Role } from '@prisma/client'
+import { handleServerError } from '@/lib/server/handleServerError'
+import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
+import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 
 const prisma = new PrismaClient()
 
 export const runtime = 'nodejs'
 
 export async function GET(req: NextRequest) {
+    const authHeader = req.headers.get('authorization')
+
+    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+        throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
+    }
+
     const twentyFourHoursAgo = new Date()
     twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24) // 24시간 전 계산
 
@@ -23,6 +32,6 @@ export async function GET(req: NextRequest) {
         })
     } catch (error) {
         console.error('Failed to delete guest users:', error)
-        return NextResponse.json({ error: 'Failed to delete guest users' }, { status: 500 })
+        return handleServerError(error)
     }
 }
