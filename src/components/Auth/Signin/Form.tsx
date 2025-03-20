@@ -72,7 +72,7 @@ const SigninForm = () => {
                 />
                 <div className="flex flex-col gap-2">
                     <Button type="submit" className="w-full" disabled={isLoading}>
-                        {isLoading ? 'Logging in...' : 'Login'}
+                        Login
                     </Button>
                     <div className="flex justify-between">
                         <Button
