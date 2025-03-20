@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/guest/delete/old",
+      "path": "/api/user/guest/delete/old",
       "schedule": "0 0 * * *"
     }
   ]
