@@ -10,7 +10,7 @@ export const useGuestMutation = () => {
 
     const createGuestAndSignInMutation = useMutation<User, Error, z.infer<typeof CreateGuestSchema>>({
         mutationFn: async ({ token }) => {
-            // API internally verifies the turnstile token
+            // this API internally verifies the turnstile token
             return customFetcher('/api/user/guest/create', {
                 method: 'POST',
                 body: JSON.stringify({ token }),
@@ -29,7 +29,7 @@ export const useGuestMutation = () => {
         },
         onError: (error) => {
             console.error('Guest creation error:', error)
-            throw error
+            alert(error)
         },
     })
 

@@ -1,13 +1,17 @@
+import { handleServerError } from '@/lib/server/handleServerError'
+import { BadRequestError } from '@/lib/shared/errors/CustomError'
+import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
     try {
+        // const _response = NextResponse.json({ error: 'Bad Request' }, { status: 400 })
+        // if (!_response.ok) {
+        //     throw new BadRequestError(_response.statusText)
+        // }
+
         const body = await request.json()
         const { token } = body
-
-        if (!token) {
-            return NextResponse.json({ success: false, error: 'Missing token' }, { status: 400 })
-        }
 
         // Cloudflare Turnstile API에 토큰 검증 요청
         const formData = new URLSearchParams()
@@ -22,22 +26,14 @@ export async function POST(request: NextRequest) {
             },
         })
 
-        const result = await response.json()
-
-        if (result.success) {
-            return NextResponse.json({ success: true })
-        } else {
-            return NextResponse.json(
-                {
-                    success: false,
-                    error: 'Verification failed',
-                    details: result['error-codes'],
-                },
-                { status: 400 },
-            )
+        if (!response.ok) {
+            throw new BadRequestError(response.statusText as BadRequestErrorMessage)
         }
+
+        const result = await response.json()
+        return NextResponse.json(result)
     } catch (error) {
         console.error('Error verifying Turnstile token:', error)
-        return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 })
+        return handleServerError(error)
     }
 }

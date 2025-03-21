@@ -3,19 +3,22 @@ import { prisma } from '@/lib/shared/prisma'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { Role } from '@prisma/client'
 import { CreateGuestSchema } from '@/lib/shared/validations/userSchemas'
+import { BadRequestError } from '@/lib/shared/errors/CustomError'
+import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 
 export async function POST(request: NextRequest) {
     try {
+        // 1. validate the request body
         const body = await request.json()
-        const { token } = CreateGuestSchema.parse(body)
-
-        if (!token) {
-            return NextResponse.json({ error: 'Missing turnstile token' }, { status: 400 })
+        const result = CreateGuestSchema.safeParse(body)
+        if (!result.success) {
+            throw new BadRequestError(BadRequestErrorMessage.INVALID_TURNSTILE_TOKEN)
         }
 
-        // Reuse the existing turnstile verification endpoint
+        // 2. verify the turnstile token
         // This is an internal API call to our own turnstile endpoint
-        const verifyResponse = await fetch(new URL('/api/turnstile', request.url), {
+        const { token } = result.data
+        await fetch(new URL('/api/turnstile', request.url), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -23,19 +26,7 @@ export async function POST(request: NextRequest) {
             body: JSON.stringify({ token }),
         })
 
-        const verifyResult = await verifyResponse.json()
-
-        if (!verifyResult.success) {
-            return NextResponse.json(
-                {
-                    error: 'Verification failed',
-                    details: verifyResult.details || 'Turnstile verification failed',
-                },
-                { status: 400 },
-            )
-        }
-
-        // Create a guest user after successful verification
+        // 3. create a guest user after successful verification
         const guestUser = await prisma.user.create({
             data: {
                 role: Role.GUEST,

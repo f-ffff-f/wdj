@@ -38,6 +38,7 @@ export const useAuth = () => {
         },
         onError: (error) => {
             console.error('Signin error:', error)
+            alert(error)
         },
     })
 
