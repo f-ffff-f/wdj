@@ -58,11 +58,12 @@ const SigninForm = () => {
     const handleTokenChange = (newToken: string) => {
         form.setValue('token', newToken)
     }
+    const isPending = signInMutation.isPending || createGuestAndSignInMutation.isPending
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSignIn)} className="space-y-4">
-                <fieldset disabled={!token || signInMutation.isPending}>
+                <fieldset disabled={!token || isPending}>
                     <div className="flex flex-col gap-2">
                         <FormField
                             control={form.control}
@@ -95,7 +96,7 @@ const SigninForm = () => {
                         </Button>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                        <Button type="button" variant="link" size="sm" onClick={handleGuestSignIn} disabled={!token}>
+                        <Button type="button" variant="link" size="sm" onClick={handleGuestSignIn}>
                             Continue as Guest
                         </Button>
                         <Button variant="link" size="sm">
