@@ -17,61 +17,43 @@ DJ 웹 애플리케이션입니다.
 
 ## 기술 스택
 
--   [Next.js 15](https://nextjs.org/) - 풀스택 프레임워크
--   [TypeScript](https://www.typescriptlang.org/) - 정적 타입 시스템
--   [React Query](https://tanstack.com/query/latest) - 서버 상태 관리
--   [Valtio](https://github.com/pmndrs/valtio) - 클라이언트 상태 관리
--   [NextAuth](https://next-auth.js.org/) - 인증 시스템
--   [Prisma](https://www.prisma.io) - ORM
--   [PostgreSQL](https://www.postgresql.org) - 데이터베이스
--   [Zod](https://zod.dev/) - 스키마 검증
--   [Web Audio API](https://developer.mozilla.org/ko/docs/Web/API/Web_Audio_API) - 오디오 처리
--   [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) - 오디오 그래프 시각화
--   [TailwindCSS](https://tailwindcss.com/) - UI 스타일링
--   [shadcn/ui](https://ui.shadcn.com/) - UI 컴포넌트
--   [Playwright](https://playwright.dev) - E2E 테스팅
-
-## 시스템 아키텍처
-
-### 1. 공유 아키텍처
-1. **NextAuth**  
-   - OAuth 및 자격 증명 기반 로그인 지원  
-   - 미들웨어를 활용한 세션 관리 및 인증 보호
- 
-2. **Zod**  
-   - 프론트엔드에서 사용자 입력의 유효성 검사  
-   - 백엔드에서 API 요청 및 응답 데이터의 스키마 검증  
-   - Prisma와 결합하여 안전한 데이터 저장 및 조회
-
-### 2. 프론트엔드 아키텍처
+### 1. 프론트엔드
 
 1. **UI/UX**  
    - Tailwind CSS와 shadcn/ui를 활용한 모던한 UI 구현  
-   - 다크/라이트 모드 지원  
-   - 반응형 디자인  
-   - 재사용 가능한 컴포넌트 시스템  
+      - 다크/라이트 모드 지원  
+      - 반응형 디자인  
+      - 재사용 가능한 컴포넌트 시스템  
 
-1. **UI/UX**  
-   - Tailwind CSS와 shadcn/ui를 활용한 모던한 UI 구현  
-   - 다크/라이트 모드 지원  
-   - 반응형 디자인  
-   - 재사용 가능한 컴포넌트 시스템   
-
-3. **상태 관리**  
+2. **상태 관리**  
    - React Query를 통한 서버 상태 관리 및 데이터 캐싱  
-   - API 응답을 클라이언트에서 캐싱하여 성능 최적화  
-   - 자동 리패칭 및 동기화 기능 활용  
-   - 비동기 데이터 관리의 일관성 유지  
-   - 긍정적 렌더링으로 UX 향상  
+      - API 응답을 클라이언트에서 캐싱하여 성능 최적화  
+      - 자동 리패칭 및 동기화 기능 활용  
+      - 비동기 데이터 관리의 일관성 유지  
+      - 긍정적 렌더링으로 UX 향상  
    - Valtio를 활용한 전역 상태 관리  
    - IndexedDB를 활용한 로컬 오디오 파일 캐싱  
 
-### 3. 백엔드 아키텍처
-1. 인증 시스템  
-    - JWT 기반 인증  
-    - 미들웨어를 통한 인증 보호  
+3. **유효성 검사**
+   - Zod를 활용한 사용자 입력의 유효성 검사
+   - React Hook Form을 활용한 타입 안전성이 보장된 폼 데이터 처리
 
-2. 데이터베이스 설계  
+### 2. 백엔드
+1. **인증 시스템**  
+    - NextAuth를 활용한 인증 시스템
+      - 자격 증명 기반 로그인 지원
+      - 미들웨어를 통한 세션 관리
+      - JWT 기반 인증
+    - Cloudflare Turnstile을 활용한 봇 방지
+      - 로그인 및 회원가입 시 사용자 검증
+      - 게스트 로그인 보안 강화
+      - 서버 사이드 토큰 검증
+
+2. **데이터 유효성 검사 및 처리**
+   - Zod를 활용한 API 요청/응답 스키마 검증
+   - Prisma와 결합한 안전한 데이터 처리
+
+3. **데이터베이스 설계**  
    - Prisma ORM을 활용한 타입 안전성 확보  
    - PostgreSQL 데이터베이스 활용  
 
@@ -81,6 +63,7 @@ DJ 웹 애플리케이션입니다.
    - Next.js Edge Runtime 활용  
    - 자동화된 CI/CD 파이프라인  
    - 글로벌 CDN을 통한 정적 자산 제공  
+
 2. **클라우드 데이터베이스**  
    - Neon Serverless PostgreSQL 활용  
      - 자동 스케일링  
@@ -93,7 +76,6 @@ DJ 웹 애플리케이션입니다.
 
 4. **개발환경 컨테이너화**
    - Docker 및 Docker Compose를 활용한 로컬 개발 환경 구성  
-   - 개발/프로덕션 환경 일관성 확보  
 
 ### 5. 테스트 및 품질 관리  
 1. **E2E 테스트**  
