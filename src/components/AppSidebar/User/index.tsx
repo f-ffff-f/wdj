@@ -5,14 +5,22 @@ import { Role } from '@prisma/client'
 import { LoaderCircle } from 'lucide-react'
 
 const User = () => {
-    const { user, signOut } = useAuth()
+    const { session, signOutMutation } = useAuth()
 
     return (
         <div className="flex items-center justify-between">
             <SidebarGroupLabel>
-                {user ? user?.role === Role.MEMBER ? user.email : 'Guest' : <LoaderCircle className="animate-spin" />}
+                {session ? (
+                    session?.user?.role === Role.MEMBER ? (
+                        session?.user?.email
+                    ) : (
+                        'Guest'
+                    )
+                ) : (
+                    <LoaderCircle className="animate-spin" />
+                )}
             </SidebarGroupLabel>
-            <Button onClick={signOut}>Logout</Button>
+            <Button onClick={() => signOutMutation.mutate()}>Logout</Button>
         </div>
     )
 }

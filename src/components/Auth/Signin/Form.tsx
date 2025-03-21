@@ -9,8 +9,8 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
 import { SigninSchema } from '@/lib/shared/validations/userSchemas'
-import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
+import { useGuestMutation } from '@/lib/client/hooks/useGuestMutation'
 
 // Add TypeScript declarations for Turnstile
 declare global {
@@ -31,12 +31,9 @@ interface TurnstileOptions {
     size?: 'normal' | 'compact'
 }
 
-// Generic type for auth functions that accept params and optional token
-type AuthFunction<T> = (params: T, token?: string) => Promise<unknown>
-
 const SigninForm = () => {
-    const { signIn, signInAsGuest } = useAuth()
-    const router = useRouter()
+    const { signInMutation } = useAuth()
+    const { createGuestAndSignInMutation } = useGuestMutation()
     const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
     const [widgetId, setWidgetId] = useState<string | null>(null)
     const [remountKey, setRemountKey] = useState(0)
@@ -76,13 +73,10 @@ const SigninForm = () => {
         return () => {
             clearTimeout(timeoutId)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [remountKey])
 
-    /**
-     * Verifies turnstile token and executes authentication function if verification succeeds
-     */
-    const verifyAndExecute = async <T,>(authFunction: AuthFunction<T>, params: T) => {
+    const handleSignIn = async (data: z.infer<typeof SigninSchema>) => {
         try {
             if (!turnstileToken) {
                 alert('Please complete the CAPTCHA verification')
@@ -107,20 +101,26 @@ const SigninForm = () => {
             }
 
             // If verification successful, proceed with authentication
-            await authFunction(params, turnstileToken)
-            router.push('/main')
+            await signInMutation.mutateAsync(data)
         } catch (error) {
             alert(error)
             setRemountKey((prev) => prev + 1) // Force remount of Turnstile widget
         }
     }
 
-    const handleSignIn = async (data: z.infer<typeof SigninSchema>) => {
-        await verifyAndExecute(signIn, data)
-    }
-
     const handleGuestSignIn = async () => {
-        await verifyAndExecute(signInAsGuest as AuthFunction<void>, undefined)
+        try {
+            if (!turnstileToken) {
+                alert('Please complete the CAPTCHA verification')
+                return
+            }
+
+            // Send the token to the guest creation API which will verify it internally
+            await createGuestAndSignInMutation.mutateAsync({ token: turnstileToken })
+        } catch (error) {
+            alert(error)
+            setRemountKey((prev) => prev + 1) // Force remount of Turnstile widget
+        }
     }
 
     const form = useForm<z.infer<typeof SigninSchema>>({
@@ -134,7 +134,7 @@ const SigninForm = () => {
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSignIn)} className="space-y-4">
-                <fieldset disabled={!turnstileToken}>
+                <fieldset disabled={!turnstileToken || signInMutation.isPending}>
                     <FormField
                         control={form.control}
                         name="email"

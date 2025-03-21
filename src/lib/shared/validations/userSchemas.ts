@@ -8,10 +8,12 @@ export const CreateUserSchema = z.object({
     email: EmailSchema,
     password: PasswordSchema,
 })
+export const CreateGuestSchema = z.object({
+    token: z.string(),
+})
 
 const GuestSigninSchema = z.object({
-    email: z.literal(''),
-    password: z.literal(''),
+    guestUserId: z.string(),
 })
 
 const RegularSigninSchema = z.object({
