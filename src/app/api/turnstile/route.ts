@@ -5,11 +5,6 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
     try {
-        // const _response = NextResponse.json({ error: 'Bad Request' }, { status: 400 })
-        // if (!_response.ok) {
-        //     throw new BadRequestError(_response.statusText)
-        // }
-
         const body = await request.json()
         const { token } = body
 

@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-import { SigninSchema } from '@/lib/shared/validations/userSchemas'
+import { MemberSigninSchema } from '@/lib/shared/validations/userSchemas'
 import { useState } from 'react'
 import { useGuestMutation } from '@/lib/client/hooks/useGuestMutation'
 import TurnstileWidget from '@/lib/client/components/TurnstileWidget'
@@ -16,37 +16,53 @@ import TurnstileWidget from '@/lib/client/components/TurnstileWidget'
 const SigninForm = () => {
     const { signInMutation } = useAuth()
     const { createGuestAndSignInMutation } = useGuestMutation()
-    const [turnstileToken, setTurnstileToken] = useState<string>('')
     const [remountKey, setRemountKey] = useState(0)
 
-    const handleSignIn = async (data: z.infer<typeof SigninSchema>) => {
+    const form = useForm<z.infer<typeof MemberSigninSchema>>({
+        resolver: zodResolver(MemberSigninSchema),
+        defaultValues: {
+            email: '',
+            password: '',
+            token: '',
+        },
+    })
+
+    const { watch } = form
+    const token = watch('token')
+
+    const handleSignIn = async (data: z.infer<typeof MemberSigninSchema>) => {
         try {
-            await signInMutation.mutateAsync(data)
+            await signInMutation.mutateAsync({
+                email: data.email,
+                password: data.password,
+                token: data.token,
+            })
         } catch (error) {
-            setRemountKey((prev) => prev + 1) // Force remount of Turnstile widget
+            setRemountKey((prev) => prev + 1)
+            form.setValue('token', '')
         }
     }
 
     const handleGuestSignIn = async () => {
+        const currentToken = form.getValues('token')
+        if (!currentToken) return
+
         try {
-            await createGuestAndSignInMutation.mutateAsync({ token: turnstileToken })
+            await createGuestAndSignInMutation.mutateAsync({ token: currentToken })
         } catch (error) {
-            setRemountKey((prev) => prev + 1) // Force remount of Turnstile widget
+            setRemountKey((prev) => prev + 1)
+            form.setValue('token', '')
         }
     }
 
-    const form = useForm<z.infer<typeof SigninSchema>>({
-        resolver: zodResolver(SigninSchema),
-        defaultValues: {
-            email: '',
-            password: '',
-        },
-    })
+    const handleTokenChange = (newToken: string) => {
+        form.setValue('token', newToken)
+    }
 
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSignIn)} className="space-y-4">
-                <fieldset disabled={!turnstileToken || signInMutation.isPending}>
+                <fieldset disabled={!token || signInMutation.isPending}>
                     <FormField
                         control={form.control}
                         name="email"
@@ -78,7 +94,13 @@ const SigninForm = () => {
                             Login
                         </Button>
                         <div className="flex flex-col items-end gap-2">
-                            <Button type="button" variant="link" size="sm" onClick={handleGuestSignIn}>
+                            <Button
+                                type="button"
+                                variant="link"
+                                size="sm"
+                                onClick={handleGuestSignIn}
+                                disabled={!token}
+                            >
                                 Continue as Guest
                             </Button>
                             <Button variant="link" size="sm">
@@ -87,7 +109,7 @@ const SigninForm = () => {
                         </div>
                     </div>
 
-                    <TurnstileWidget onTokenChange={setTurnstileToken} resetTrigger={remountKey} />
+                    <TurnstileWidget onTokenChange={handleTokenChange} resetTrigger={remountKey} />
                 </fieldset>
             </form>
         </Form>
