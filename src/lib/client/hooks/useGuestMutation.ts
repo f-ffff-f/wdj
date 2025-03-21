@@ -16,11 +16,12 @@ export const useGuestMutation = () => {
                 body: JSON.stringify({ token }),
             })
         },
-        onSuccess: async (data) => {
+        onSuccess: async (data, variables) => {
             try {
                 // Automatically sign in as the guest user after creation
                 await signInMutation.mutateAsync({
                     guestUserId: data.id,
+                    token: variables.token,
                 })
             } catch (error) {
                 console.error('Guest signin error after creation:', error)

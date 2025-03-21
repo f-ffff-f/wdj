@@ -20,12 +20,21 @@ export const authOptions: NextAuthOptions = {
                 email: { label: 'Email', type: 'text' },
                 password: { label: 'Password', type: 'password' },
                 guestUserId: { label: 'Guest User ID', type: 'text' },
+                token: { label: 'Turnstile Token', type: 'text' },
             },
             async authorize(credentials) {
                 const parsed = SigninSchema.safeParse(credentials)
                 if (!parsed.success) {
                     throw new BadRequestError(BadRequestErrorMessage.INVALID_INPUT)
                 }
+
+                // 모든 사용자에 대해 Turnstile 검증 수행
+                const token = parsed.data.token
+                await fetch(`${process.env.NEXTAUTH_URL}/api/turnstile`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token }),
+                })
 
                 // Handle guest authentication
                 if ('guestUserId' in parsed.data) {
@@ -51,26 +60,26 @@ export const authOptions: NextAuthOptions = {
                         id: guestUser.id,
                         role: Role.GUEST,
                     }
-                }
+                } else {
+                    // Handle member authentication
+                    const user = await prisma.user.findUnique({
+                        where: { email: parsed.data.email },
+                    })
 
-                // Handle regular user authentication
-                const user = await prisma.user.findUnique({
-                    where: { email: parsed.data.email },
-                })
+                    if (!user || !user.password) {
+                        throw new NotFoundError(NotFoundErrorMessage.USER_NOT_FOUND)
+                    }
 
-                if (!user || !user.password) {
-                    throw new NotFoundError(NotFoundErrorMessage.USER_NOT_FOUND)
-                }
+                    const isPasswordValid = await bcryptjs.compare(parsed.data.password, user.password)
+                    if (!isPasswordValid) {
+                        throw new UnauthorizedError(UnauthorizedErrorMessage.INVALID_CREDENTIALS)
+                    }
 
-                const isPasswordValid = await bcryptjs.compare(parsed.data.password, user.password)
-                if (!isPasswordValid) {
-                    throw new UnauthorizedError(UnauthorizedErrorMessage.INVALID_CREDENTIALS)
-                }
-
-                return {
-                    id: user.id,
-                    email: user.email,
-                    role: user.role,
+                    return {
+                        id: user.id,
+                        email: user.email,
+                        role: user.role,
+                    }
                 }
             },
         }),
