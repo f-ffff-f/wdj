@@ -1,8 +1,8 @@
-# DJ Mixing Web Application [Alpha]
+# DJ Mixing Web Application
 
 [한국어](README.md) | English
 
-A modern DJ mixing web application that runs in the browser.
+A DJ web application.
 
 ## Preview
 
@@ -10,124 +10,97 @@ A modern DJ mixing web application that runs in the browser.
 
 ## Getting Started
 
-1. Start as a **Guest** or **Log in**.
+1. Start as a Guest or Log in.
 2. Press Enter or click "Choose File" to upload an audio file.
 3. Load the audio file onto a deck using left/right arrow keys or edge buttons.
 4. Return to Step 2 and load another audio file onto the opposite deck.
 
 ## Tech Stack
 
-- [Next.js 15](https://nextjs.org/) - Full-stack framework
-- [TypeScript](https://www.typescriptlang.org/) - Static type system
-- [React Query](https://tanstack.com/query/latest) - Server state management
-- [Valtio](https://github.com/pmndrs/valtio) - Client state management
-- [NextAuth](https://next-auth.js.org/) - Authentication system
-- [Prisma](https://www.prisma.io) - ORM
-- [PostgreSQL](https://www.postgresql.org) - Database
-- [Zod](https://zod.dev/) - Schema validation
-- [Web Audio API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API) - Audio processing
-- [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API) - Audio graph visualization
-- [TailwindCSS](https://tailwindcss.com/) - UI styling
-- [shadcn/ui](https://ui.shadcn.com/) - UI components
-- [Playwright](https://playwright.dev) - E2E testing
-
-## System Architecture
-
-### 1. Shared Architecture
-
-1. **NextAuth**
-
-    - Supports OAuth and credential-based login
-    - Middleware-based session management and authentication protection
-
-2. **Zod**
-    - Validates user input on the frontend
-    - Ensures API request and response data integrity on the backend
-    - Integrated with Prisma for safe database interactions
-
----
-
-### 2. Frontend Architecture
+### 1. Frontend
 
 1. **UI/UX**
 
-    - Modern UI built with Tailwind CSS and shadcn/ui
-    - Dark/Light mode support
-    - Responsive design
-    - Reusable component system
+    - Modern UI implementation using Tailwind CSS and shadcn/ui
+        - Dark/Light mode support
+        - Responsive design
+        - Reusable component system
 
-2. **Audio Processing System**
+2. **State Management**
 
-    - [decko](https://www.npmjs.com/package/@ghr95223/decko)
-        - Custom-built package based on Web Audio API
-        - Implements DJ features: seek, crossfade, volume control, speed adjustment
-
-3. **State Management**
-    - Server state management using React Query
-        - Caches API responses for optimized performance
-        - Automatic refetching and synchronization
-        - Ensures consistency in asynchronous data handling
-        - Improves UX with optimistic rendering
+    - Server state management and data caching with React Query
+        - Optimized performance through client-side API response caching
+        - Utilization of automatic refetching and synchronization
+        - Consistency in asynchronous data management
+        - Enhanced UX through optimistic rendering
     - Global state management using Valtio
     - Local audio file caching using IndexedDB
 
----
+3. **Validation**
+    - User input validation using Zod
+    - Type-safe form data handling with React Hook Form
 
-### 3. Backend Architecture
+### 2. Backend
 
 1. **Authentication System**
 
-    - JWT-based authentication
-    - Middleware-based authentication protection
+    - Authentication system using NextAuth
+        - Credential-based login support
+        - Session management through middleware
+        - JWT-based authentication
+    - Bot prevention using Cloudflare Turnstile
+        - User verification for login and registration
+        - Enhanced security for guest login
+        - Server-side token validation
 
-2. **Database Design**
-    - Type-safe database interaction using Prisma ORM
-    - PostgreSQL database implementation
+2. **Data Validation and Processing**
 
----
+    - API request/response schema validation using Zod
+    - Secure data handling integrated with Prisma
+
+3. **Database Design**
+    - Type safety ensured through Prisma ORM
+    - PostgreSQL database utilization
 
 ### 4. Infrastructure
 
 1. **Serverless Deployment**
 
-    - Deployed on Vercel
-    - Utilizes Next.js Edge Runtime
+    - Deployment using Vercel
+    - Next.js Edge Runtime utilization
     - Automated CI/CD pipeline
-    - Global CDN for static assets
+    - Static asset delivery through global CDN
 
 2. **Cloud Database**
 
-    - Neon Serverless PostgreSQL
+    - Neon Serverless PostgreSQL utilization
         - Auto-scaling
-        - Branching support for development and production environments
+        - Development/Production environment separation through branching
         - Global region support
 
 3. **Cloud Storage**
 
     - Audio file storage using AWS S3
-    - Enhanced security with Presigned URLs
+    - Enhanced security through Presigned URLs
 
-4. **Containerized Development Environment**
-    - Local development environment using Docker and Docker Compose
-    - Ensures consistency across development and production environments
+4. **Development Environment Containerization**
+    - Local development environment setup using Docker and Docker Compose
 
----
-
-### 5. Testing & Quality Assurance
+### 5. Testing and Quality Assurance
 
 1. **E2E Testing**
-    - Comprehensive UI and functionality testing using Playwright
+    - Comprehensive UI and functionality verification using Playwright
 
-## Getting Started with Development
+## Development Environment Setup
 
-### Prerequisites
+Prerequisites
 
 - **Docker** and **Docker Compose** must be installed.
 
-### Basic Commands
+Basic Commands
 
 ```sh
-# Start containers in detached mode
+# Run containers in background
 docker-compose up -d
 
 # Check running containers
