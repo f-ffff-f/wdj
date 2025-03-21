@@ -1,6 +1,5 @@
 import { Button } from '@/components/ui/button'
 import { DialogDescription } from '@/components/ui/dialog'
-import { SidebarGroupLabel } from '@/components/ui/sidebar'
 import { clearAllTracksFromIndexedDB } from '@/lib/client/db/indexedDB'
 import { useAuth } from '@/lib/client/hooks/useAuth'
 import { useTrack } from '@/lib/client/hooks/useTrack'

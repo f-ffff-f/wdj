@@ -5,6 +5,7 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import './globals.css'
+import Script from 'next/script'
 
 export const metadata: Metadata = {
     title: 'Create Next App',
@@ -19,6 +20,8 @@ export default function RootLayout({
     return (
         <html lang="en" className="dark">
             <body className={`antialiased`}>
+                <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer />
+
                 <SessionProvider>
                     <QueryProvider>
                         {children}

@@ -10,7 +10,7 @@ type SignupRequest = {
 export const useSignupMutation = (handleSuccess?: (data: User) => void) => {
     return useMutation<User, Error, SignupRequest>({
         mutationFn: async ({ email, password }: SignupRequest) => {
-            return customFetcher('/api/member/create', {
+            return customFetcher('/api/user/member/create', {
                 method: 'POST',
                 body: JSON.stringify({ email, password }),
             })

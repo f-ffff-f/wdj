@@ -1,4 +1,4 @@
-import NextAuth, { NextAuthOptions } from 'next-auth'
+import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/shared/prisma'
 import bcryptjs from 'bcryptjs'
@@ -19,6 +19,7 @@ export const authOptions: NextAuthOptions = {
             credentials: {
                 email: { label: 'Email', type: 'text' },
                 password: { label: 'Password', type: 'password' },
+                guestUserId: { label: 'Guest User ID', type: 'text' },
             },
             async authorize(credentials) {
                 const parsed = SigninSchema.safeParse(credentials)
@@ -27,19 +28,28 @@ export const authOptions: NextAuthOptions = {
                 }
 
                 // Handle guest authentication
-                if (parsed.data.email === '' && parsed.data.password === '') {
-                    const guestUser = await prisma.user.create({
-                        data: {
-                            email: null,
-                            password: null,
+                if ('guestUserId' in parsed.data) {
+                    // Use the specific guest ID passed from the client
+                    const guestUserId = parsed.data.guestUserId
+
+                    if (!guestUserId) {
+                        throw new BadRequestError(BadRequestErrorMessage.INVALID_INPUT)
+                    }
+
+                    const guestUser = await prisma.user.findUnique({
+                        where: {
+                            id: guestUserId,
                             role: Role.GUEST,
                         },
                     })
 
+                    if (!guestUser) {
+                        throw new NotFoundError(NotFoundErrorMessage.USER_NOT_FOUND)
+                    }
+
                     return {
                         id: guestUser.id,
                         role: Role.GUEST,
-                        email: null,
                     }
                 }
 

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { nullable, z } from 'zod'
 import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 
 export const EmailSchema = z.string().email({ message: BadRequestErrorMessage.INVALID_EMAIL })
@@ -8,11 +8,14 @@ export const CreateUserSchema = z.object({
     email: EmailSchema,
     password: PasswordSchema,
 })
+export const CreateGuestSchema = z.object({
+    token: z.string().min(1),
+})
 
 const GuestSigninSchema = z.object({
-    email: z.literal(''),
-    password: z.literal(''),
+    guestUserId: z.string(),
 })
+
 const RegularSigninSchema = z.object({
     email: z.string().email({ message: BadRequestErrorMessage.INVALID_EMAIL }),
     password: z.string().min(8, { message: BadRequestErrorMessage.INVALID_PASSWORD }),
