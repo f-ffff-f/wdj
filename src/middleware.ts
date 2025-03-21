@@ -14,12 +14,20 @@ import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 
 // Routes that should be protected
 const PROTECTED_API_PATH = ['/api/tracks', '/api/playlist', '/api/upload']
+// Pages that require authentication
+const PROTECTED_PAGES = ['/main']
 
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl
-    const needsProtection = PROTECTED_API_PATH.some((path) => pathname === path || pathname.startsWith(`${path}/`))
 
-    if (!needsProtection) {
+    // Check if the current path is a protected API route
+    const isProtectedApi = PROTECTED_API_PATH.some((path) => pathname === path || pathname.startsWith(`${path}/`))
+
+    // Check if the current path is a protected page
+    const isProtectedPage = PROTECTED_PAGES.some((path) => pathname === path || pathname.startsWith(`${path}/`))
+
+    // If not a protected route, continue
+    if (!isProtectedApi && !isProtectedPage) {
         return NextResponse.next()
     }
 
@@ -30,9 +38,10 @@ export async function middleware(request: NextRequest) {
             secret: process.env.JWT_SECRET,
         })
 
+        // Handle unauthenticated requests
         if (!token) {
             // For API routes, return 401 Unauthorized
-            if (pathname.startsWith('/api/')) {
+            if (isProtectedApi) {
                 return new NextResponse(
                     JSON.stringify({
                         success: false,
@@ -44,18 +53,30 @@ export async function middleware(request: NextRequest) {
                     },
                 )
             }
+
+            // For protected pages, redirect to login page
+            if (isProtectedPage) {
+                const url = new URL('/', request.url)
+                return NextResponse.redirect(url)
+            }
+
             throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
         }
 
-        // User is authenticated, add userId to headers
-        const requestHeaders = new Headers(request.headers)
-        requestHeaders.set('x-user-id', token.userId as string)
+        // User is authenticated, add userId to headers for API routes
+        if (isProtectedApi) {
+            const requestHeaders = new Headers(request.headers)
+            requestHeaders.set('x-user-id', token.userId as string)
 
-        return NextResponse.next({
-            request: {
-                headers: requestHeaders,
-            },
-        })
+            return NextResponse.next({
+                request: {
+                    headers: requestHeaders,
+                },
+            })
+        }
+
+        // For authenticated page access, just continue
+        return NextResponse.next()
     } catch (error) {
         console.error('Middleware error:', error)
         return handleServerError(error)
@@ -63,5 +84,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/api/:path*'],
+    matcher: ['/api/:path*', '/main/:path*'],
 }

@@ -8,14 +8,19 @@ export const CreateUserSchema = z.object({
     email: EmailSchema,
     password: PasswordSchema,
 })
-
-const GuestSigninSchema = z.object({
-    email: z.literal(''),
-    password: z.literal(''),
+export const CreateGuestSchema = z.object({
+    token: z.string().min(1),
 })
-const RegularSigninSchema = z.object({
+
+export const GuestSigninSchema = z.object({
+    guestUserId: z.string(),
+    token: z.string().min(1),
+})
+
+export const MemberSigninSchema = z.object({
     email: z.string().email({ message: BadRequestErrorMessage.INVALID_EMAIL }),
     password: z.string().min(8, { message: BadRequestErrorMessage.INVALID_PASSWORD }),
+    token: z.string().min(1),
 })
 
-export const SigninSchema = z.union([GuestSigninSchema, RegularSigninSchema])
+export const SigninSchema = z.union([GuestSigninSchema, MemberSigninSchema])

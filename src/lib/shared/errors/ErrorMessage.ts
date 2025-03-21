@@ -7,6 +7,7 @@ export enum BadRequestErrorMessage {
     INVALID_EMAIL = 'Please enter a valid email address',
     INVALID_PASSWORD = 'Password must be at least 8 characters',
     INVALID_INPUT = 'Invalid input data',
+    INVALID_TURNSTILE_TOKEN = 'Invalid turnstile token',
 }
 
 export enum UnauthorizedErrorMessage {
