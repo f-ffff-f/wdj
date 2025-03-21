@@ -19,10 +19,11 @@ export const useAuth = () => {
     /**
      * Sign In with credentials
      */
-    const signIn = async (data: z.infer<typeof SigninSchema>) => {
+    const signIn = async (data: z.infer<typeof SigninSchema>, turnstileToken?: string) => {
         try {
             const result = await signInNextAuth('credentials', {
                 ...data,
+                turnstileToken,
                 redirect: false,
             })
 
@@ -40,11 +41,12 @@ export const useAuth = () => {
     /**
      * Create and Sign In as guest user
      */
-    const signInAsGuest = async () => {
+    const signInAsGuest = async (turnstileToken?: string) => {
         try {
             const result = await signInNextAuth('credentials', {
                 email: '',
                 password: '',
+                turnstileToken,
                 redirect: false,
             })
 

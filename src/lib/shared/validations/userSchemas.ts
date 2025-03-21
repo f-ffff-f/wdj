@@ -13,6 +13,7 @@ const GuestSigninSchema = z.object({
     email: z.literal(''),
     password: z.literal(''),
 })
+
 const RegularSigninSchema = z.object({
     email: z.string().email({ message: BadRequestErrorMessage.INVALID_EMAIL }),
     password: z.string().min(8, { message: BadRequestErrorMessage.INVALID_PASSWORD }),
