@@ -63,50 +63,44 @@ const SigninForm = () => {
         <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSignIn)} className="space-y-4">
                 <fieldset disabled={!token || signInMutation.isPending}>
-                    <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>email</FormLabel>
-                                <FormControl>
-                                    <Input type="email" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <FormField
-                        control={form.control}
-                        name="password"
-                        render={({ field }) => (
-                            <FormItem>
-                                <FormLabel>password</FormLabel>
-                                <FormControl>
-                                    <Input type="password" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                    <div className="flex flex-col gap-1">
+                    <div className="flex flex-col gap-2">
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>email</FormLabel>
+                                    <FormControl>
+                                        <Input type="email" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>password</FormLabel>
+                                    <FormControl>
+                                        <Input type="password" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                         <Button type="submit" className="w-full">
                             Login
                         </Button>
-                        <div className="flex flex-col items-end gap-2">
-                            <Button
-                                type="button"
-                                variant="link"
-                                size="sm"
-                                onClick={handleGuestSignIn}
-                                disabled={!token}
-                            >
-                                Continue as Guest
-                            </Button>
-                            <Button variant="link" size="sm">
-                                <Link href="/signup">Sign Up</Link>
-                            </Button>
-                        </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                        <Button type="button" variant="link" size="sm" onClick={handleGuestSignIn} disabled={!token}>
+                            Continue as Guest
+                        </Button>
+                        <Button variant="link" size="sm">
+                            <Link href="/signup">Sign Up</Link>
+                        </Button>
                     </div>
 
                     <TurnstileWidget onTokenChange={handleTokenChange} resetTrigger={remountKey} />
