@@ -4,6 +4,7 @@
 .env
 .env.development
 .env.production
+
 # Prisma
 prisma/dev.db
 prisma/dev.db-journal
@@ -47,3 +48,6 @@ next-env.d.ts
 
 # cursor
 .cursor
+
+# ai
+ai/
