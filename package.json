@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "postinstall": "if [ \"$VERCEL\" = \"1\" ]; then prisma migrate deploy && prisma generate; fi",
     "test:e2e": "playwright test",
-    "test:unit": "vitest run --config vitest.config.ts",
+    "test:unit": "vitest run --config vitest.config.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.758.0",
