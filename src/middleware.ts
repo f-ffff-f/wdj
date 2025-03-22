@@ -65,8 +65,12 @@ export async function middleware(request: NextRequest) {
 
         // User is authenticated, add userId to headers for API routes
         if (isProtectedApi) {
+            if (!token.userId) {
+                throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
+            }
+
             const requestHeaders = new Headers(request.headers)
-            requestHeaders.set('x-user-id', token.userId as string)
+            requestHeaders.set('x-user-id', token.userId)
 
             return NextResponse.next({
                 request: {
