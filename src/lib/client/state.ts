@@ -20,4 +20,4 @@ export const updateStorageEstimate = async () => {
     }
 }
 
-const unsub = devtools(state, { name: 'state', enabled: true })
+devtools(state, { name: 'state', enabled: true })

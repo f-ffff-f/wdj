@@ -1,17 +1,12 @@
 export const dynamic = 'force-dynamic'
 
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError, BadRequestError, NotFoundError } from '@/lib/shared/errors/CustomError'
+import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
+import { BadRequestError, NotFoundError } from '@/lib/shared/errors/CustomError'
 import { prisma } from '@/lib/shared/prisma'
 import { NextResponse } from 'next/server'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { headers } from 'next/headers'
-import {
-    BadRequestErrorMessage,
-    NotFoundErrorMessage,
-    UnauthorizedErrorMessage,
-} from '@/lib/shared/errors/ErrorMessage'
-import { z } from 'zod'
+import { BadRequestErrorMessage, NotFoundErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { TrackIdsSchema } from '@/lib/shared/validations/trackSchema'
 
 /**
@@ -20,14 +15,12 @@ import { TrackIdsSchema } from '@/lib/shared/validations/trackSchema'
  */
 export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params
+    let userId: string | undefined
+
     try {
         // 인증 처리
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
-
-        if (!userId) {
-            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
-        }
+        userId = getUserIdFromRequest(headersList)
 
         const body = await request.json()
 
@@ -64,8 +57,10 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
         return NextResponse.json(playlist)
     } catch (error) {
-        console.error('Add tracks to playlist error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: `api/playlist/${params.id}/tracks/POST`,
+        })
     }
 }
 
@@ -74,13 +69,11 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
  */
 export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params
+    let userId: string | undefined
+
     try {
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
-
-        if (!userId) {
-            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
-        }
+        userId = getUserIdFromRequest(headersList)
 
         const playlist = await prisma.playlist.findUnique({
             where: {
@@ -103,8 +96,10 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
 
         return NextResponse.json(playlist.tracks)
     } catch (error) {
-        console.error('Get playlist tracks error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: `api/playlist/${params.id}/tracks/GET`,
+        })
     }
 }
 
@@ -113,14 +108,12 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
  */
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params
+    let userId: string | undefined
+
     try {
         // 인증 처리
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
-
-        if (!userId) {
-            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
-        }
+        userId = getUserIdFromRequest(headersList)
 
         const body = await request.json()
 
@@ -157,7 +150,9 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
 
         return NextResponse.json(playlist)
     } catch (error) {
-        console.error('Remove tracks from playlist error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: `api/playlist/${params.id}/tracks/DELETE`,
+        })
     }
 }

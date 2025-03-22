@@ -36,7 +36,8 @@ export async function POST(request: Request) {
 
         return NextResponse.json(user)
     } catch (error) {
-        console.error('User creation error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            action: 'api/user/member/create/POST',
+        })
     }
 }

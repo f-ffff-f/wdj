@@ -1,15 +1,16 @@
-// /app/api/upload/presigned-url/route.ts
 export const dynamic = 'force-dynamic'
 
-import { NextResponse } from 'next/server'
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/lib/server/utils'
-import { BadRequestError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
+import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
 import { handleServerError } from '@/lib/server/handleServerError'
-import { headers } from 'next/headers'
-import { BadRequestErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { generateS3FilePath, getEnv } from '@/lib/server/utils'
+import { BadRequestError } from '@/lib/shared/errors/CustomError'
+import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { UploadUrlRequestSchema } from '@/lib/shared/validations/trackSchema'
+import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import { headers } from 'next/headers'
+import { NextResponse } from 'next/server'
+
 const s3 = new S3Client({
     region: getEnv('AWS_REGION'),
     credentials: {
@@ -19,13 +20,10 @@ const s3 = new S3Client({
 })
 
 export const POST = async (req: Request) => {
+    let userId: string | undefined
     try {
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
-
-        if (!userId) {
-            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
-        }
+        userId = getUserIdFromRequest(headersList)
 
         const body = await req.json()
 
@@ -35,10 +33,10 @@ export const POST = async (req: Request) => {
             throw new BadRequestError(BadRequestErrorMessage.MISSING_FILE_INFO)
         }
 
-        const { fileName, fileType, id } = parseResult.data
+        const { fileType, id } = parseResult.data
 
         // 고유 파일 키 생성
-        const fileKey = generateS3FileKey(userId, id)
+        const fileKey = generateS3FilePath(userId, id)
 
         // S3 업로드 명령 생성
         const putCommand = new PutObjectCommand({
@@ -58,6 +56,6 @@ export const POST = async (req: Request) => {
         })
     } catch (error) {
         console.error('Presigned URL generation error:', error)
-        return handleServerError(error)
+        return handleServerError(error, { userId, action: 'api/upload/presigned-url/POST' })
     }
 }

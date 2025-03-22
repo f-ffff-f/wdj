@@ -2,22 +2,20 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/shared/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError, BadRequestError } from '@/lib/shared/errors/CustomError'
+import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
+import { BadRequestError } from '@/lib/shared/errors/CustomError'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { headers } from 'next/headers'
-import { BadRequestErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
 
 export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
-    const params = await props.params;
+    const params = await props.params
+    let userId: string | undefined
+
     try {
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
-
-        if (!userId) {
-            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
-        }
+        userId = getUserIdFromRequest(headersList)
 
         const body = await request.json()
 
@@ -46,7 +44,9 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
 
         return NextResponse.json(playlist)
     } catch (error) {
-        console.error('Playlist update error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: `api/playlist/${params.id}/update/PATCH`,
+        })
     }
 }
