@@ -22,9 +22,11 @@ const s3 = new S3Client({
 
 export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params
+    let userId: string | undefined
+
     try {
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
+        userId = getUserIdFromRequest(headersList)
 
         // DB에서 트랙 정보 가져오기
         const track = await prisma.track.findUnique({
@@ -52,7 +54,9 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
             presignedUrl,
         })
     } catch (error) {
-        console.error('Error fetching track:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: `api/tracks/${params.id}/presigned-url/GET`,
+        })
     }
 }

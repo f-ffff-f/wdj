@@ -1,4 +1,3 @@
-// /app/api/upload/presigned-url/route.ts
 export const dynamic = 'force-dynamic'
 
 import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
@@ -21,9 +20,10 @@ const s3 = new S3Client({
 })
 
 export const POST = async (req: Request) => {
+    let userId: string | undefined
     try {
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
+        userId = getUserIdFromRequest(headersList)
 
         const body = await req.json()
 
@@ -56,6 +56,6 @@ export const POST = async (req: Request) => {
         })
     } catch (error) {
         console.error('Presigned URL generation error:', error)
-        return handleServerError(error)
+        return handleServerError(error, { userId, action: 'api/upload/presigned-url/POST' })
     }
 }

@@ -10,9 +10,11 @@ import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { CreateTrackSchema } from '@/lib/shared/validations/trackSchema'
 
 export async function POST(request: Request) {
+    let userId: string | undefined
+
     try {
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
+        userId = getUserIdFromRequest(headersList)
 
         const body = await request.json()
 
@@ -56,7 +58,9 @@ export async function POST(request: Request) {
 
         return NextResponse.json(newTrack)
     } catch (error) {
-        console.error('Track creation error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: 'api/tracks/create/POST',
+        })
     }
 }

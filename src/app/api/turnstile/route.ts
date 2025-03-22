@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
         const result = await response.json()
         return NextResponse.json(result)
     } catch (error) {
-        console.error('Error verifying Turnstile token:', error)
-        return handleServerError(error)
+        return handleServerError(error, { action: 'api/turnstile/POST' })
     }
 }

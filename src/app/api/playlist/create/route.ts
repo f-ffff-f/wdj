@@ -14,10 +14,12 @@ import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
  * 인증된 사용자만 플레이리스트를 생성할 수 있음
  */
 export async function POST(request: Request) {
+    let userId: string | undefined
+
     try {
         // 토큰에서 사용자 ID 확인
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
+        userId = getUserIdFromRequest(headersList)
 
         const body = await request.json()
 
@@ -44,7 +46,9 @@ export async function POST(request: Request) {
 
         return NextResponse.json(playlist)
     } catch (error) {
-        console.error('Playlist creation error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: 'api/playlist/create/POST',
+        })
     }
 }

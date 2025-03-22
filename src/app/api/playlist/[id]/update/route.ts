@@ -11,9 +11,11 @@ import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
 
 export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params
+    let userId: string | undefined
+
     try {
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
+        userId = getUserIdFromRequest(headersList)
 
         const body = await request.json()
 
@@ -42,7 +44,9 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
 
         return NextResponse.json(playlist)
     } catch (error) {
-        console.error('Playlist update error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: `api/playlist/${params.id}/update/PATCH`,
+        })
     }
 }

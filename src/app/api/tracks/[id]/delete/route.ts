@@ -21,9 +21,11 @@ const s3 = new S3Client({
 
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params
+    let userId: string | undefined
+
     try {
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
+        userId = getUserIdFromRequest(headersList)
 
         // 트랙이 존재하며, 현재 사용자 소유인지 확인
         const track = await prisma.track.findFirst({
@@ -53,7 +55,9 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
 
         return NextResponse.json({ message: 'Track deleted successfully' })
     } catch (error) {
-        console.error('Track deletion error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: `api/tracks/${params.id}/DELETE`,
+        })
     }
 }
