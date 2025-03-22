@@ -15,10 +15,12 @@ import { TrackIdsSchema } from '@/lib/shared/validations/trackSchema'
  */
 export async function POST(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params
+    let userId: string | undefined
+
     try {
         // 인증 처리
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
+        userId = getUserIdFromRequest(headersList)
 
         const body = await request.json()
 
@@ -55,8 +57,10 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
         return NextResponse.json(playlist)
     } catch (error) {
-        console.error('Add tracks to playlist error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: `api/playlist/${params.id}/tracks/POST`,
+        })
     }
 }
 
@@ -65,9 +69,11 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
  */
 export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params
+    let userId: string | undefined
+
     try {
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
+        userId = getUserIdFromRequest(headersList)
 
         const playlist = await prisma.playlist.findUnique({
             where: {
@@ -90,8 +96,10 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
 
         return NextResponse.json(playlist.tracks)
     } catch (error) {
-        console.error('Get playlist tracks error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: `api/playlist/${params.id}/tracks/GET`,
+        })
     }
 }
 
@@ -100,10 +108,12 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
  */
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params
+    let userId: string | undefined
+
     try {
         // 인증 처리
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
+        userId = getUserIdFromRequest(headersList)
 
         const body = await request.json()
 
@@ -140,7 +150,9 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
 
         return NextResponse.json(playlist)
     } catch (error) {
-        console.error('Remove tracks from playlist error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: `api/playlist/${params.id}/tracks/DELETE`,
+        })
     }
 }

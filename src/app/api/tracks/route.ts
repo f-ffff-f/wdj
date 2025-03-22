@@ -11,9 +11,10 @@ import { headers } from 'next/headers'
  * 인증된 사용자의 트랙만 반환
  */
 export async function GET() {
+    let userId: string | undefined
     try {
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
+        userId = getUserIdFromRequest(headersList)
 
         const tracks = await prisma.track.findMany({
             where: { userId: userId },
@@ -27,7 +28,6 @@ export async function GET() {
 
         return NextResponse.json(tracks)
     } catch (error) {
-        console.error('Track retrieval error:', error)
-        return handleServerError(error)
+        handleServerError(error, { userId, action: 'api/tracks/GET' })
     }
 }

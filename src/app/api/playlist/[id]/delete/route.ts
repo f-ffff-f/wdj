@@ -8,9 +8,10 @@ import { NextResponse } from 'next/server'
 
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params
+    let userId: string | undefined
     try {
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
+        userId = getUserIdFromRequest(headersList)
 
         await prisma.playlist.delete({
             where: {
@@ -21,7 +22,9 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
 
         return NextResponse.json({ message: 'Playlist deleted successfully' })
     } catch (error) {
-        console.error('Playlist deletion error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: `api/playlist/${params.id}/DELETE`,
+        })
     }
 }

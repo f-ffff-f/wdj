@@ -10,16 +10,15 @@ import { headers } from 'next/headers'
  * 인증된 사용자의 플레이리스트만 반환
  */
 export async function GET() {
+    let userId: string | undefined
+
     try {
-        // 토큰에서 사용자 ID 확인
         const headersList = await headers()
+        userId = getUserIdFromRequest(headersList)
 
-        const userId = getUserIdFromRequest(headersList)
-
-        // 사용자의 플레이리스트 조회
         const playlists = await prisma.playlist.findMany({
             where: {
-                userId: userId,
+                userId,
             },
             select: {
                 id: true,
@@ -31,7 +30,6 @@ export async function GET() {
             },
         })
 
-        // 응답 데이터 형식 변환
         const response = playlists.map((playlist) => ({
             id: playlist.id,
             name: playlist.name,
@@ -40,7 +38,9 @@ export async function GET() {
 
         return NextResponse.json(response)
     } catch (error) {
-        console.error('Playlist retrieval error:', error)
-        return handleServerError(error)
+        return handleServerError(error, {
+            userId,
+            action: 'api/playlist/GET',
+        })
     }
 }
