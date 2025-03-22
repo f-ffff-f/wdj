@@ -37,7 +37,7 @@ const SigninForm = () => {
                 password: data.password,
                 token: data.token,
             })
-        } catch (error) {
+        } catch {
             setRemountKey((prev) => prev + 1)
             form.setValue('token', '')
         }
@@ -49,7 +49,7 @@ const SigninForm = () => {
 
         try {
             await createGuestAndSignInMutation.mutateAsync({ token: currentToken })
-        } catch (error) {
+        } catch {
             setRemountKey((prev) => prev + 1)
             form.setValue('token', '')
         }

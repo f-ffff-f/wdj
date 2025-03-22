@@ -1,13 +1,6 @@
 import StorageIndicator from '@/components/AppSidebar/Preference/StorageIndicator'
 import { ThemeToggle } from '@/components/AppSidebar/Preference/ThemeToggle'
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { SettingsIcon } from 'lucide-react'
 import React from 'react'
 

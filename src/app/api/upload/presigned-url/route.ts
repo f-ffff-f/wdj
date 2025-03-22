@@ -35,7 +35,7 @@ export const POST = async (req: Request) => {
             throw new BadRequestError(BadRequestErrorMessage.MISSING_FILE_INFO)
         }
 
-        const { fileName, fileType, id } = parseResult.data
+        const { fileType, id } = parseResult.data
 
         // 고유 파일 키 생성
         const fileKey = generateS3FileKey(userId, id)
