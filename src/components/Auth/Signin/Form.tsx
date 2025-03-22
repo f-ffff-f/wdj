@@ -15,7 +15,12 @@ import TurnstileWidget from '@/lib/client/components/TurnstileWidget'
 
 const SigninForm = () => {
     const { signInMutation } = useAuth()
-    const { createGuestAndSignInMutation } = useGuestMutation()
+    const { createGuestAndSignInMutation } = useGuestMutation(async (data, variables) => {
+        await signInMutation.mutateAsync({
+            guestUserId: data.id,
+            token: variables.token,
+        })
+    })
     const [remountKey, setRemountKey] = useState(0)
 
     const form = useForm<z.infer<typeof MemberSigninSchema>>({
