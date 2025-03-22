@@ -89,7 +89,9 @@ A DJ web application.
 ### 5. Testing and Quality Assurance
 
 1. **E2E Testing**
-    - Comprehensive UI and functionality verification using Playwright
+    - Playwright
+2. **Unit Testing**
+    - Vitest
 
 ## Development Environment Setup
 
