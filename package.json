@@ -9,7 +9,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "postinstall": "if [ \"$VERCEL\" = \"1\" ]; then prisma migrate deploy && prisma generate; fi",
-    "test": "playwright test"
+    "test:e2e": "playwright test",
+    "test:unit": "vitest run --config vitest.config.ts",
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.758.0",
@@ -54,16 +55,20 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/cloudflare-turnstile": "^0.2.2",
     "@types/node": "^20.17.24",
-    "@types/react-dom": "19.0.4",
     "@types/react": "19.0.11",
+    "@types/react-dom": "19.0.4",
     "@types/uuid": "^10.0.0",
-    "eslint-config-next": "15.2.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@vitest/ui": "^3.0.9",
     "eslint": "^8.57.1",
+    "eslint-config-next": "15.2.3",
+    "jsdom": "^26.0.0",
     "postcss": "^8.5.3",
     "prettier": "^3.5.3",
     "prisma": "^6.5.0",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
   },
   "overrides": {
     "@types/react": "19.0.11",
