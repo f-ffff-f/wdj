@@ -2,21 +2,17 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/shared/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { BadRequestError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
+import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
+import { BadRequestError } from '@/lib/shared/errors/CustomError'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { headers } from 'next/headers'
-import { BadRequestErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { CreateTrackSchema } from '@/lib/shared/validations/trackSchema'
 
 export async function POST(request: Request) {
     try {
         const headersList = await headers()
         const userId = getUserIdFromRequest(headersList)
-
-        if (!userId) {
-            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
-        }
 
         const body = await request.json()
 

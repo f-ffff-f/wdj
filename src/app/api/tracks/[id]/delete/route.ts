@@ -1,13 +1,15 @@
 export const dynamic = 'force-dynamic'
 
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/shared/prisma'
-import { S3Client, DeleteObjectCommand } from '@aws-sdk/client-s3'
-import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/lib/server/utils'
-import { NotFoundError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
-import { NotFoundErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
 import { handleServerError } from '@/lib/server/handleServerError'
+import { generateS3FilePath, getEnv } from '@/lib/server/utils'
+import { NotFoundError } from '@/lib/shared/errors/CustomError'
+import { NotFoundErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { prisma } from '@/lib/shared/prisma'
+import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { headers } from 'next/headers'
+import { NextResponse } from 'next/server'
+
 // S3 클라이언트 인스턴스 생성
 const s3 = new S3Client({
     region: getEnv('AWS_REGION'),
@@ -18,14 +20,10 @@ const s3 = new S3Client({
 })
 
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
-    const params = await props.params;
+    const params = await props.params
     try {
         const headersList = await headers()
         const userId = getUserIdFromRequest(headersList)
-
-        if (!userId) {
-            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
-        }
 
         // 트랙이 존재하며, 현재 사용자 소유인지 확인
         const track = await prisma.track.findFirst({
@@ -39,7 +37,7 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
             throw new NotFoundError(NotFoundErrorMessage.TRACK_UNAUTHORIZED)
         }
 
-        const fileKey = generateS3FileKey(userId, track.id)
+        const fileKey = generateS3FilePath(userId, track.id)
 
         // S3에서 파일 삭제 명령 실행
         const deleteCommand = new DeleteObjectCommand({

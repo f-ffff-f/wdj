@@ -2,9 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/shared/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
-import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { headers } from 'next/headers'
 /**
@@ -15,11 +13,8 @@ export async function GET() {
     try {
         // 토큰에서 사용자 ID 확인
         const headersList = await headers()
-        const userId = getUserIdFromRequest(headersList)
 
-        if (!userId) {
-            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
-        }
+        const userId = getUserIdFromRequest(headersList)
 
         // 사용자의 플레이리스트 조회
         const playlists = await prisma.playlist.findMany({

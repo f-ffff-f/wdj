@@ -1,21 +1,16 @@
 export const dynamic = 'force-dynamic'
 
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/shared/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
+import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
 import { handleServerError } from '@/lib/server/handleServerError'
+import { prisma } from '@/lib/shared/prisma'
 import { headers } from 'next/headers'
-import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { NextResponse } from 'next/server'
+
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
-    const params = await props.params;
+    const params = await props.params
     try {
         const headersList = await headers()
         const userId = getUserIdFromRequest(headersList)
-
-        if (!userId) {
-            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
-        }
 
         await prisma.playlist.delete({
             where: {

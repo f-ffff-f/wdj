@@ -1,14 +1,15 @@
 export const dynamic = 'force-dynamic'
 
-import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/shared/prisma'
-import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3'
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { generateS3FileKey, getEnv, getUserIdFromRequest } from '@/lib/server/utils'
-import { NotFoundError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
+import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
 import { handleServerError } from '@/lib/server/handleServerError'
+import { generateS3FilePath, getEnv } from '@/lib/server/utils'
+import { NotFoundError } from '@/lib/shared/errors/CustomError'
+import { NotFoundErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { prisma } from '@/lib/shared/prisma'
+import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { headers } from 'next/headers'
-import { NotFoundErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { NextResponse } from 'next/server'
 
 // S3 클라이언트 생성
 const s3 = new S3Client({
@@ -20,14 +21,10 @@ const s3 = new S3Client({
 })
 
 export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
-    const params = await props.params;
+    const params = await props.params
     try {
         const headersList = await headers()
         const userId = getUserIdFromRequest(headersList)
-
-        if (!userId) {
-            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
-        }
 
         // DB에서 트랙 정보 가져오기
         const track = await prisma.track.findUnique({
@@ -38,7 +35,7 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
             throw new NotFoundError(NotFoundErrorMessage.TRACK_NOT_FOUND)
         }
 
-        const fileKey = generateS3FileKey(userId, track.id)
+        const fileKey = generateS3FilePath(userId, track.id)
 
         // GetObjectCommand 생성
         const getCommand = new GetObjectCommand({
