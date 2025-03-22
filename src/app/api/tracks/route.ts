@@ -2,9 +2,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/shared/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
-import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { headers } from 'next/headers'
 
@@ -16,10 +14,6 @@ export async function GET() {
     try {
         const headersList = await headers()
         const userId = getUserIdFromRequest(headersList)
-
-        if (!userId) {
-            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
-        }
 
         const tracks = await prisma.track.findMany({
             where: { userId: userId },

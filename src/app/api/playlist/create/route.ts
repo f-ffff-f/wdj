@@ -2,11 +2,11 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/shared/prisma'
-import { getUserIdFromRequest } from '@/lib/server/utils'
-import { UnauthorizedError, BadRequestError } from '@/lib/shared/errors/CustomError'
+import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
+import { BadRequestError } from '@/lib/shared/errors/CustomError'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { headers } from 'next/headers'
-import { BadRequestErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
 
 /**
@@ -18,10 +18,6 @@ export async function POST(request: Request) {
         // 토큰에서 사용자 ID 확인
         const headersList = await headers()
         const userId = getUserIdFromRequest(headersList)
-
-        if (!userId) {
-            throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
-        }
 
         const body = await request.json()
 
