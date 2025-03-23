@@ -3,9 +3,10 @@ import { QueryProvider } from '@/lib/client/providers/QueryProvider'
 import { SessionProvider } from '@/lib/client/providers/SessionProvider'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/next'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 import type { Metadata } from 'next'
-import './globals.css'
 import Script from 'next/script'
+import './globals.css'
 
 export const metadata: Metadata = {
     title: 'Create Next App',
@@ -28,6 +29,7 @@ export default function RootLayout({
                         <ReactQueryDevtools />
                         <DevEnvIndicator />
                         <Analytics />
+                        <SpeedInsights />
                     </QueryProvider>
                 </SessionProvider>
             </body>
