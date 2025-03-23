@@ -11,7 +11,7 @@ const User = () => {
         <div className="flex items-center justify-between">
             <SidebarGroupLabel>
                 {session ? (
-                    session?.user?.role === Role.MEMBER ? (
+                    session?.user?.email ? (
                         session?.user?.email
                     ) : (
                         'Guest'

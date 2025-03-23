@@ -12,6 +12,6 @@ export default defineConfig({
     },
     use: {
         headless: true,
-        baseURL: process.env.VERCEL_URL || 'http://localhost:3000',
+        baseURL: 'http://localhost:3000',
     },
 })

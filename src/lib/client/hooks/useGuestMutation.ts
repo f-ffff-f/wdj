@@ -1,13 +1,12 @@
-import { useAuth } from '@/lib/client/hooks/useAuth'
 import { customFetcher } from '@/lib/client/utils/customFetcher'
 import { CreateGuestSchema } from '@/lib/shared/validations/userSchemas'
 import { User } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import { z } from 'zod'
 
-export const useGuestMutation = () => {
-    const { signInMutation } = useAuth()
-
+export const useGuestMutation = (
+    handleSignIn: (data: User, variables: z.infer<typeof CreateGuestSchema>) => Promise<void>,
+) => {
     const createGuestAndSignInMutation = useMutation<User, Error, z.infer<typeof CreateGuestSchema>>({
         mutationFn: async ({ token }) => {
             // this API internally verifies the turnstile token
@@ -18,11 +17,8 @@ export const useGuestMutation = () => {
         },
         onSuccess: async (data, variables) => {
             try {
+                await handleSignIn(data, variables)
                 // Automatically sign in as the guest user after creation
-                await signInMutation.mutateAsync({
-                    guestUserId: data.id,
-                    token: variables.token,
-                })
             } catch (error) {
                 console.error('Guest signin error after creation:', error)
                 throw error

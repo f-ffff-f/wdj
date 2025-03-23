@@ -1,5 +1,4 @@
-import { authOptions } from '@/lib/server/authOptions'
-import NextAuth from 'next-auth'
+import { handlers } from '@/auth'
 
-const handler = NextAuth(authOptions)
-export { handler as GET, handler as POST }
+// This handles all Auth.js endpoints: GET, POST, etc.
+export const { GET, POST } = handlers

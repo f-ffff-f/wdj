@@ -1,11 +1,11 @@
 export const dynamic = 'force-dynamic'
 
-import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
+import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { BadRequestError, NotFoundError } from '@/lib/shared/errors/CustomError'
 import { prisma } from '@/lib/shared/prisma'
 import { NextResponse } from 'next/server'
 import { handleServerError } from '@/lib/server/handleServerError'
-import { headers } from 'next/headers'
+
 import { BadRequestErrorMessage, NotFoundErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { TrackIdsSchema } from '@/lib/shared/validations/trackSchema'
 
@@ -19,8 +19,8 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 
     try {
         // 인증 처리
-        const headersList = await headers()
-        userId = getUserIdFromRequest(headersList)
+
+        userId = await getUserIdFromSession()
 
         const body = await request.json()
 
@@ -72,8 +72,7 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
     let userId: string | undefined
 
     try {
-        const headersList = await headers()
-        userId = getUserIdFromRequest(headersList)
+        userId = await getUserIdFromSession()
 
         const playlist = await prisma.playlist.findUnique({
             where: {
@@ -112,8 +111,8 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
 
     try {
         // 인증 처리
-        const headersList = await headers()
-        userId = getUserIdFromRequest(headersList)
+
+        userId = await getUserIdFromSession()
 
         const body = await request.json()
 

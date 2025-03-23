@@ -2,10 +2,10 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/shared/prisma'
-import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
+import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { BadRequestError } from '@/lib/shared/errors/CustomError'
 import { handleServerError } from '@/lib/server/handleServerError'
-import { headers } from 'next/headers'
+
 import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
 
@@ -14,8 +14,7 @@ export async function PATCH(request: Request, props: { params: Promise<{ id: str
     let userId: string | undefined
 
     try {
-        const headersList = await headers()
-        userId = getUserIdFromRequest(headersList)
+        userId = await getUserIdFromSession()
 
         const body = await request.json()
 

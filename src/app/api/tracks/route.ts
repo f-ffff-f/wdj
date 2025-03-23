@@ -2,9 +2,8 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/shared/prisma'
-import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
+import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { handleServerError } from '@/lib/server/handleServerError'
-import { headers } from 'next/headers'
 
 /**
  * 사용자의 트랙 목록 조회 API 엔드포인트
@@ -13,8 +12,7 @@ import { headers } from 'next/headers'
 export async function GET() {
     let userId: string | undefined
     try {
-        const headersList = await headers()
-        userId = getUserIdFromRequest(headersList)
+        userId = await getUserIdFromSession()
 
         const tracks = await prisma.track.findMany({
             where: { userId: userId },

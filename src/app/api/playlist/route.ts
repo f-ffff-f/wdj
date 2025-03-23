@@ -2,9 +2,9 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/shared/prisma'
-import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
+import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { handleServerError } from '@/lib/server/handleServerError'
-import { headers } from 'next/headers'
+
 /**
  * 사용자의 플레이리스트 목록을 조회하는 API 엔드포인트
  * 인증된 사용자의 플레이리스트만 반환
@@ -13,8 +13,7 @@ export async function GET() {
     let userId: string | undefined
 
     try {
-        const headersList = await headers()
-        userId = getUserIdFromRequest(headersList)
+        userId = await getUserIdFromSession()
 
         const playlists = await prisma.playlist.findMany({
             where: {
