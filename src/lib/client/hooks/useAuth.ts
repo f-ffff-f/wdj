@@ -34,7 +34,7 @@ export const useAuth = () => {
             return result
         },
         onSuccess: () => {
-            router.push('/main')
+            router.refresh()
         },
         onError: (error) => {
             console.error('Signin error:', error)
