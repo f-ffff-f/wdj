@@ -1,12 +1,14 @@
+import { auth } from '@/auth'
 import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 
-export const getUserIdFromRequest = (headersList: Headers): string => {
-    const userId = headersList.get('x-user-id')
+export const getUserIdFromSession = async (): Promise<string> => {
+    const session = await auth()
 
-    if (!userId) {
+    // Check if user is authenticated
+    if (!session?.user?.id) {
         throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
     }
 
-    return userId
+    return session.user.id
 }

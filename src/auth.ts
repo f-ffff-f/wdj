@@ -1,8 +1,7 @@
-import { NextAuthOptions } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
+import NextAuth, { NextAuthConfig } from 'next-auth'
+import Credentials from 'next-auth/providers/credentials'
 import { prisma } from '@/lib/shared/prisma'
 import bcryptjs from 'bcryptjs'
-import { Role } from '@prisma/client'
 import { SigninSchema } from '@/lib/shared/validations/userSchemas'
 import { BadRequestError, NotFoundError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import {
@@ -10,11 +9,11 @@ import {
     NotFoundErrorMessage,
     UnauthorizedErrorMessage,
 } from '@/lib/shared/errors/ErrorMessage'
+import { Role } from '@prisma/client'
 
-export const authOptions: NextAuthOptions = {
-    // Configure one or more authentication providers
+export const config = {
     providers: [
-        CredentialsProvider({
+        Credentials({
             name: 'Credentials',
             credentials: {
                 email: { label: 'Email', type: 'text' },
@@ -22,15 +21,19 @@ export const authOptions: NextAuthOptions = {
                 guestUserId: { label: 'Guest User ID', type: 'text' },
                 token: { label: 'Turnstile Token', type: 'text' },
             },
-            async authorize(credentials) {
+            async authorize(credentials, request) {
                 const parsed = SigninSchema.safeParse(credentials)
                 if (!parsed.success) {
                     throw new BadRequestError(BadRequestErrorMessage.INVALID_INPUT)
                 }
 
-                // 모든 사용자에 대해 Turnstile 검증 수행
+                // Turnstile validation for all users
                 const token = parsed.data.token
-                await fetch(`${process.env.NEXTAUTH_URL}/api/turnstile`, {
+
+                // Get the base URL from the request context
+                const baseUrl = new URL(request.url || '').origin
+
+                await fetch(`${baseUrl}/api/turnstile`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token }),
@@ -85,20 +88,16 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     callbacks: {
-        async jwt({ token, user }) {
-            // Add role to token when user signs in
+        jwt({ token, user }) {
             if (user) {
-                token.userId = user.id
-                token.role = user.role
+                // User is available during sign-in
+                token.userId = user.id as string
+                token.role = user.role as Role
             }
             return token
         },
-        async session({ session, token }) {
-            // Add role and userId to session
-            if (token && session.user) {
-                session.user.role = token.role as Role
-                session.user.id = token.userId
-            }
+        session({ session, token }) {
+            session.user.id = token.userId
             return session
         },
     },
@@ -109,5 +108,8 @@ export const authOptions: NextAuthOptions = {
         strategy: 'jwt',
         maxAge: 7 * 24 * 60 * 60, // 7 days
     },
+    // Secret can be undefined in dev environment with Auth.js v5
     secret: process.env.JWT_SECRET,
-}
+} satisfies NextAuthConfig
+
+export const { handlers, auth, signIn, signOut } = NextAuth(config)

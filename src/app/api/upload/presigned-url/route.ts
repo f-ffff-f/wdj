@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
 
-import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
+import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { generateS3FilePath, getEnv } from '@/lib/server/utils'
 import { BadRequestError } from '@/lib/shared/errors/CustomError'
@@ -8,7 +8,7 @@ import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { UploadUrlRequestSchema } from '@/lib/shared/validations/trackSchema'
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { headers } from 'next/headers'
+
 import { NextResponse } from 'next/server'
 
 const s3 = new S3Client({
@@ -22,8 +22,7 @@ const s3 = new S3Client({
 export const POST = async (req: Request) => {
     let userId: string | undefined
     try {
-        const headersList = await headers()
-        userId = getUserIdFromRequest(headersList)
+        userId = await getUserIdFromSession()
 
         const body = await req.json()
 
