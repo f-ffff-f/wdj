@@ -2,10 +2,10 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/shared/prisma'
-import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
+import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { BadRequestError } from '@/lib/shared/errors/CustomError'
 import { handleServerError } from '@/lib/server/handleServerError'
-import { headers } from 'next/headers'
+
 import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { CreateTrackSchema } from '@/lib/shared/validations/trackSchema'
 
@@ -13,8 +13,7 @@ export async function POST(request: Request) {
     let userId: string | undefined
 
     try {
-        const headersList = await headers()
-        userId = getUserIdFromRequest(headersList)
+        userId = await getUserIdFromSession()
 
         const body = await request.json()
 

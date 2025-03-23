@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
 
-import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
+import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { handleServerError } from '@/lib/server/handleServerError'
 import { generateS3FilePath, getEnv } from '@/lib/server/utils'
 import { NotFoundError } from '@/lib/shared/errors/CustomError'
@@ -8,7 +8,7 @@ import { NotFoundErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { prisma } from '@/lib/shared/prisma'
 import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
-import { headers } from 'next/headers'
+
 import { NextResponse } from 'next/server'
 
 // S3 클라이언트 생성
@@ -25,8 +25,7 @@ export async function GET(request: Request, props: { params: Promise<{ id: strin
     let userId: string | undefined
 
     try {
-        const headersList = await headers()
-        userId = getUserIdFromRequest(headersList)
+        userId = await getUserIdFromSession()
 
         // DB에서 트랙 정보 가져오기
         const track = await prisma.track.findUnique({

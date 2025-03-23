@@ -2,16 +2,14 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/shared/prisma'
-import { getUserIdFromRequest } from '@/lib/server/getUserIdFromRequest'
+import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { handleServerError } from '@/lib/server/handleServerError'
-import { headers } from 'next/headers'
 
 export async function DELETE() {
     let userId: string | undefined
 
     try {
-        const headersList = await headers()
-        userId = getUserIdFromRequest(headersList)
+        userId = await getUserIdFromSession()
 
         await prisma.track.deleteMany({
             where: {

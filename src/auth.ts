@@ -88,20 +88,16 @@ export const config = {
         }),
     ],
     callbacks: {
-        async jwt({ token, user }) {
-            // Add role to token when user signs in
+        jwt({ token, user }) {
             if (user) {
+                // User is available during sign-in
                 token.userId = user.id as string
-                token.role = user.role
+                token.role = user.role as Role
             }
             return token
         },
-        async session({ session, token }) {
-            // Add role and userId to session
-            if (token && session.user) {
-                session.user.role = token.role as Role
-                session.user.id = token.userId as string
-            }
+        session({ session, token }) {
+            session.user.id = token.userId
             return session
         },
     },
