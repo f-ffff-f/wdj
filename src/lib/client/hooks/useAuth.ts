@@ -1,9 +1,10 @@
 import { Role } from '@prisma/client'
-import { signIn as signInNextAuth, signOut as signOutNextAuth, useSession } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { SigninSchema } from '@/lib/shared/validations/userSchemas'
 import { z } from 'zod'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
+import { signIn, signOut } from '@/lib/client/auth'
 
 /**
  * Custom authentication hook that wraps NextAuth's useSession
@@ -22,7 +23,7 @@ export const useAuth = () => {
      */
     const signInMutation = useMutation({
         mutationFn: async (data: z.infer<typeof SigninSchema>) => {
-            const result = await signInNextAuth('credentials', {
+            const result = await signIn('credentials', {
                 ...data,
                 redirect: false,
             })
@@ -47,7 +48,7 @@ export const useAuth = () => {
      */
     const signOutMutation = useMutation({
         mutationFn: async () => {
-            await signOutNextAuth({ redirect: false })
+            await signOut({ redirect: false })
         },
         onSuccess: () => {
             router.refresh()
