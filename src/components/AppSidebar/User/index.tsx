@@ -1,11 +1,11 @@
 import { Button } from '@/components/ui/button'
 import { SidebarGroupLabel } from '@/components/ui/sidebar'
-import { useAuth } from '@/lib/client/hooks/useAuth'
+import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
 import { Role } from '@prisma/client'
 import { LoaderCircle } from 'lucide-react'
 
 const User = () => {
-    const { session, signOutMutation } = useAuth()
+    const { session, signOutMutation } = useClientAuth()
 
     return (
         <div className="flex items-center justify-between">

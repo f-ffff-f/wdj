@@ -3,12 +3,12 @@ import { state } from '@/lib/client/state'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 import { Playlist, Track } from '@prisma/client'
-import { useAuth } from '@/lib/client/hooks/useAuth'
+import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
 
 const BASE_URL = '/api/playlist'
 
 export const usePlaylist = () => {
-    const { session } = useAuth()
+    const { session } = useClientAuth()
     const snapshot = useSnapshot(state)
 
     const queryClient = useQueryClient()
