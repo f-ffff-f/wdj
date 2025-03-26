@@ -1,3 +1,4 @@
+/** @deprecated */
 'use client'
 
 import { Button } from '@/components/ui/button'
@@ -66,53 +67,55 @@ const SigninForm = () => {
     const isPending = signInMutation.isPending || createGuestAndSignInMutation.isPending
 
     return (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(handleSignIn)} className="space-y-4">
-                <fieldset disabled={!token || isPending}>
-                    <div className="flex flex-col gap-2">
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>email</FormLabel>
-                                    <FormControl>
-                                        <Input type="email" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="password"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>password</FormLabel>
-                                    <FormControl>
-                                        <Input type="password" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <Button type="submit" className="w-full">
-                            Login
-                        </Button>
-                    </div>
-                    <div className="flex flex-col items-end gap-2">
-                        <Button type="button" variant="link" size="sm" onClick={handleGuestSignIn}>
-                            Continue as Guest
-                        </Button>
-                        <Button variant="link" size="sm">
-                            <Link href="/signup">Sign Up</Link>
-                        </Button>
-                    </div>
+        <div className="max-w-md m-auto p-4">
+            <Form {...form}>
+                <form onSubmit={form.handleSubmit(handleSignIn)} className="space-y-4">
+                    <fieldset disabled={!token || isPending}>
+                        <div className="flex flex-col gap-2">
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>email</FormLabel>
+                                        <FormControl>
+                                            <Input type="email" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>password</FormLabel>
+                                        <FormControl>
+                                            <Input type="password" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button type="submit" className="w-full">
+                                Login
+                            </Button>
+                        </div>
+                        <div className="flex flex-col items-end gap-2">
+                            <Button type="button" variant="link" size="sm" onClick={handleGuestSignIn}>
+                                Continue as Guest
+                            </Button>
+                            <Button variant="link" size="sm">
+                                <Link href="/signup">Sign Up</Link>
+                            </Button>
+                        </div>
 
-                    <TurnstileWidget onTokenChange={handleTokenChange} resetTrigger={remountKey} />
-                </fieldset>
-            </form>
-        </Form>
+                        <TurnstileWidget onTokenChange={handleTokenChange} resetTrigger={remountKey} />
+                    </fieldset>
+                </form>
+            </Form>
+        </div>
     )
 }
 

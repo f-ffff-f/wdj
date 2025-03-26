@@ -19,25 +19,13 @@ export const config = {
                 email: { label: 'Email', type: 'text' },
                 password: { label: 'Password', type: 'password' },
                 guestUserId: { label: 'Guest User ID', type: 'text' },
-                token: { label: 'Turnstile Token', type: 'text' },
             },
-            async authorize(credentials, request) {
+            async authorize(credentials) {
                 const parsed = SigninSchema.safeParse(credentials)
+
                 if (!parsed.success) {
-                    throw new BadRequestError(BadRequestErrorMessage.INVALID_INPUT)
+                    return null
                 }
-
-                // Turnstile validation for all users
-                const token = parsed.data.token
-
-                // Get the base URL from the request context
-                const baseUrl = new URL(request.url || '').origin
-
-                await fetch(`${baseUrl}/api/turnstile`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token }),
-                })
 
                 // Handle guest authentication
                 if ('guestUserId' in parsed.data) {
@@ -45,7 +33,7 @@ export const config = {
                     const guestUserId = parsed.data.guestUserId
 
                     if (!guestUserId) {
-                        throw new BadRequestError(BadRequestErrorMessage.INVALID_INPUT)
+                        return null
                     }
 
                     const guestUser = await prisma.user.findUnique({
@@ -56,13 +44,10 @@ export const config = {
                     })
 
                     if (!guestUser) {
-                        throw new NotFoundError(NotFoundErrorMessage.USER_NOT_FOUND)
+                        return null
                     }
 
-                    return {
-                        id: guestUser.id,
-                        role: Role.GUEST,
-                    }
+                    return guestUser
                 } else {
                     // Handle member authentication
                     const user = await prisma.user.findUnique({
@@ -70,19 +55,16 @@ export const config = {
                     })
 
                     if (!user || !user.password) {
-                        throw new NotFoundError(NotFoundErrorMessage.USER_NOT_FOUND)
+                        return null
                     }
 
                     const isPasswordValid = await bcryptjs.compare(parsed.data.password, user.password)
+
                     if (!isPasswordValid) {
-                        throw new UnauthorizedError(UnauthorizedErrorMessage.INVALID_CREDENTIALS)
+                        return null
                     }
 
-                    return {
-                        id: user.id,
-                        email: user.email,
-                        role: user.role,
-                    }
+                    return user
                 }
             },
         }),

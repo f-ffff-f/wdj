@@ -4,6 +4,7 @@ import { User } from '@prisma/client'
 import { useMutation } from '@tanstack/react-query'
 import { z } from 'zod'
 
+/** @deprecated */
 export const useGuestMutation = (
     handleSignIn: (data: User, variables: z.infer<typeof CreateGuestSchema>) => Promise<void>,
 ) => {

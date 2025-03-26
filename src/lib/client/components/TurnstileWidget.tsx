@@ -1,3 +1,4 @@
+'use client'
 import { useEffect, useState } from 'react'
 
 // Declare global types for Turnstile
@@ -7,20 +8,20 @@ declare global {
             render: (container: HTMLElement, options: TurnstileOptions) => string
             reset: (widgetId: string) => void
         }
-        _cbTurnstile: (token: string) => void
+        _cbTurnstile: (turnstileToken: string) => void
     }
 }
 
 interface TurnstileOptions {
     sitekey: string
-    callback: (token: string) => void
+    callback: (turnstileToken: string) => void
     'refresh-expired'?: string
     theme?: 'light' | 'dark'
     size?: 'normal' | 'compact'
 }
 
 interface TurnstileWidgetProps {
-    onTokenChange: (token: string) => void
+    onTokenChange: (turnstileToken: string) => void
     resetTrigger: number
 }
 
@@ -28,8 +29,8 @@ const TurnstileWidget = ({ onTokenChange, resetTrigger }: TurnstileWidgetProps) 
     const [widgetId, setWidgetId] = useState<string | null>(null)
 
     useEffect(() => {
-        window._cbTurnstile = (token: string) => {
-            onTokenChange(token)
+        window._cbTurnstile = (turnstileToken: string) => {
+            onTokenChange(turnstileToken)
         }
 
         const timeoutId = setTimeout(() => {
@@ -40,8 +41,8 @@ const TurnstileWidget = ({ onTokenChange, resetTrigger }: TurnstileWidgetProps) 
                 }
                 const newWidgetId = window.turnstile.render(container, {
                     sitekey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '',
-                    callback: (token: string) => {
-                        onTokenChange(token)
+                    callback: (turnstileToken: string) => {
+                        onTokenChange(turnstileToken)
                     },
                     theme: 'dark',
                 })

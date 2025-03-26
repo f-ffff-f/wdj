@@ -37,8 +37,7 @@ export const config = {
         '/api/tracks/:path*',
         '/api/playlist/:path*',
         '/api/upload/:path*',
-
-        // pages
+        // pages,
         '/main/:path*',
     ],
 }

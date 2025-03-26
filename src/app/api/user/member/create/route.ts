@@ -1,3 +1,5 @@
+/** @deprecated */
+
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/shared/prisma'
 import bcryptjs from 'bcryptjs'

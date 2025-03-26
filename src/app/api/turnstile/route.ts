@@ -2,7 +2,7 @@ import { handleServerError } from '@/lib/server/handleServerError'
 import { BadRequestError } from '@/lib/shared/errors/CustomError'
 import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { NextRequest, NextResponse } from 'next/server'
-
+/** @deprecated */
 export async function POST(request: NextRequest) {
     try {
         const body = await request.json()

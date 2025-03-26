@@ -1,3 +1,5 @@
+/** @deprecated */
+
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/shared/prisma'
 import { handleServerError } from '@/lib/server/handleServerError'
@@ -17,13 +19,13 @@ export async function POST(request: NextRequest) {
 
         // 2. verify the turnstile token
         // This is an internal API call to our own turnstile endpoint
-        const { token } = result.data
+        const { turnstileToken } = result.data
         await fetch(new URL('/api/turnstile', request.url), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ token }),
+            body: JSON.stringify({ token: turnstileToken }),
         })
 
         // 3. create a guest user after successful verification
