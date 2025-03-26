@@ -4,14 +4,13 @@ import { SigninSchema } from '@/lib/shared/validations/userSchemas'
 import { z } from 'zod'
 import { useMutation } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { signIn, signOut } from '@/lib/client/auth'
-
+import { signIn as nextAuthSignIn, signOut as nextAuthSignOut } from 'next-auth/react'
 /**
  * Custom authentication hook that wraps NextAuth's useSession
  * Provides convenient methods for signin, signout, and checking authentication status
  * Uses React Query mutations for better state management and error handling
  */
-export const useAuth = () => {
+export const useClientAuth = () => {
     const router = useRouter()
     const { data: session } = useSession()
 
@@ -23,7 +22,7 @@ export const useAuth = () => {
      */
     const signInMutation = useMutation({
         mutationFn: async (data: z.infer<typeof SigninSchema>) => {
-            const result = await signIn('credentials', {
+            const result = await nextAuthSignIn('credentials', {
                 ...data,
                 redirect: false,
             })
@@ -48,7 +47,7 @@ export const useAuth = () => {
      */
     const signOutMutation = useMutation({
         mutationFn: async () => {
-            await signOut({ redirect: false })
+            await nextAuthSignOut({ redirect: false })
         },
         onSuccess: () => {
             router.refresh()

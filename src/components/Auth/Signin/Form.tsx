@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useAuth } from '@/lib/client/hooks/useAuth'
+import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
 import { zodResolver } from '@hookform/resolvers/zod'
 import Link from 'next/link'
 import { useForm } from 'react-hook-form'
@@ -14,7 +14,7 @@ import { useGuestMutation } from '@/lib/client/hooks/useGuestMutation'
 import TurnstileWidget from '@/lib/client/components/TurnstileWidget'
 
 const SigninForm = () => {
-    const { signInMutation } = useAuth()
+    const { signInMutation } = useClientAuth()
     const { createGuestAndSignInMutation } = useGuestMutation(async (data, variables) => {
         await signInMutation.mutateAsync({
             guestUserId: data.id,
