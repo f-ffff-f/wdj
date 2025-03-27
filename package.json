@@ -12,7 +12,7 @@
     "test": "bun run test:unit && bun run test:e2e",
     "test:e2e": "playwright test",
     "test:unit": "vitest run --config vitest.config.ts",
-    "codebase": "node ai/codebase_to_text.js"
+    "codebase": "node ai/codebase_to_text.mjs"
   },
   "dependencies": {
     "@auth/core": "0.38.0",
