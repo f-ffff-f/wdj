@@ -10,10 +10,11 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenuAction } from '@/components/ui/sidebar'
-import { usePlaylist } from '@/lib/client/hooks/usePlaylist'
-import { useTrack } from '@/lib/client/hooks/useTrack'
+import { usePlaylistMutaion } from '@/lib/client/hooks/usePlaylistMutaion'
+import { usePlaylistQuery } from '@/lib/client/hooks/usePlaylistQuery'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
+import { useTrackQuery } from '@/lib/client/hooks/useTrackQuery'
 import { state } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
 import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
@@ -25,8 +26,7 @@ import { useSnapshot } from 'valtio'
 const List = () => {
     const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
     const focusedTrackId = useSnapshot(state).UI.focusedTrackId
-    const { tracksQuery } = useTrack()
-    const { playlistTracksQuery } = usePlaylist()
+    const { tracksQuery, playlistTracksQuery } = useTrackQuery()
     const { getTrackBlobUrl } = useTrackBlob()
 
     const handleLoadToDeck = async (deckId: EDeckIds, id: string) => {
@@ -140,7 +140,8 @@ const MarqueeText = ({ text }: { text: string }) => {
 
 const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
     const { deleteTrackMutation } = useTrackMutation()
-    const { playlistsQuery, addTracksToPlaylist } = usePlaylist()
+    const { playlistsQuery } = usePlaylistQuery()
+    const { addTracksToPlaylistMutation } = usePlaylistMutaion()
 
     return (
         <DropdownMenu>
@@ -159,7 +160,7 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
                             <DropdownMenuItem
                                 key={playlist.id}
                                 onClick={() => {
-                                    addTracksToPlaylist({ id: playlist.id, trackIds: [trackId] })
+                                    addTracksToPlaylistMutation.mutate({ id: playlist.id, trackIds: [trackId] })
                                 }}
                             >
                                 <span>{playlist.name}</span>
@@ -176,7 +177,7 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
 }
 
 const PlaylistDropdownMenu = ({ trackId }: { trackId: string }) => {
-    const { deleteTracksFromPlaylist } = usePlaylist()
+    const { deleteTracksFromPlaylistMutation } = usePlaylistMutaion()
 
     return (
         <DropdownMenu>
@@ -186,7 +187,7 @@ const PlaylistDropdownMenu = ({ trackId }: { trackId: string }) => {
                 </SidebarMenuAction>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="center">
-                <DropdownMenuItem onClick={() => deleteTracksFromPlaylist([trackId])}>
+                <DropdownMenuItem onClick={() => deleteTracksFromPlaylistMutation.mutate([trackId])}>
                     <span>Delete Track from Playlist</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>

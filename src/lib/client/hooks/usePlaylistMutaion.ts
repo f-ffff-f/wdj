@@ -1,26 +1,16 @@
 import { customFetcher } from '@/lib/client/utils/customFetcher'
 import { state } from '@/lib/client/state'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 import { Playlist, Track } from '@prisma/client'
 
 const BASE_URL = '/api/playlist'
 const QUERY_KEY = [BASE_URL]
 
-export const usePlaylist = () => {
+export const usePlaylistMutaion = () => {
     const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
 
     const queryClient = useQueryClient()
-
-    /**
-     * 플레이리스트 목록 조회 쿼리
-     */
-    const playlistsQuery = useQuery<Playlist[]>({
-        queryKey: QUERY_KEY,
-        queryFn: () => customFetcher(BASE_URL),
-        retry: false,
-        staleTime: 1000 * 60 * 10,
-    })
 
     /**
      * 플레이리스트 생성 뮤테이션
@@ -150,13 +140,6 @@ export const usePlaylist = () => {
         },
     })
 
-    const playlistTracksQuery = useQuery<Track[]>({
-        queryKey: [BASE_URL, currentPlaylistId],
-        queryFn: () => customFetcher(`${BASE_URL}/${currentPlaylistId}/tracks`),
-        enabled: currentPlaylistId !== '',
-        staleTime: 1000 * 60 * 10,
-    })
-
     const deleteTracksFromPlaylistMutation = useMutation({
         mutationFn: async (trackIds: string[]) => {
             return customFetcher(`${BASE_URL}/${currentPlaylistId}/tracks`, {
@@ -187,21 +170,10 @@ export const usePlaylist = () => {
     })
 
     return {
-        playlistsQuery: playlistsQuery.data,
-        isLoadingPlaylists: playlistsQuery.isLoading,
-        errorPlaylists: playlistsQuery.error,
-        createPlaylist: createPlaylistMutation.mutate,
-        isCreating: createPlaylistMutation.isPending,
-        updatePlaylist: updatePlaylistMutation.mutate,
-        isUpdating: updatePlaylistMutation.isPending,
-        deletePlaylist: deletePlaylistMutation.mutate,
-        isDeleting: deletePlaylistMutation.isPending,
-        addTracksToPlaylist: addTracksToPlaylistMutation.mutate,
-        isAddingTracks: addTracksToPlaylistMutation.isPending,
-        playlistTracksQuery: playlistTracksQuery.data,
-        isLoadingPlaylistTracks: playlistTracksQuery.isLoading,
-        errorPlaylistTracks: playlistTracksQuery.error,
-        deleteTracksFromPlaylist: deleteTracksFromPlaylistMutation.mutate,
-        isDeletingTracks: deleteTracksFromPlaylistMutation.isPending,
+        createPlaylistMutation,
+        updatePlaylistMutation,
+        deletePlaylistMutation,
+        addTracksToPlaylistMutation,
+        deleteTracksFromPlaylistMutation,
     }
 }

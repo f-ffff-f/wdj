@@ -1,6 +1,4 @@
 'use client'
-import { usePlaylist } from '@/lib/client/hooks/usePlaylist'
-import { state } from '@/lib/client/state'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import {
     SidebarGroupContent,
@@ -10,47 +8,33 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import { usePlaylistMutaion } from '@/lib/client/hooks/usePlaylistMutaion'
+import { usePlaylistQuery } from '@/lib/client/hooks/usePlaylistQuery'
+import { state } from '@/lib/client/state'
+import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { LoaderCircle, MoreHorizontal } from 'lucide-react'
 import { useState } from 'react'
 import { useSnapshot } from 'valtio'
-import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import PlaylistForm from './PlaylistForm'
-
 const Playlist = () => {
     const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null)
-
-    const {
-        playlistsQuery,
-        createPlaylist,
-        updatePlaylist,
-        deletePlaylist,
-        isCreating,
-        isUpdating,
-        isDeleting,
-        isLoadingPlaylists,
-        errorPlaylists,
-    } = usePlaylist()
+    const { playlistsQuery, isLoadingPlaylists, errorPlaylists } = usePlaylistQuery()
+    const { createPlaylistMutation, updatePlaylistMutation, deletePlaylistMutation } = usePlaylistMutaion()
 
     // 새 플레이리스트 추가 핸들러
     const handleAddPlaylist = (data: { name: string }) => {
-        createPlaylist(data.name)
+        createPlaylistMutation.mutate(data.name)
     }
 
     // 플레이리스트 수정 핸들러
     const handleUpdatePlaylist = (playlistId: string, data: { name: string }) => {
-        updatePlaylist(
-            { id: playlistId, name: data.name },
-            {
-                onSuccess: () => {
-                    setEditingPlaylistId(null)
-                },
-            },
-        )
+        updatePlaylistMutation.mutate({ id: playlistId, name: data.name })
+        setEditingPlaylistId(null)
     }
 
     const handleDeletePlaylist = (playlistId: string) => {
-        deletePlaylist(playlistId)
+        deletePlaylistMutation.mutate(playlistId)
         if (state.UI.currentPlaylistId === playlistId) {
             state.UI.currentPlaylistId = ''
         }
@@ -61,7 +45,11 @@ const Playlist = () => {
             <SidebarGroupLabel>Playlists</SidebarGroupLabel>
 
             {/* 새 플레이리스트 추가 폼 (생성 모드) */}
-            <PlaylistForm onSubmit={handleAddPlaylist} isSubmitting={isCreating} placeholder="New Playlist Name" />
+            <PlaylistForm
+                onSubmit={handleAddPlaylist}
+                isSubmitting={createPlaylistMutation.isPending}
+                placeholder="New Playlist Name"
+            />
             <div className="mb-1" />
 
             <SidebarGroupContent>
@@ -109,13 +97,13 @@ const Playlist = () => {
                                         <DropdownMenuContent side="right" align="start">
                                             <DropdownMenuItem
                                                 onClick={() => setEditingPlaylistId(playlist.id)}
-                                                disabled={isDeleting}
+                                                disabled={deletePlaylistMutation.isPending}
                                             >
                                                 <span>Rename Playlist</span>
                                             </DropdownMenuItem>
                                             <DropdownMenuItem
                                                 onClick={() => handleDeletePlaylist(playlist.id)}
-                                                disabled={isDeleting}
+                                                disabled={deletePlaylistMutation.isPending}
                                                 className="text-destructive"
                                             >
                                                 <span>Delete Playlist</span>
@@ -127,7 +115,7 @@ const Playlist = () => {
                                 <PlaylistForm
                                     key={playlist.id}
                                     onSubmit={(data) => handleUpdatePlaylist(playlist.id, data)}
-                                    isSubmitting={isUpdating}
+                                    isSubmitting={updatePlaylistMutation.isPending}
                                     initialValue={playlist.name}
                                     onCancel={() => setEditingPlaylistId(null)}
                                     placeholder="Change Playlist Name"
