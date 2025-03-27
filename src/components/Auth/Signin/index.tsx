@@ -65,7 +65,7 @@ const Signin = () => {
                 })
 
                 const result = GuestSigninSchema.safeParse({
-                    guestUserId: null,
+                    guestUserId: guestUser.id,
                 })
 
                 if (!result.success) {
