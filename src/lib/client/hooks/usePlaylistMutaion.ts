@@ -4,8 +4,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 import { Playlist, Track } from '@prisma/client'
 
-const BASE_URL = '/api/playlist'
-const QUERY_KEY = [BASE_URL]
+const API = '/api'
+const PLAYLIST = '/playlist'
+const QUERY_KEY = [API, PLAYLIST]
 
 export const usePlaylistMutaion = () => {
     const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
@@ -17,7 +18,7 @@ export const usePlaylistMutaion = () => {
      */
     const createPlaylistMutation = useMutation({
         mutationFn: async (name: string) => {
-            return customFetcher(`${BASE_URL}/create`, {
+            return customFetcher(`${API}/${PLAYLIST}/create`, {
                 method: 'POST',
                 body: JSON.stringify({ name }),
             })
@@ -59,7 +60,7 @@ export const usePlaylistMutaion = () => {
      */
     const updatePlaylistMutation = useMutation({
         mutationFn: async (params: { id: string; name: string }) => {
-            return customFetcher(`${BASE_URL}/${params.id}/update`, {
+            return customFetcher(`${API}/${PLAYLIST}/${params.id}/update`, {
                 method: 'PATCH',
                 body: JSON.stringify({ name: params.name }),
             })
@@ -97,7 +98,7 @@ export const usePlaylistMutaion = () => {
      */
     const deletePlaylistMutation = useMutation({
         mutationFn: async (id: string) => {
-            return customFetcher(`${BASE_URL}/${id}/delete`, {
+            return customFetcher(`${API}/${PLAYLIST}/${id}/delete`, {
                 method: 'DELETE',
             })
         },
@@ -127,13 +128,13 @@ export const usePlaylistMutaion = () => {
 
     const addTracksToPlaylistMutation = useMutation<Playlist, Error, { id: string; trackIds: string[] }>({
         mutationFn: async ({ id, trackIds }) => {
-            return customFetcher(`${BASE_URL}/${id}/tracks`, {
+            return customFetcher(`${API}/${PLAYLIST}/${id}/tracks`, {
                 method: 'POST',
                 body: JSON.stringify({ trackIds }),
             })
         },
         onSettled: ({ ...data }) => {
-            queryClient.invalidateQueries({ queryKey: [BASE_URL, data?.id] })
+            queryClient.invalidateQueries({ queryKey: [API, data?.id] })
         },
         onError: (error) => {
             alert(error)
@@ -142,7 +143,7 @@ export const usePlaylistMutaion = () => {
 
     const deleteTracksFromPlaylistMutation = useMutation({
         mutationFn: async (trackIds: string[]) => {
-            return customFetcher(`${BASE_URL}/${currentPlaylistId}/tracks`, {
+            return customFetcher(`${API}/${PLAYLIST}/${currentPlaylistId}/tracks`, {
                 method: 'DELETE',
                 body: JSON.stringify({ trackIds }),
             })

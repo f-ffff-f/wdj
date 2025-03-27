@@ -7,8 +7,9 @@ import { Track } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 
-const BASE_URL = '/api/tracks'
-const QUERY_KEY = [BASE_URL]
+const API = '/api'
+const TRACK = '/tracks'
+const QUERY_KEY = [API, TRACK]
 
 export const useTrackMutation = () => {
     const { isMember } = useClientAuth()
@@ -22,7 +23,7 @@ export const useTrackMutation = () => {
             // 1. db 저장 요청
             const playlistId = snapshot.UI.currentPlaylistId
 
-            const response = await customFetcher(`${BASE_URL}/create`, {
+            const response = await customFetcher(`${API}/${TRACK}/create`, {
                 method: 'POST',
                 body: JSON.stringify({
                     fileName: file.name,
@@ -86,7 +87,7 @@ export const useTrackMutation = () => {
         mutationFn: async (id: string) => {
             deleteTrackFromIndexedDB(id)
 
-            return customFetcher(`${BASE_URL}/${id}/delete`, {
+            return customFetcher(`${API}/${TRACK}/${id}/delete`, {
                 method: 'DELETE',
             })
         },
@@ -110,7 +111,7 @@ export const useTrackMutation = () => {
     // 모든 트랙 삭제
     const deleteAllTracksMutation = useMutation({
         mutationFn: async () => {
-            return customFetcher(`${BASE_URL}/delete`, {
+            return customFetcher(`${API}/${TRACK}/delete`, {
                 method: 'DELETE',
             })
         },
