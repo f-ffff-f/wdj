@@ -2,8 +2,6 @@ import { signIn } from '@/auth'
 import NewForm from '@/components/Auth/Signin/NewForm'
 import { prisma } from '@/lib/shared/prisma'
 import { Role } from '@prisma/client'
-import { AuthError } from '@auth/core/errors'
-import { isRedirectError } from 'next/dist/client/components/redirect-error'
 
 const Signin = () => {
     const handleAction = async (formData: FormData) => {
@@ -39,6 +37,9 @@ const Signin = () => {
 
                 return { success: true, message: 'login successful' }
             } catch (error: unknown) {
+                if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+                    throw error
+                }
                 return { error }
             }
         } else {
@@ -54,6 +55,9 @@ const Signin = () => {
                 })
                 return result
             } catch (error: unknown) {
+                if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+                    throw error
+                }
                 return { error }
             }
         }

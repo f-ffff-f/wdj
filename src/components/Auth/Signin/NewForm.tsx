@@ -4,7 +4,11 @@ import { useState } from 'react'
 import TurnstileWidget from '@/lib/client/components/TurnstileWidget'
 
 interface SignInFormProps {
-    action: (formData: FormData) => Promise<void>
+    action: (formData: FormData) => Promise<{
+        success?: boolean
+        message?: string
+        error?: unknown
+    }>
 }
 
 const SignInForm = ({ action }: SignInFormProps) => {
