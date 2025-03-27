@@ -4,16 +4,18 @@ import { EShortcut } from '@/components/MainView/Shortcuts/constants'
 import OverlayGuide from '@/components/MainView/Shortcuts/OverlayGuide'
 import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
 import { usePlaylist } from '@/lib/client/hooks/usePlaylist'
-import { useTrack } from '@/lib/client/hooks/useTrack'
+import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { state } from '@/lib/client/state'
 import { Button } from '@/components/ui/button'
 import React, { useEffect, useRef, useState } from 'react'
 import { KeyboardIcon, XIcon } from 'lucide-react'
+import { useTrack } from '@/lib/client/hooks/useTrack'
 
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {
     const ref = useRef<HTMLDivElement>(null)
     const [showHelp, setShowHelp] = useState(false)
-    const { tracksQuery, getTrackBlobUrl } = useTrack()
+    const { tracksQuery } = useTrack()
+    const { getTrackBlobUrl } = useTrackBlob()
     const { playlistTracksQuery } = usePlaylist()
 
     useEffect(() => {

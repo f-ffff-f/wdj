@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { DialogDescription } from '@/components/ui/dialog'
 import { clearAllTracksFromIndexedDB } from '@/lib/client/db/indexedDB'
 import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
-import { useTrack } from '@/lib/client/hooks/useTrack'
+import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
 import { state, updateStorageEstimate } from '@/lib/client/state'
 import { Trash } from 'lucide-react'
 import { useEffect } from 'react'
@@ -13,7 +13,7 @@ import { useSnapshot } from 'valtio'
 const StorageIndicator = () => {
     const storageEstimate = useSnapshot(state).UI.storageEstimate
     const { isMember } = useClientAuth()
-    const { deleteAllTracks } = useTrack()
+    const { deleteAllTracksMutation } = useTrackMutation()
 
     const handleClearAllTracksFromIndexedDB = async () => {
         if (isMember) {
@@ -25,7 +25,7 @@ const StorageIndicator = () => {
                 )
             ) {
                 await clearAllTracksFromIndexedDB()
-                deleteAllTracks()
+                deleteAllTracksMutation.mutate()
             }
         }
     }

@@ -12,6 +12,8 @@ import {
 import { SidebarMenuAction } from '@/components/ui/sidebar'
 import { usePlaylist } from '@/lib/client/hooks/usePlaylist'
 import { useTrack } from '@/lib/client/hooks/useTrack'
+import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
+import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
 import { state } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
 import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
@@ -23,8 +25,9 @@ import { useSnapshot } from 'valtio'
 const List = () => {
     const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
     const focusedTrackId = useSnapshot(state).UI.focusedTrackId
-    const { tracksQuery, getTrackBlobUrl } = useTrack()
+    const { tracksQuery } = useTrack()
     const { playlistTracksQuery } = usePlaylist()
+    const { getTrackBlobUrl } = useTrackBlob()
 
     const handleLoadToDeck = async (deckId: EDeckIds, id: string) => {
         const url = await getTrackBlobUrl(id)
@@ -136,7 +139,7 @@ const MarqueeText = ({ text }: { text: string }) => {
 }
 
 const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
-    const { deleteTrack } = useTrack()
+    const { deleteTrackMutation } = useTrackMutation()
     const { playlistsQuery, addTracksToPlaylist } = usePlaylist()
 
     return (
@@ -164,7 +167,7 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
                         ))}
                     </DropdownMenuSubContent>
                 </DropdownMenuSub>
-                <DropdownMenuItem onClick={() => deleteTrack(trackId)}>
+                <DropdownMenuItem onClick={() => deleteTrackMutation.mutate(trackId)}>
                     <span>Delete Track from Library</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
