@@ -9,17 +9,17 @@ import { handleClientError } from '@/lib/client/utils/handleClientError'
 import { useCallback } from 'react'
 
 const BASE_URL = '/api/tracks'
+const QUERY_KEY = [BASE_URL]
 
 export const useTrack = () => {
-    const { isMember, session } = useClientAuth()
+    const { isMember } = useClientAuth()
     const snapshot = useSnapshot(state)
 
     const queryClient = useQueryClient()
-    const dynamicQueryKey = [session?.user.id, BASE_URL]
 
     // 트랙 목록 조회 쿼리
     const tracksQuery = useQuery<Track[]>({
-        queryKey: dynamicQueryKey,
+        queryKey: QUERY_KEY,
         queryFn: () => customFetcher(BASE_URL),
         retry: false,
         staleTime: 1000 * 60 * 10,
@@ -46,9 +46,9 @@ export const useTrack = () => {
             state.UI.focusedTrackId = response.id
 
             // Invalidate queries to refresh UI with the new track
-            queryClient.invalidateQueries({ queryKey: dynamicQueryKey })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
             queryClient.invalidateQueries({
-                queryKey: [session?.user.id, '/api/playlist', snapshot.UI.currentPlaylistId],
+                queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId],
             })
 
             if (isMember) {
@@ -100,19 +100,19 @@ export const useTrack = () => {
             })
         },
         onMutate: async (id) => {
-            await queryClient.cancelQueries({ queryKey: dynamicQueryKey })
+            await queryClient.cancelQueries({ queryKey: QUERY_KEY })
 
-            const previousTracks = queryClient.getQueryData<Track[]>(dynamicQueryKey)
-            queryClient.setQueryData<Track[]>(dynamicQueryKey, (old = []) => old.filter((track) => track.id !== id))
+            const previousTracks = queryClient.getQueryData<Track[]>(QUERY_KEY)
+            queryClient.setQueryData<Track[]>(QUERY_KEY, (old = []) => old.filter((track) => track.id !== id))
 
             return { previousTracks }
         },
         onError: (error, id, context) => {
-            queryClient.setQueryData(dynamicQueryKey, context?.previousTracks)
+            queryClient.setQueryData(QUERY_KEY, context?.previousTracks)
             alert(error)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: dynamicQueryKey })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
         },
     })
 
@@ -124,7 +124,7 @@ export const useTrack = () => {
             })
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: dynamicQueryKey })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
         },
     })
 

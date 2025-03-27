@@ -21,11 +21,10 @@ import Marquee from 'react-fast-marquee'
 import { useSnapshot } from 'valtio'
 
 const List = () => {
-    const snapshot = useSnapshot(state)
+    const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
+    const focusedTrackId = useSnapshot(state).UI.focusedTrackId
     const { tracksQuery, getTrackBlobUrl } = useTrack()
     const { playlistTracksQuery } = usePlaylist()
-
-    const focusedTrackId = state.UI.focusedTrackId
 
     const handleLoadToDeck = async (deckId: EDeckIds, id: string) => {
         const url = await getTrackBlobUrl(id)
@@ -37,7 +36,7 @@ const List = () => {
 
     return (
         <div className="max-w-2xl min-h-10 flex flex-col gap-1 overflow-x-hidden" id="track-list">
-            {snapshot.UI.currentPlaylistId === ''
+            {currentPlaylistId === ''
                 ? tracksQuery?.map((track) => (
                       <Item
                           key={track.id}

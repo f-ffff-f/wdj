@@ -11,7 +11,7 @@ import { useEffect } from 'react'
 import { useSnapshot } from 'valtio'
 
 const StorageIndicator = () => {
-    const snapshot = useSnapshot(state)
+    const storageEstimate = useSnapshot(state).UI.storageEstimate
     const { isMember } = useClientAuth()
     const { deleteAllTracks } = useTrack()
 
@@ -36,8 +36,8 @@ const StorageIndicator = () => {
 
     const getUsageValueString = () => {
         let number = 0
-        if (snapshot.UI.storageEstimate?.usage) {
-            number = Number((snapshot.UI.storageEstimate.usage / (1024 * 1024)).toFixed(1))
+        if (storageEstimate?.usage) {
+            number = Number((storageEstimate.usage / (1024 * 1024)).toFixed(1))
         }
         if (number < 1) {
             number = 0

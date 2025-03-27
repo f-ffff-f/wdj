@@ -2,15 +2,21 @@ import { Role } from '@prisma/client'
 import { useSession } from 'next-auth/react'
 import { SigninSchema } from '@/lib/shared/validations/userSchemas'
 import { z } from 'zod'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { signIn as nextAuthSignIn, signOut as nextAuthSignOut } from 'next-auth/react'
+import { useSnapshot } from 'valtio'
+import { state } from '@/lib/client/state'
 /**
  * Custom authentication hook that wraps NextAuth's useSession
  * Provides convenient methods for signin, signout, and checking authentication status
  * Uses React Query mutations for better state management and error handling
  */
 export const useClientAuth = () => {
+    const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
+
+    const queryClient = useQueryClient()
+
     const router = useRouter()
     const { data: session, update: updateSession } = useSession()
 
@@ -52,6 +58,9 @@ export const useClientAuth = () => {
             await nextAuthSignOut({ redirect: false })
         },
         onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['/api/tracks'] })
+            queryClient.invalidateQueries({ queryKey: ['/api/playlist'] })
+            queryClient.invalidateQueries({ queryKey: ['/api/playlist', currentPlaylistId] })
             router.refresh()
         },
         onError: (error) => {

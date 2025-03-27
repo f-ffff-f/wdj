@@ -17,7 +17,7 @@ import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import PlaylistForm from './PlaylistForm'
 
 const Playlist = () => {
-    const snapshot = useSnapshot(state)
+    const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null)
 
     const {
@@ -69,7 +69,7 @@ const Playlist = () => {
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             className="cursor-pointer"
-                            isActive={snapshot.UI.currentPlaylistId === ''}
+                            isActive={currentPlaylistId === ''}
                             asChild
                             onClick={() => {
                                 state.UI.currentPlaylistId = ''
@@ -91,7 +91,7 @@ const Playlist = () => {
                             return editingPlaylistId !== playlist.id ? (
                                 <SidebarMenuItem key={playlist.id}>
                                     <SidebarMenuButton
-                                        isActive={snapshot.UI.currentPlaylistId === playlist.id}
+                                        isActive={currentPlaylistId === playlist.id}
                                         className="cursor-pointer playlist-item"
                                         asChild
                                         onClick={() => {

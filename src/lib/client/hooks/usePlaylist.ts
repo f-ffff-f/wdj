@@ -3,22 +3,20 @@ import { state } from '@/lib/client/state'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 import { Playlist, Track } from '@prisma/client'
-import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
 
 const BASE_URL = '/api/playlist'
+const QUERY_KEY = [BASE_URL]
 
 export const usePlaylist = () => {
-    const { session } = useClientAuth()
-    const snapshot = useSnapshot(state)
+    const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
 
     const queryClient = useQueryClient()
-    const dynamicQueryKey = [session?.user.id, BASE_URL]
 
     /**
      * 플레이리스트 목록 조회 쿼리
      */
     const playlistsQuery = useQuery<Playlist[]>({
-        queryKey: dynamicQueryKey,
+        queryKey: QUERY_KEY,
         queryFn: () => customFetcher(BASE_URL),
         retry: false,
         staleTime: 1000 * 60 * 10,
@@ -35,9 +33,9 @@ export const usePlaylist = () => {
             })
         },
         onMutate: async (name) => {
-            await queryClient.cancelQueries({ queryKey: dynamicQueryKey })
+            await queryClient.cancelQueries({ queryKey: QUERY_KEY })
 
-            const previousPlaylists = queryClient.getQueryData<Playlist[]>(dynamicQueryKey)
+            const previousPlaylists = queryClient.getQueryData<Playlist[]>(QUERY_KEY)
 
             const tempId = `temp-${Date.now()}`
 
@@ -50,19 +48,19 @@ export const usePlaylist = () => {
                     userId: '', // 실제 값은 서버에서 설정됨
                 }
 
-                queryClient.setQueryData<Playlist[]>(dynamicQueryKey, [newPlaylist, ...previousPlaylists])
+                queryClient.setQueryData<Playlist[]>(QUERY_KEY, [newPlaylist, ...previousPlaylists])
             }
 
             return { previousPlaylists }
         },
         onError: (error, name, context) => {
             if (context?.previousPlaylists) {
-                queryClient.setQueryData(dynamicQueryKey, context.previousPlaylists)
+                queryClient.setQueryData(QUERY_KEY, context.previousPlaylists)
             }
             alert(error)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: dynamicQueryKey })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
         },
     })
 
@@ -77,12 +75,12 @@ export const usePlaylist = () => {
             })
         },
         onMutate: async (params) => {
-            await queryClient.cancelQueries({ queryKey: dynamicQueryKey })
-            const previousPlaylists = queryClient.getQueryData<Playlist[]>(dynamicQueryKey)
+            await queryClient.cancelQueries({ queryKey: QUERY_KEY })
+            const previousPlaylists = queryClient.getQueryData<Playlist[]>(QUERY_KEY)
 
             if (previousPlaylists) {
                 queryClient.setQueryData<Playlist[]>(
-                    dynamicQueryKey,
+                    QUERY_KEY,
                     previousPlaylists.map((playlist) =>
                         playlist.id === params.id
                             ? { ...playlist, name: params.name, updatedAt: new Date() }
@@ -95,12 +93,12 @@ export const usePlaylist = () => {
         },
         onError: (error, params, context) => {
             if (context?.previousPlaylists) {
-                queryClient.setQueryData(dynamicQueryKey, context.previousPlaylists)
+                queryClient.setQueryData(QUERY_KEY, context.previousPlaylists)
             }
             alert(error)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: dynamicQueryKey })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
         },
     })
 
@@ -114,12 +112,12 @@ export const usePlaylist = () => {
             })
         },
         onMutate: async (id) => {
-            await queryClient.cancelQueries({ queryKey: dynamicQueryKey })
-            const previousPlaylists = queryClient.getQueryData<Playlist[]>(dynamicQueryKey)
+            await queryClient.cancelQueries({ queryKey: QUERY_KEY })
+            const previousPlaylists = queryClient.getQueryData<Playlist[]>(QUERY_KEY)
 
             if (previousPlaylists) {
                 queryClient.setQueryData<Playlist[]>(
-                    dynamicQueryKey,
+                    QUERY_KEY,
                     previousPlaylists.filter((playlist) => playlist.id !== id),
                 )
             }
@@ -128,12 +126,12 @@ export const usePlaylist = () => {
         },
         onError: (error, id, context) => {
             if (context?.previousPlaylists) {
-                queryClient.setQueryData(dynamicQueryKey, context.previousPlaylists)
+                queryClient.setQueryData(QUERY_KEY, context.previousPlaylists)
             }
             alert(error)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: dynamicQueryKey })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
         },
     })
 
@@ -145,7 +143,7 @@ export const usePlaylist = () => {
             })
         },
         onSettled: ({ ...data }) => {
-            queryClient.invalidateQueries({ queryKey: [...dynamicQueryKey, data?.id] })
+            queryClient.invalidateQueries({ queryKey: [BASE_URL, data?.id] })
         },
         onError: (error) => {
             alert(error)
@@ -153,25 +151,25 @@ export const usePlaylist = () => {
     })
 
     const playlistTracksQuery = useQuery<Track[]>({
-        queryKey: [...dynamicQueryKey, snapshot.UI.currentPlaylistId],
-        queryFn: () => customFetcher(`${BASE_URL}/${snapshot.UI.currentPlaylistId}/tracks`),
-        enabled: !!snapshot.UI.currentPlaylistId,
+        queryKey: [BASE_URL, currentPlaylistId],
+        queryFn: () => customFetcher(`${BASE_URL}/${currentPlaylistId}/tracks`),
+        enabled: currentPlaylistId !== '',
         staleTime: 1000 * 60 * 10,
     })
 
     const deleteTracksFromPlaylistMutation = useMutation({
         mutationFn: async (trackIds: string[]) => {
-            return customFetcher(`${BASE_URL}/${snapshot.UI.currentPlaylistId}/tracks`, {
+            return customFetcher(`${BASE_URL}/${currentPlaylistId}/tracks`, {
                 method: 'DELETE',
                 body: JSON.stringify({ trackIds }),
             })
         },
         onMutate: async (trackIds) => {
-            await queryClient.cancelQueries({ queryKey: dynamicQueryKey })
+            await queryClient.cancelQueries({ queryKey: QUERY_KEY })
 
-            const previousTracks = queryClient.getQueryData<Track[]>(dynamicQueryKey)
+            const previousTracks = queryClient.getQueryData<Track[]>(QUERY_KEY)
 
-            queryClient.setQueryData<Track[]>([...dynamicQueryKey, snapshot.UI.currentPlaylistId], (old = []) =>
+            queryClient.setQueryData<Track[]>(QUERY_KEY, (old = []) =>
                 old.filter((track) => !trackIds.includes(track.id)),
             )
 
@@ -179,12 +177,12 @@ export const usePlaylist = () => {
         },
         onError: (error, trackIds, context) => {
             if (context?.previousTracks) {
-                queryClient.setQueryData([...dynamicQueryKey, snapshot.UI.currentPlaylistId], context.previousTracks)
+                queryClient.setQueryData(QUERY_KEY, context.previousTracks)
             }
             alert(error)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: [...dynamicQueryKey, snapshot.UI.currentPlaylistId] })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
         },
     })
 
