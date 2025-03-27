@@ -12,8 +12,6 @@ export const usePlaylistQuery = () => {
     const playlistsQuery = useQuery<Playlist[]>({
         queryKey: PLAYLIST_QUERY_KEY,
         queryFn: () => customFetcher(PLAYLIST_BASE_URL),
-        retry: false,
-        staleTime: 1000 * 60 * 10,
     })
 
     return {

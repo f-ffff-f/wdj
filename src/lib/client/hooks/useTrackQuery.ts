@@ -16,14 +16,12 @@ export const useTrackQuery = () => {
     const tracksQuery = useQuery<Track[]>({
         queryKey: TRACK_QUERY_KEY,
         queryFn: () => customFetcher(TRACK_BASE_URL),
-        staleTime: 1000 * 60 * 10,
     })
 
     const playlistTracksQuery = useQuery<Track[]>({
         queryKey: [PLAYLIST_BASE_URL, currentPlaylistId],
         queryFn: () => customFetcher(`${PLAYLIST_BASE_URL}/${currentPlaylistId}/tracks`),
         enabled: currentPlaylistId !== '',
-        staleTime: 1000 * 60 * 10,
     })
 
     return {
