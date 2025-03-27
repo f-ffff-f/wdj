@@ -1,122 +1,83 @@
-/** @deprecated */
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
-import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
-import { zodResolver } from '@hookform/resolvers/zod'
-import Link from 'next/link'
-import { useForm } from 'react-hook-form'
-import * as z from 'zod'
-import { MemberSigninSchema } from '@/lib/shared/validations/userSchemas'
-import { useState } from 'react'
-import { useGuestMutation } from '@/lib/client/hooks/useGuestMutation'
+import { Label } from '@/components/ui/label'
 import TurnstileWidget from '@/lib/client/components/TurnstileWidget'
+import Link from 'next/link'
+import { useState } from 'react'
+interface SignInFormProps {
+    action: (formData: FormData) => Promise<{
+        success?: boolean
+        message?: string
+        error?: unknown
+    }>
+}
 
-const SigninForm = () => {
-    const { signInMutation } = useClientAuth()
-    const { createGuestAndSignInMutation } = useGuestMutation(async (data, variables) => {
-        await signInMutation.mutateAsync({
-            guestUserId: data.id,
-            token: variables.token,
-        })
-    })
-    const [remountKey, setRemountKey] = useState(0)
+const SignInForm = ({ action }: SignInFormProps) => {
+    const [turnstileToken, setTurnstileToken] = useState<string>('')
+    const [resetTrigger, setResetTrigger] = useState<number>(0)
 
-    const form = useForm<z.infer<typeof MemberSigninSchema>>({
-        resolver: zodResolver(MemberSigninSchema),
-        defaultValues: {
-            email: '',
-            password: '',
-            token: '',
-        },
-    })
+    const handleTokenChange = (token: string) => {
+        setTurnstileToken(token)
+    }
 
-    const { watch } = form
-    const token = watch('token')
+    const handleAction = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
 
-    const handleSignIn = async (data: z.infer<typeof MemberSigninSchema>) => {
-        try {
-            await signInMutation.mutateAsync({
-                email: data.email,
-                password: data.password,
-                token: data.token,
-            })
-        } catch {
-            setRemountKey((prev) => prev + 1)
-            form.setValue('token', '')
+        // Get the form data
+        const formData = new FormData(e.currentTarget)
+
+        // Add the turnstile token to the form data
+        formData.append('turnstileToken', turnstileToken)
+
+        // Determine which button was clicked
+        const submitButton = document.activeElement as HTMLButtonElement
+        if (submitButton?.name) {
+            formData.append(submitButton.name, submitButton.value)
         }
-    }
 
-    const handleGuestSignIn = async () => {
-        const currentToken = form.getValues('token')
-        if (!currentToken) return
+        // Call the server action
+        const result = await action(formData)
 
-        try {
-            await createGuestAndSignInMutation.mutateAsync({ token: currentToken })
-        } catch {
-            setRemountKey((prev) => prev + 1)
-            form.setValue('token', '')
+        if (result.error) {
+            alert(result.error)
         }
+        // Reset the Turnstile widget after submission
+        setResetTrigger((prev) => prev + 1)
     }
-
-    const handleTokenChange = (newToken: string) => {
-        form.setValue('token', newToken)
-    }
-    const isPending = signInMutation.isPending || createGuestAndSignInMutation.isPending
 
     return (
         <div className="max-w-md m-auto p-4">
-            <Form {...form}>
-                <form onSubmit={form.handleSubmit(handleSignIn)} className="space-y-4">
-                    <fieldset disabled={!token || isPending}>
-                        <div className="flex flex-col gap-2">
-                            <FormField
-                                control={form.control}
-                                name="email"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>email</FormLabel>
-                                        <FormControl>
-                                            <Input type="email" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="password"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>password</FormLabel>
-                                        <FormControl>
-                                            <Input type="password" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <Button type="submit" className="w-full">
-                                Login
-                            </Button>
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                            <Button type="button" variant="link" size="sm" onClick={handleGuestSignIn}>
-                                Continue as Guest
-                            </Button>
-                            <Button variant="link" size="sm">
-                                <Link href="/signup">Sign Up</Link>
-                            </Button>
-                        </div>
+            <form onSubmit={handleAction}>
+                <fieldset disabled={false}>
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input type="email" name="email" />
 
-                        <TurnstileWidget onTokenChange={handleTokenChange} resetTrigger={remountKey} />
-                    </fieldset>
-                </form>
-            </Form>
+                        <Label htmlFor="password">Password</Label>
+                        <Input type="password" name="password" />
+
+                        <input type="hidden" name="turnstileToken" value={turnstileToken} />
+
+                        <Button type="submit" name="userSignin" value="true" className="w-full">
+                            Sign In
+                        </Button>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                        <Button type="submit" name="guestSignin" value="true" variant="link" size="sm">
+                            Continue as Guest
+                        </Button>
+                        <Button variant="link" size="sm">
+                            <Link href="/signup">Sign Up</Link>
+                        </Button>
+                    </div>
+                </fieldset>
+
+                <TurnstileWidget onTokenChange={handleTokenChange} resetTrigger={resetTrigger} />
+            </form>
         </div>
     )
 }
 
-export default SigninForm
+export default SignInForm

@@ -1,6 +1,7 @@
 import { signIn } from '@/auth'
-import NewForm from '@/components/Auth/Signin/NewForm'
+import NewForm from '@/components/Auth/Signin/Form'
 import { prisma } from '@/lib/shared/prisma'
+import { GuestSigninSchema, MemberSigninSchema } from '@/lib/shared/validations/userSchemas'
 import { Role } from '@prisma/client'
 
 const Signin = () => {
@@ -26,6 +27,15 @@ const Signin = () => {
 
         // Next.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다.
         if (formData.get('userSignin')) {
+            const result = MemberSigninSchema.safeParse({
+                email: formData.get('email'),
+                password: formData.get('password'),
+            })
+
+            if (!result.success) {
+                return { error: result.error.issues.map((issue) => issue.message).join(' ') }
+            }
+
             try {
                 // Extract the values you need from formData
                 const email = formData.get('email') as string
@@ -41,6 +51,9 @@ const Signin = () => {
                 if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
                     throw error
                 }
+                if (error instanceof Error && error.name === 'CredentialsSignin') {
+                    return { error: 'email or password is incorrect' }
+                }
                 return { error }
             }
         } else {
@@ -51,10 +64,19 @@ const Signin = () => {
                     },
                 })
 
-                const result = await signIn('credentials', {
+                const result = GuestSigninSchema.safeParse({
+                    guestUserId: null,
+                })
+
+                if (!result.success) {
+                    return { error: result.error.issues.map((issue) => issue.message).join(' ') }
+                }
+
+                await signIn('credentials', {
                     guestUserId: guestUser.id,
                 })
-                return result
+
+                return { success: true, message: 'login successful' }
             } catch (error: unknown) {
                 if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
                     throw error
