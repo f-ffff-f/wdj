@@ -12,13 +12,14 @@ import { signIn as nextAuthSignIn, signOut as nextAuthSignOut } from 'next-auth/
  */
 export const useClientAuth = () => {
     const router = useRouter()
-    const { data: session } = useSession()
+    const { data: session, update: updateSession } = useSession()
 
     const isMember = session?.user?.role === Role.MEMBER
     const isGuest = session?.user?.role === Role.GUEST
 
     /**
      * React Query mutation for signing in with credentials
+     * @deprecated
      */
     const signInMutation = useMutation({
         mutationFn: async (data: z.infer<typeof SigninSchema>) => {
@@ -44,6 +45,7 @@ export const useClientAuth = () => {
 
     /**
      * React Query mutation for signing out current user
+     * @deprecated
      */
     const signOutMutation = useMutation({
         mutationFn: async () => {
@@ -57,11 +59,21 @@ export const useClientAuth = () => {
         },
     })
 
+    /**
+     * Manually refresh the session data
+     * Used after server-side auth operations to ensure client state is up-to-date
+     */
+    const refreshSession = async () => {
+        await updateSession()
+        router.refresh()
+    }
+
     return {
         signInMutation,
         signOutMutation,
         session,
         isMember,
         isGuest,
+        refreshSession,
     }
 }

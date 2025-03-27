@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import TurnstileWidget from '@/lib/client/components/TurnstileWidget'
+import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
 import Link from 'next/link'
 import { useState } from 'react'
 interface SignInFormProps {
@@ -15,6 +16,7 @@ interface SignInFormProps {
 }
 
 const SignInForm = ({ action }: SignInFormProps) => {
+    const { refreshSession } = useClientAuth()
     const [turnstileToken, setTurnstileToken] = useState<string>('')
     const [resetTrigger, setResetTrigger] = useState<number>(0)
 
@@ -39,6 +41,10 @@ const SignInForm = ({ action }: SignInFormProps) => {
 
         // Call the server action
         const result = await action(formData)
+
+        if (result.success) {
+            await refreshSession()
+        }
 
         if (result.error) {
             alert(result.error)

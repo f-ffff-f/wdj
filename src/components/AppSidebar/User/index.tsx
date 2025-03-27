@@ -1,7 +1,5 @@
 import { Button } from '@/components/ui/button'
 import { SidebarGroupLabel } from '@/components/ui/sidebar'
-import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
-import { Role } from '@prisma/client'
 import { LoaderCircle } from 'lucide-react'
 import { auth, signOut } from '@/auth'
 

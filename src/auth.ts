@@ -1,15 +1,9 @@
+import { prisma } from '@/lib/shared/prisma'
+import { SigninSchema } from '@/lib/shared/validations/userSchemas'
+import { Role } from '@prisma/client'
+import bcryptjs from 'bcryptjs'
 import NextAuth, { NextAuthConfig } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
-import { prisma } from '@/lib/shared/prisma'
-import bcryptjs from 'bcryptjs'
-import { SigninSchema } from '@/lib/shared/validations/userSchemas'
-import { BadRequestError, NotFoundError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
-import {
-    BadRequestErrorMessage,
-    NotFoundErrorMessage,
-    UnauthorizedErrorMessage,
-} from '@/lib/shared/errors/ErrorMessage'
-import { Role } from '@prisma/client'
 
 export const config = {
     providers: [
