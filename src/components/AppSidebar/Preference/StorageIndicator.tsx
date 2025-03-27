@@ -1,3 +1,5 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { DialogDescription } from '@/components/ui/dialog'
 import { clearAllTracksFromIndexedDB } from '@/lib/client/db/indexedDB'

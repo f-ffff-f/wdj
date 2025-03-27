@@ -1,3 +1,4 @@
+'use client'
 import { usePlaylist } from '@/lib/client/hooks/usePlaylist'
 import { state } from '@/lib/client/state'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'

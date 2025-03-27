@@ -3,9 +3,10 @@ import { SidebarGroupLabel } from '@/components/ui/sidebar'
 import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
 import { Role } from '@prisma/client'
 import { LoaderCircle } from 'lucide-react'
+import { auth, signOut } from '@/auth'
 
-const User = () => {
-    const { session, signOutMutation } = useClientAuth()
+const User = async () => {
+    const session = await auth()
 
     return (
         <div className="flex items-center justify-between">
@@ -20,7 +21,14 @@ const User = () => {
                     <LoaderCircle className="animate-spin" />
                 )}
             </SidebarGroupLabel>
-            <Button onClick={() => signOutMutation.mutate()}>Logout</Button>
+            <form
+                action={async () => {
+                    'use server'
+                    await signOut()
+                }}
+            >
+                <Button type="submit">Logout</Button>
+            </form>
         </div>
     )
 }

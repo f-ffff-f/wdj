@@ -1,4 +1,6 @@
-import WaveformSkeleton from '@/components/DJController/WaveformSkeleton'
+'use client'
+
+import WaveformSkeleton from '@/components/MainView/DJController/WaveformSkeleton'
 import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
 

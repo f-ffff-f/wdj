@@ -1,5 +1,7 @@
+'use client'
+
 import React, { useEffect, useState } from 'react'
-import { UI_SHORTCUTS } from '@/components/Shortcuts/constants'
+import { UI_SHORTCUTS } from '@/components/MainView/Shortcuts/constants'
 
 interface OverlayGuideProps {
     visible: boolean

@@ -1,15 +1,16 @@
-import React, { useEffect, useState } from 'react'
-import FileUploader from '@/components/TrackLibrary/FileUploader'
-import List from '@/components/TrackLibrary/List'
-import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
-import { formatTimeUI } from '@/lib/client/utils'
-import WaveformVisualizer from '@/components/DJController/WaveformVisualizer'
+'use client'
+
+import WaveformVisualizer from '@/components/MainView/DJController/WaveformVisualizer'
+import FileUploader from '@/components/MainView/TrackLibrary/FileUploader'
+import List from '@/components/MainView/TrackLibrary/List'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
 import { SliderCrossfade } from '@/components/ui/sliderCrossfade'
 import { SliderSpeed } from '@/components/ui/sliderSpeed'
 import { SliderVolume } from '@/components/ui/sliderVolume'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import { cn } from '@/lib/client/utils'
+import { cn, formatTimeUI } from '@/lib/client/utils'
+import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
+import { useEffect, useState } from 'react'
 
 interface IDeckUI {
     id: EDeckIds

@@ -1,5 +1,7 @@
-import { EShortcut } from '@/components/Shortcuts/constants'
-import OverlayGuide from '@/components/Shortcuts/OverlayGuide'
+'use client'
+
+import { EShortcut } from '@/components/MainView/Shortcuts/constants'
+import OverlayGuide from '@/components/MainView/Shortcuts/OverlayGuide'
 import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
 import { usePlaylist } from '@/lib/client/hooks/usePlaylist'
 import { useTrack } from '@/lib/client/hooks/useTrack'
