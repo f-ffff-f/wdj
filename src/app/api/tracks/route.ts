@@ -5,10 +5,7 @@ import { prisma } from '@/lib/shared/prisma'
 import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { handleServerError } from '@/lib/server/handleServerError'
 
-/**
- * 사용자의 트랙 목록 조회 API 엔드포인트
- * 인증된 사용자의 트랙만 반환
- */
+/** @deprecated */
 export async function GET() {
     let userId: string | undefined
     try {

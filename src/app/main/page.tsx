@@ -1,30 +1,41 @@
 import AppSidebar from '@/components/AppSidebar'
 import MainView from '@/components/MainView'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
-import { QueryClient } from '@tanstack/react-query'
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 import { auth } from '@/auth'
 import { redirect } from 'next/navigation'
+import { getPlaylists, getTracks } from '@/app/main/actions'
 
 const Main = async () => {
-    const queryClient = new QueryClient()
     const session = await auth()
 
     if (!session) {
         redirect('/')
     }
 
-    // await queryClient.prefetchQuery({
-    //     queryKey: ['posts'],
-    //     queryFn: getPosts,
-    // })
+    const queryClient = new QueryClient()
+
+    await Promise.all([
+        queryClient.prefetchQuery({
+            queryKey: ['tracks'],
+            queryFn: getTracks,
+        }),
+        queryClient.prefetchQuery({
+            queryKey: ['playlists'],
+            queryFn: getPlaylists,
+        }),
+    ])
+
     return (
-        <SidebarProvider defaultOpen={true}>
-            <AppSidebar />
-            <div className="flex-1">
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <SidebarProvider defaultOpen={true}>
+                <AppSidebar />
                 <SidebarTrigger />
-                <MainView />
-            </div>
-        </SidebarProvider>
+                <div className="flex-1">
+                    <MainView />
+                </div>
+            </SidebarProvider>
+        </HydrationBoundary>
     )
 }
 

@@ -1,3 +1,4 @@
+import { getTracks } from '@/app/main/actions'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -18,15 +19,22 @@ import { useTrackQuery } from '@/lib/client/hooks/useTrackQuery'
 import { state } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
 import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
+import { Track } from '@prisma/client'
+import { useQuery } from '@tanstack/react-query'
 import { ArrowUpCircle, MoreVertical } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
 import Marquee from 'react-fast-marquee'
 import { useSnapshot } from 'valtio'
 
 const List = () => {
+    const tracksQuery = useQuery<Track[]>({
+        queryKey: ['tracks'],
+        queryFn: () => getTracks(),
+    })
+
     const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
     const focusedTrackId = useSnapshot(state).UI.focusedTrackId
-    const { tracksQuery, playlistTracksQuery } = useTrackQuery()
+    const { playlistTracksQuery } = useTrackQuery()
     const { getTrackBlobUrl } = useTrackBlob()
 
     const handleLoadToDeck = async (deckId: EDeckIds, id: string) => {
@@ -37,10 +45,14 @@ const List = () => {
         state.UI.focusedTrackId = id
     }
 
+    if (tracksQuery?.error) {
+        return <div>Error: {tracksQuery.error.message}</div>
+    }
+
     return (
         <div className="max-w-2xl min-h-10 flex flex-col gap-1 overflow-x-hidden" id="track-list">
             {currentPlaylistId === ''
-                ? tracksQuery?.map((track) => (
+                ? tracksQuery?.data?.map((track) => (
                       <Item
                           key={track.id}
                           trackId={track.id}

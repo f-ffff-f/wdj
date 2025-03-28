@@ -1,4 +1,4 @@
-import Playlist from '@/components/AppSidebar/Playlist'
+import Playlist from '@/components/AppSidebar/Playlists'
 import Preference from '@/components/AppSidebar/Preference'
 import User from '@/components/Auth/User'
 import { Separator } from '@/components/ui/separator'

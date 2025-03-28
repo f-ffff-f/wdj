@@ -8,7 +8,7 @@ import { API_TRACKS, API_PLAYLISTS, QUERY_KEYS } from '@/lib/client/constants/en
 export const useTrackQuery = () => {
     const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
 
-    // 트랙 목록 조회 쿼리
+    /** @deprecated */
     const tracksQuery = useQuery<Track[]>({
         queryKey: QUERY_KEYS.TRACKS,
         queryFn: () => customFetcher(API_TRACKS),
