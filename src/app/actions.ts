@@ -1,6 +1,6 @@
 'use server'
 
-import { signIn } from '@/auth'
+import { signIn, signOut } from '@/auth'
 import { handleServerActionError } from '@/lib/server/handleServerError'
 import { BadRequestError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { BadRequestErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
@@ -8,22 +8,24 @@ import { prisma } from '@/lib/shared/prisma'
 import { GuestSigninSchema, MemberSigninSchema } from '@/lib/shared/validations/userSchemas'
 import { Role } from '@prisma/client'
 
+const verifyTurnstile = async (formData: FormData) => {
+    const formDataTurnstile = new URLSearchParams()
+    formDataTurnstile.append('secret', process.env.TURNSTILE_SECRET_KEY || '')
+    formDataTurnstile.append('response', formData.get('turnstileToken') as string)
+
+    await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST',
+        body: formDataTurnstile,
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+    })
+}
+
 export const signInAction = async (_: { success: boolean; message: string }, formData: FormData) => {
     try {
-        // Turnstile validation
-        const formDataTurnstile = new URLSearchParams()
-        formDataTurnstile.append('secret', process.env.TURNSTILE_SECRET_KEY || '')
-        formDataTurnstile.append('response', formData.get('turnstileToken') as string)
-
-        await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
-            method: 'POST',
-            body: formDataTurnstile,
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-        })
+        await verifyTurnstile(formData)
     } catch (error) {
-        // unknown error
         return handleServerActionError(error, { userId: null, action: 'actions/signInAction' })
     }
 

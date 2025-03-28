@@ -15,7 +15,11 @@ const SignoutButton = () => {
             queryClient.removeQueries({ queryKey: ['api'] })
         },
     })
-    return <Button onClick={() => signOutMutation.mutate()}>Logout</Button>
+    return (
+        <Button onClick={() => signOutMutation.mutate()} disabled={signOutMutation.isPending}>
+            Logout
+        </Button>
+    )
 }
 
 export default SignoutButton
