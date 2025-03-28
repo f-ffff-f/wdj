@@ -9,9 +9,7 @@ export async function middleware(request: NextRequest) {
     const session = await auth()
     const { pathname } = request.nextUrl
 
-    // If accessing a protected route without a session
     if (!session) {
-        //////////////////////////////////////////////
         if (pathname.startsWith('/api/')) {
             // For API routes, return 401 Unauthorized with JSON response
             return handleServerError(new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED), {
@@ -19,12 +17,6 @@ export async function middleware(request: NextRequest) {
                 action: 'middleware',
             })
         }
-        //////////////////////////////////////////////
-        else if (!pathname.startsWith('/api/')) {
-            // For page routes, redirect to login page
-            return NextResponse.redirect(new URL('/', request.url))
-        }
-        //////////////////////////////////////////////
     } else {
         // accessing a protected route with a session
         return NextResponse.next()
@@ -32,12 +24,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: [
-        // api
-        '/api/tracks/:path*',
-        '/api/playlist/:path*',
-        '/api/upload/:path*',
-        // pages,
-        '/main/:path*',
-    ],
+    matcher: ['/api/tracks/:path*', '/api/playlist/:path*', '/api/upload/:path*'],
 }
