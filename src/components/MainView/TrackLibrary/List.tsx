@@ -22,19 +22,20 @@ import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
 import { Track } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowUpCircle, MoreVertical } from 'lucide-react'
+import { useParams } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 import Marquee from 'react-fast-marquee'
 import { useSnapshot } from 'valtio'
 
 const List = () => {
+    const { playlistId } = useParams<{ playlistId: string }>()
+
     const tracksQuery = useQuery<Track[]>({
-        queryKey: ['tracks'],
-        queryFn: () => getTracks(),
+        queryKey: ['tracks', playlistId],
+        queryFn: () => getTracks(playlistId),
     })
 
-    const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
     const focusedTrackId = useSnapshot(state).UI.focusedTrackId
-    const { playlistTracksQuery } = useTrackQuery()
     const { getTrackBlobUrl } = useTrackBlob()
 
     const handleLoadToDeck = async (deckId: EDeckIds, id: string) => {
@@ -49,33 +50,32 @@ const List = () => {
         return <div>Error: {tracksQuery.error.message}</div>
     }
 
+    if (tracksQuery.isLoading) {
+        return <div>Loading tracks...</div>
+    }
+
+    if (!tracksQuery.data || tracksQuery.data.length === 0) {
+        return <div>No tracks available</div>
+    }
+
     return (
         <div className="max-w-2xl min-h-10 flex flex-col gap-1 overflow-x-hidden" id="track-list">
-            {currentPlaylistId === ''
-                ? tracksQuery?.data?.map((track) => (
-                      <Item
-                          key={track.id}
-                          trackId={track.id}
-                          fileName={track.fileName}
-                          isFocused={focusedTrackId === track.id}
-                          handleLoadToDeck={handleLoadToDeck}
-                          handleClick={handleClick}
-                      >
-                          <LibraryDropdownMenu trackId={track.id} />
-                      </Item>
-                  ))
-                : playlistTracksQuery?.map((track) => (
-                      <Item
-                          key={track.id}
-                          trackId={track.id}
-                          fileName={track.fileName}
-                          isFocused={focusedTrackId === track.id}
-                          handleLoadToDeck={handleLoadToDeck}
-                          handleClick={handleClick}
-                      >
-                          <PlaylistDropdownMenu trackId={track.id} />
-                      </Item>
-                  ))}
+            {tracksQuery.data.map((track) => (
+                <Item
+                    key={track.id}
+                    trackId={track.id}
+                    fileName={track.fileName}
+                    isFocused={focusedTrackId === track.id}
+                    handleLoadToDeck={handleLoadToDeck}
+                    handleClick={handleClick}
+                >
+                    {playlistId === 'library' ? (
+                        <LibraryDropdownMenu trackId={track.id} />
+                    ) : (
+                        <PlaylistDropdownMenu trackId={track.id} />
+                    )}
+                </Item>
+            ))}
         </div>
     )
 }

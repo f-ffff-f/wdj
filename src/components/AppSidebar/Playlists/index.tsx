@@ -1,4 +1,5 @@
 'use client'
+import { getPlaylists } from '@/app/main/actions'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import {
     SidebarGroupContent,
@@ -9,16 +10,13 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { usePlaylistMutation } from '@/lib/client/hooks/usePlaylistMutation'
-import { usePlaylistQuery } from '@/lib/client/hooks/usePlaylistQuery'
 import { state } from '@/lib/client/state'
-import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
-import { LoaderCircle, MoreHorizontal } from 'lucide-react'
-import { useState } from 'react'
-import { useSnapshot } from 'valtio'
-import PlaylistForm from './PlaylistForm'
-import { getPlaylists } from '@/app/main/actions'
-import { useQuery } from '@tanstack/react-query'
 import { Playlist } from '@prisma/client'
+import { useQuery } from '@tanstack/react-query'
+import { MoreHorizontal } from 'lucide-react'
+import { useState } from 'react'
+import PlaylistForm from './PlaylistForm'
+import Link from 'next/link'
 
 const Playlists = () => {
     const playlistsQuery = useQuery<Playlist[]>({
@@ -26,8 +24,6 @@ const Playlists = () => {
         queryFn: getPlaylists,
     })
 
-    // @TODO dynamic router로 교체예정
-    const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null)
 
     const { createPlaylistMutation, updatePlaylistMutation, deletePlaylistMutation } = usePlaylistMutation()
@@ -67,27 +63,19 @@ const Playlists = () => {
                     <SidebarMenuItem>
                         <SidebarMenuButton
                             className="cursor-pointer"
-                            isActive={currentPlaylistId === ''}
                             asChild
                             onClick={() => {
                                 state.UI.currentPlaylistId = ''
                             }}
                         >
-                            <span>Library</span>
+                            <Link href="/main/library">Library</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     {playlistsQuery?.data?.map((playlist) => {
                         return editingPlaylistId !== playlist.id ? (
                             <SidebarMenuItem key={playlist.id}>
-                                <SidebarMenuButton
-                                    isActive={currentPlaylistId === playlist.id}
-                                    className="cursor-pointer playlist-item"
-                                    asChild
-                                    onClick={() => {
-                                        state.UI.currentPlaylistId = playlist.id
-                                    }}
-                                >
-                                    <span>{playlist.name}</span>
+                                <SidebarMenuButton className="cursor-pointer playlist-item" asChild>
+                                    <Link href={`/main/${playlist.id}`}>{playlist.name}</Link>
                                 </SidebarMenuButton>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
