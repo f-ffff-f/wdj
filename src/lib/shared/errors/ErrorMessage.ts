@@ -15,6 +15,7 @@ export enum UnauthorizedErrorMessage {
     TOKEN_NOT_EXIST = 'Token is not exist',
     USER_NOT_AUTHENTICATED = 'User not authenticated',
     INVALID_CREDENTIALS = 'Invalid credentials',
+    INVALID_GUEST_USER_ID = 'Invalid guest user ID',
 }
 
 export enum NotFoundErrorMessage {

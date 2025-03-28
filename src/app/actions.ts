@@ -1,11 +1,14 @@
 'use server'
 
 import { signIn } from '@/auth'
+import { handleServerActionError } from '@/lib/server/handleServerError'
+import { BadRequestError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
+import { BadRequestErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { prisma } from '@/lib/shared/prisma'
 import { GuestSigninSchema, MemberSigninSchema } from '@/lib/shared/validations/userSchemas'
 import { Role } from '@prisma/client'
 
-export const signInAction = async (formData: FormData) => {
+export const signInAction = async (_: { success: boolean; message: string }, formData: FormData) => {
     try {
         // Turnstile validation
         const formDataTurnstile = new URLSearchParams()
@@ -20,7 +23,8 @@ export const signInAction = async (formData: FormData) => {
             },
         })
     } catch (error) {
-        throw new Error(error as string)
+        // unknown error
+        return handleServerActionError(error, { userId: null, action: 'actions/signInAction' })
     }
 
     // Next.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다.
@@ -31,7 +35,10 @@ export const signInAction = async (formData: FormData) => {
         })
 
         if (!result.success) {
-            return { error: result.error.issues.map((issue) => issue.message).join(' ') }
+            return handleServerActionError(new BadRequestError(BadRequestErrorMessage.INVALID_INPUT), {
+                userId: null,
+                action: 'actions/signInAction',
+            })
         }
 
         try {
@@ -49,10 +56,11 @@ export const signInAction = async (formData: FormData) => {
             if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
                 throw error
             }
-            if (error instanceof Error && error.name === 'CredentialsSignin') {
-                return { error: 'email or password is incorrect' }
-            }
-            return { error }
+
+            return handleServerActionError(new UnauthorizedError(UnauthorizedErrorMessage.INVALID_CREDENTIALS), {
+                userId: null,
+                action: 'actions/signInAction',
+            })
         }
     } else {
         try {
@@ -67,7 +75,10 @@ export const signInAction = async (formData: FormData) => {
             })
 
             if (!result.success) {
-                return { error: result.error.issues.map((issue) => issue.message).join(' ') }
+                return handleServerActionError(new BadRequestError(BadRequestErrorMessage.INVALID_INPUT), {
+                    userId: null,
+                    action: 'actions/signInAction',
+                })
             }
 
             await signIn('credentials', {
@@ -79,7 +90,12 @@ export const signInAction = async (formData: FormData) => {
             if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
                 throw error
             }
-            return { error }
+
+            // unknown error
+            return handleServerActionError(new UnauthorizedError(UnauthorizedErrorMessage.INVALID_GUEST_USER_ID), {
+                userId: null,
+                action: 'actions/signInAction',
+            })
         }
     }
 }

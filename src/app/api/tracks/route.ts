@@ -26,6 +26,6 @@ export async function GET() {
 
         return NextResponse.json(tracks)
     } catch (error) {
-        handleServerError(error, { userId, action: 'api/tracks/GET' })
+        return handleServerError(error, { userId, action: 'api/tracks/GET' })
     }
 }

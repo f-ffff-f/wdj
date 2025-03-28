@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import TurnstileWidget from '@/lib/client/components/TurnstileWidget'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useActionState, useState } from 'react'
 import { signInAction } from '@/app/actions'
 
 const SignIn = () => {
@@ -16,12 +16,7 @@ const SignIn = () => {
         setTurnstileToken(token)
     }
 
-    const handleAction = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-
-        // Get the form data
-        const formData = new FormData(e.currentTarget)
-
+    const handleAction = async (prevState: { success: boolean; message: string }, formData: FormData) => {
         // Add the turnstile token to the form data
         formData.append('turnstileToken', turnstileToken)
 
@@ -32,19 +27,27 @@ const SignIn = () => {
         }
 
         // Call the server action
-        const result = await signInAction(formData)
+        const result = await signInAction(prevState, formData)
 
-        if (result.error) {
-            alert(result.error)
+        if (!result.success) {
+            alert(result.message)
         }
+
         // Reset the Turnstile widget after submission
         setResetTrigger((prev) => prev + 1)
+
+        return result
     }
+
+    const [, formAction, isPending] = useActionState(handleAction, {
+        success: false,
+        message: '',
+    })
 
     return (
         <div className="max-w-md m-auto p-4">
-            <form onSubmit={handleAction}>
-                <fieldset disabled={false}>
+            <form action={formAction}>
+                <fieldset disabled={isPending}>
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="email">Email</Label>
                         <Input type="email" name="email" />
