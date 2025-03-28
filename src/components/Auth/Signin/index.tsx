@@ -8,7 +8,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { signInAction } from '@/app/actions'
 
-const SignInForm = () => {
+const SignIn = () => {
     const [turnstileToken, setTurnstileToken] = useState<string>('')
     const [resetTrigger, setResetTrigger] = useState<number>(0)
 
@@ -74,4 +74,4 @@ const SignInForm = () => {
     )
 }
 
-export default SignInForm
+export default SignIn

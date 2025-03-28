@@ -8,7 +8,7 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar'
-import { usePlaylistMutaion } from '@/lib/client/hooks/usePlaylistMutaion'
+import { usePlaylistMutation } from '@/lib/client/hooks/usePlaylistMutation'
 import { usePlaylistQuery } from '@/lib/client/hooks/usePlaylistQuery'
 import { state } from '@/lib/client/state'
 import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
@@ -20,7 +20,7 @@ const Playlist = () => {
     const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null)
     const { playlistsQuery, isLoadingPlaylists, errorPlaylists } = usePlaylistQuery()
-    const { createPlaylistMutation, updatePlaylistMutation, deletePlaylistMutation } = usePlaylistMutaion()
+    const { createPlaylistMutation, updatePlaylistMutation, deletePlaylistMutation } = usePlaylistMutation()
 
     // 새 플레이리스트 추가 핸들러
     const handleAddPlaylist = (data: { name: string }) => {

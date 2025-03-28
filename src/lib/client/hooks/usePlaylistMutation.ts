@@ -3,12 +3,9 @@ import { state } from '@/lib/client/state'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 import { Playlist, Track } from '@prisma/client'
+import { API_PLAYLISTS, QUERY_KEYS } from '@/lib/client/constants/endpoints'
 
-const API = '/api'
-const PLAYLIST = '/playlist'
-const QUERY_KEY = [API, PLAYLIST]
-
-export const usePlaylistMutaion = () => {
+export const usePlaylistMutation = () => {
     const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
 
     const queryClient = useQueryClient()
@@ -18,15 +15,15 @@ export const usePlaylistMutaion = () => {
      */
     const createPlaylistMutation = useMutation({
         mutationFn: async (name: string) => {
-            return customFetcher(`${API}/${PLAYLIST}/create`, {
+            return customFetcher(`${API_PLAYLISTS}/create`, {
                 method: 'POST',
                 body: JSON.stringify({ name }),
             })
         },
         onMutate: async (name) => {
-            await queryClient.cancelQueries({ queryKey: QUERY_KEY })
+            await queryClient.cancelQueries({ queryKey: QUERY_KEYS.PLAYLIST })
 
-            const previousPlaylists = queryClient.getQueryData<Playlist[]>(QUERY_KEY)
+            const previousPlaylists = queryClient.getQueryData<Playlist[]>(QUERY_KEYS.PLAYLIST)
 
             const tempId = `temp-${Date.now()}`
 
@@ -39,19 +36,19 @@ export const usePlaylistMutaion = () => {
                     userId: '', // 실제 값은 서버에서 설정됨
                 }
 
-                queryClient.setQueryData<Playlist[]>(QUERY_KEY, [newPlaylist, ...previousPlaylists])
+                queryClient.setQueryData<Playlist[]>(QUERY_KEYS.PLAYLIST, [newPlaylist, ...previousPlaylists])
             }
 
             return { previousPlaylists }
         },
         onError: (error, name, context) => {
             if (context?.previousPlaylists) {
-                queryClient.setQueryData(QUERY_KEY, context.previousPlaylists)
+                queryClient.setQueryData(QUERY_KEYS.PLAYLIST, context.previousPlaylists)
             }
             alert(error)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLAYLIST })
         },
     })
 
@@ -60,18 +57,18 @@ export const usePlaylistMutaion = () => {
      */
     const updatePlaylistMutation = useMutation({
         mutationFn: async (params: { id: string; name: string }) => {
-            return customFetcher(`${API}/${PLAYLIST}/${params.id}/update`, {
+            return customFetcher(`${API_PLAYLISTS}/${params.id}/update`, {
                 method: 'PATCH',
                 body: JSON.stringify({ name: params.name }),
             })
         },
         onMutate: async (params) => {
-            await queryClient.cancelQueries({ queryKey: QUERY_KEY })
-            const previousPlaylists = queryClient.getQueryData<Playlist[]>(QUERY_KEY)
+            await queryClient.cancelQueries({ queryKey: QUERY_KEYS.PLAYLIST })
+            const previousPlaylists = queryClient.getQueryData<Playlist[]>(QUERY_KEYS.PLAYLIST)
 
             if (previousPlaylists) {
                 queryClient.setQueryData<Playlist[]>(
-                    QUERY_KEY,
+                    QUERY_KEYS.PLAYLIST,
                     previousPlaylists.map((playlist) =>
                         playlist.id === params.id
                             ? { ...playlist, name: params.name, updatedAt: new Date() }
@@ -84,12 +81,12 @@ export const usePlaylistMutaion = () => {
         },
         onError: (error, params, context) => {
             if (context?.previousPlaylists) {
-                queryClient.setQueryData(QUERY_KEY, context.previousPlaylists)
+                queryClient.setQueryData(QUERY_KEYS.PLAYLIST, context.previousPlaylists)
             }
             alert(error)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLAYLIST })
         },
     })
 
@@ -98,17 +95,17 @@ export const usePlaylistMutaion = () => {
      */
     const deletePlaylistMutation = useMutation({
         mutationFn: async (id: string) => {
-            return customFetcher(`${API}/${PLAYLIST}/${id}/delete`, {
+            return customFetcher(`${API_PLAYLISTS}/${id}/delete`, {
                 method: 'DELETE',
             })
         },
         onMutate: async (id) => {
-            await queryClient.cancelQueries({ queryKey: QUERY_KEY })
-            const previousPlaylists = queryClient.getQueryData<Playlist[]>(QUERY_KEY)
+            await queryClient.cancelQueries({ queryKey: QUERY_KEYS.PLAYLIST })
+            const previousPlaylists = queryClient.getQueryData<Playlist[]>(QUERY_KEYS.PLAYLIST)
 
             if (previousPlaylists) {
                 queryClient.setQueryData<Playlist[]>(
-                    QUERY_KEY,
+                    QUERY_KEYS.PLAYLIST,
                     previousPlaylists.filter((playlist) => playlist.id !== id),
                 )
             }
@@ -117,24 +114,26 @@ export const usePlaylistMutaion = () => {
         },
         onError: (error, id, context) => {
             if (context?.previousPlaylists) {
-                queryClient.setQueryData(QUERY_KEY, context.previousPlaylists)
+                queryClient.setQueryData(QUERY_KEYS.PLAYLIST, context.previousPlaylists)
             }
             alert(error)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLAYLIST })
         },
     })
 
     const addTracksToPlaylistMutation = useMutation<Playlist, Error, { id: string; trackIds: string[] }>({
         mutationFn: async ({ id, trackIds }) => {
-            return customFetcher(`${API}/${PLAYLIST}/${id}/tracks`, {
+            return customFetcher(`${API_PLAYLISTS}/${id}/tracks`, {
                 method: 'POST',
                 body: JSON.stringify({ trackIds }),
             })
         },
-        onSettled: ({ ...data }) => {
-            queryClient.invalidateQueries({ queryKey: [API, data?.id] })
+        onSettled: (data) => {
+            if (data) {
+                queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PLAYLIST[0], QUERY_KEYS.PLAYLIST[1], data.id] })
+            }
         },
         onError: (error) => {
             alert(error)
@@ -143,17 +142,17 @@ export const usePlaylistMutaion = () => {
 
     const deleteTracksFromPlaylistMutation = useMutation({
         mutationFn: async (trackIds: string[]) => {
-            return customFetcher(`${API}/${PLAYLIST}/${currentPlaylistId}/tracks`, {
+            return customFetcher(`${API_PLAYLISTS}/${currentPlaylistId}/tracks`, {
                 method: 'DELETE',
                 body: JSON.stringify({ trackIds }),
             })
         },
         onMutate: async (trackIds) => {
-            await queryClient.cancelQueries({ queryKey: QUERY_KEY })
+            await queryClient.cancelQueries({ queryKey: QUERY_KEYS.PLAYLIST })
 
-            const previousTracks = queryClient.getQueryData<Track[]>(QUERY_KEY)
+            const previousTracks = queryClient.getQueryData<Track[]>(QUERY_KEYS.PLAYLIST)
 
-            queryClient.setQueryData<Track[]>(QUERY_KEY, (old = []) =>
+            queryClient.setQueryData<Track[]>(QUERY_KEYS.PLAYLIST, (old = []) =>
                 old.filter((track) => !trackIds.includes(track.id)),
             )
 
@@ -161,12 +160,12 @@ export const usePlaylistMutaion = () => {
         },
         onError: (error, trackIds, context) => {
             if (context?.previousTracks) {
-                queryClient.setQueryData(QUERY_KEY, context.previousTracks)
+                queryClient.setQueryData(QUERY_KEYS.PLAYLIST, context.previousTracks)
             }
             alert(error)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.PLAYLIST })
         },
     })
 

@@ -10,7 +10,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenuAction } from '@/components/ui/sidebar'
-import { usePlaylistMutaion } from '@/lib/client/hooks/usePlaylistMutaion'
+import { usePlaylistMutation } from '@/lib/client/hooks/usePlaylistMutation'
 import { usePlaylistQuery } from '@/lib/client/hooks/usePlaylistQuery'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
@@ -141,7 +141,7 @@ const MarqueeText = ({ text }: { text: string }) => {
 const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
     const { deleteTrackMutation } = useTrackMutation()
     const { playlistsQuery } = usePlaylistQuery()
-    const { addTracksToPlaylistMutation } = usePlaylistMutaion()
+    const { addTracksToPlaylistMutation } = usePlaylistMutation()
 
     return (
         <DropdownMenu>
@@ -177,7 +177,7 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
 }
 
 const PlaylistDropdownMenu = ({ trackId }: { trackId: string }) => {
-    const { deleteTracksFromPlaylistMutation } = usePlaylistMutaion()
+    const { deleteTracksFromPlaylistMutation } = usePlaylistMutation()
 
     return (
         <DropdownMenu>

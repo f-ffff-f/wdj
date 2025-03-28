@@ -6,10 +6,7 @@ import { handleClientError } from '@/lib/client/utils/handleClientError'
 import { Track } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
-
-const API = '/api'
-const TRACK = '/tracks'
-const QUERY_KEY = [API, TRACK]
+import { API_TRACKS, QUERY_KEYS } from '@/lib/client/constants/endpoints'
 
 export const useTrackMutation = () => {
     const { isMember } = useClientAuth()
@@ -23,7 +20,7 @@ export const useTrackMutation = () => {
             // 1. db 저장 요청
             const playlistId = snapshot.UI.currentPlaylistId
 
-            const response = await customFetcher(`${API}/${TRACK}/create`, {
+            const response = await customFetcher(`${API_TRACKS}/create`, {
                 method: 'POST',
                 body: JSON.stringify({
                     fileName: file.name,
@@ -38,7 +35,7 @@ export const useTrackMutation = () => {
             state.UI.focusedTrackId = response.id
 
             // Invalidate queries to refresh UI with the new track
-            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRACKS })
             queryClient.invalidateQueries({
                 queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId],
             })
@@ -87,36 +84,36 @@ export const useTrackMutation = () => {
         mutationFn: async (id: string) => {
             deleteTrackFromIndexedDB(id)
 
-            return customFetcher(`${API}/${TRACK}/${id}/delete`, {
+            return customFetcher(`${API_TRACKS}/${id}/delete`, {
                 method: 'DELETE',
             })
         },
         onMutate: async (id) => {
-            await queryClient.cancelQueries({ queryKey: QUERY_KEY })
+            await queryClient.cancelQueries({ queryKey: QUERY_KEYS.TRACKS })
 
-            const previousTracks = queryClient.getQueryData<Track[]>(QUERY_KEY)
-            queryClient.setQueryData<Track[]>(QUERY_KEY, (old = []) => old.filter((track) => track.id !== id))
+            const previousTracks = queryClient.getQueryData<Track[]>(QUERY_KEYS.TRACKS)
+            queryClient.setQueryData<Track[]>(QUERY_KEYS.TRACKS, (old = []) => old.filter((track) => track.id !== id))
 
             return { previousTracks }
         },
         onError: (error, id, context) => {
-            queryClient.setQueryData(QUERY_KEY, context?.previousTracks)
+            queryClient.setQueryData(QUERY_KEYS.TRACKS, context?.previousTracks)
             alert(error)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRACKS })
         },
     })
 
     // 모든 트랙 삭제
     const deleteAllTracksMutation = useMutation({
         mutationFn: async () => {
-            return customFetcher(`${API}/${TRACK}/delete`, {
+            return customFetcher(`${API_TRACKS}/delete`, {
                 method: 'DELETE',
             })
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: QUERY_KEY })
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRACKS })
         },
     })
 
