@@ -65,44 +65,6 @@ export async function POST(request: Request, props: { params: Promise<{ id: stri
 }
 
 /**
- * 특정 플레이리스트의 트랙 목록 조회 API
- */
-export async function GET(request: Request, props: { params: Promise<{ id: string }> }) {
-    const params = await props.params
-    let userId: string | undefined
-
-    try {
-        userId = await getUserIdFromSession()
-
-        const playlist = await prisma.playlist.findUnique({
-            where: {
-                id: params.id,
-                userId: userId,
-            },
-            include: {
-                tracks: {
-                    select: {
-                        id: true,
-                        fileName: true,
-                        createdAt: true,
-                    },
-                    orderBy: { createdAt: 'desc' },
-                },
-            },
-        })
-
-        if (!playlist) throw new NotFoundError(NotFoundErrorMessage.PLAYLIST_NOT_FOUND)
-
-        return NextResponse.json(playlist.tracks)
-    } catch (error) {
-        return handleServerError(error, {
-            userId,
-            action: `api/playlist/${params.id}/tracks/GET`,
-        })
-    }
-}
-
-/**
  * 플레이리스트에서 트랙 삭제 API
  */
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
