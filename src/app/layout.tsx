@@ -1,6 +1,6 @@
 import { DevEnvIndicator } from '@/lib/client/components/DevEnvIndicator'
-import { QueryProvider } from '@/lib/client/providers/QueryProvider'
-import { SessionProvider } from '@/lib/client/providers/SessionProvider'
+import { QueryProvider } from '@/app/QueryProvider'
+import { SessionProvider } from '@/app/SessionProvider'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'

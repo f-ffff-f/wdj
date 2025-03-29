@@ -3,14 +3,13 @@ import { devtools } from 'valtio/utils'
 
 interface IState {
     UI: {
-        currentPlaylistId: string
         focusedTrackId: string
         storageEstimate: StorageEstimate | null
     }
 }
 
 export const state = proxy<IState>({
-    UI: { currentPlaylistId: '', focusedTrackId: '', storageEstimate: null },
+    UI: { focusedTrackId: '', storageEstimate: null },
 })
 
 export const updateStorageEstimate = async () => {

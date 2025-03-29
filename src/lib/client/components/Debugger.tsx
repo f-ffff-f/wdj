@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useEffect, useState } from 'react'
 import { useSnapshot } from 'valtio'
 import { state } from '@/lib/client/state'

@@ -1,3 +1,4 @@
+'use client'
 import { DialogDescription } from '@/components/ui/dialog'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@radix-ui/react-label'
