@@ -8,6 +8,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 import { API_TRACKS, QUERY_KEYS } from '@/lib/client/constants/endpoints'
 
+/** @deprecated */
 export const useTrackMutation = () => {
     const { isMember } = useClientAuth()
     const snapshot = useSnapshot(state)

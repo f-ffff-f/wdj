@@ -8,14 +8,14 @@ const MainView = async () => {
 
     return (
         <div>
-            {/* {isMobileDevice ? ( */}
-            <DJController />
-            {/* ) : (
+            {isMobileDevice ? (
+                <DJController />
+            ) : (
                 <Shortcuts>
                     <DJController />
                     {process.env.NODE_ENV === 'development' && <Debugger />}
                 </Shortcuts>
-            )} */}
+            )}
         </div>
     )
 }

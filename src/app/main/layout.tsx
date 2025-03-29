@@ -5,7 +5,7 @@ import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 import { redirect } from 'next/navigation'
 
-const PlaylistPage = async ({ children }: { children: React.ReactNode }) => {
+const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     const session = await auth()
 
     if (!session) {
@@ -30,4 +30,4 @@ const PlaylistPage = async ({ children }: { children: React.ReactNode }) => {
     )
 }
 
-export default PlaylistPage
+export default MainLayout

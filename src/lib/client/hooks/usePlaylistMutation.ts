@@ -5,6 +5,7 @@ import { useSnapshot } from 'valtio'
 import { Playlist, Track } from '@prisma/client'
 import { API_PLAYLISTS, QUERY_KEYS } from '@/lib/client/constants/endpoints'
 
+/** @deprecated */
 export const usePlaylistMutation = () => {
     const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
 

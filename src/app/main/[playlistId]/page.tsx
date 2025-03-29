@@ -16,22 +16,17 @@ const PlaylistPage = async ({ params }: MainProps) => {
 
     const queryClient = new QueryClient()
 
-    // 플레이리스트 데이터 미리 가져오기
+    // 세션의 사용자 ID로 플레이리스트 목록을 가져와 유효성 검증
     await queryClient.prefetchQuery({
         queryKey: ['playlists'],
         queryFn: getPlaylists,
     })
+    const userPlaylists = queryClient.getQueryData<Playlist[]>(['playlists'])
+    const isValidPlaylist = userPlaylists?.some((playlist) => playlist.id === playlistId)
 
-    if (playlistId !== DEFAULT_PLAYLIST_ID) {
-        // 세션의 사용자 ID로 플레이리스트 목록을 가져와 유효성 검증
-        const userPlaylists = queryClient.getQueryData<Playlist[]>(['playlists'])
-
-        const isValidPlaylist = userPlaylists?.some((playlist) => playlist.id === playlistId)
-
-        // 현재 사용자의 플레이리스트가 아니면 not-found 처리
-        if (!isValidPlaylist) {
-            notFound()
-        }
+    // 현재 사용자의 플레이리스트가 아니면 not-found 처리
+    if (!isValidPlaylist) {
+        notFound()
     }
 
     // 플레이리스트 ID에 해당하는 트랙 데이터 미리 가져오기

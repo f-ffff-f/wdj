@@ -2,7 +2,7 @@ import { getTracks } from '@/app/main/actions'
 import MainView from '@/components/MainView'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 
-const PlaylistPage = async () => {
+const MainPage = async () => {
     const queryClient = new QueryClient()
     await queryClient.prefetchQuery({
         queryKey: ['tracks', null],
@@ -16,4 +16,4 @@ const PlaylistPage = async () => {
     )
 }
 
-export default PlaylistPage
+export default MainPage
