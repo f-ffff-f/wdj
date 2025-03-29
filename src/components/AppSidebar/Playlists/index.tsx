@@ -10,15 +10,18 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { usePlaylistMutation } from '@/lib/client/hooks/usePlaylistMutation'
-import { state } from '@/lib/client/state'
 import { Playlist } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { MoreHorizontal } from 'lucide-react'
+import Link from 'next/link'
+import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import PlaylistForm from './PlaylistForm'
-import Link from 'next/link'
 
 const Playlists = () => {
+    const router = useRouter()
+    const { playlistId } = useParams<{ playlistId?: string }>()
+
     const playlistsQuery = useQuery<Playlist[]>({
         queryKey: ['playlists'],
         queryFn: getPlaylists,
@@ -39,10 +42,10 @@ const Playlists = () => {
         setEditingPlaylistId(null)
     }
 
-    const handleDeletePlaylist = (playlistId: string) => {
-        deletePlaylistMutation.mutate(playlistId)
-        if (state.UI.currentPlaylistId === playlistId) {
-            state.UI.currentPlaylistId = ''
+    const handleDeletePlaylist = (selectedPlaylistId: string) => {
+        deletePlaylistMutation.mutate(selectedPlaylistId)
+        if (playlistId === selectedPlaylistId) {
+            router.push('/main')
         }
     }
 
@@ -61,20 +64,18 @@ const Playlists = () => {
             <SidebarGroupContent>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton
-                            className="cursor-pointer"
-                            asChild
-                            onClick={() => {
-                                state.UI.currentPlaylistId = ''
-                            }}
-                        >
+                        <SidebarMenuButton className="cursor-pointer" isActive={!playlistId} asChild>
                             <Link href="/main">Library</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     {playlistsQuery?.data?.map((playlist) => {
                         return editingPlaylistId !== playlist.id ? (
                             <SidebarMenuItem key={playlist.id}>
-                                <SidebarMenuButton className="cursor-pointer playlist-item" asChild>
+                                <SidebarMenuButton
+                                    className="cursor-pointer"
+                                    isActive={playlist.id === playlistId}
+                                    asChild
+                                >
                                     <Link href={`/main/${playlist.id}`}>{playlist.name}</Link>
                                 </SidebarMenuButton>
                                 <DropdownMenu>
