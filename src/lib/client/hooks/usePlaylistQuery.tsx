@@ -3,8 +3,8 @@ import { Playlist } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { API_PLAYLISTS, QUERY_KEYS } from '@/lib/client/constants/endpoints'
 
+/** @deprecated */
 export const usePlaylistQuery = () => {
-    /** @deprecated */
     const playlistsQuery = useQuery<Playlist[]>({
         queryKey: QUERY_KEYS.PLAYLIST,
         queryFn: () => customFetcher(API_PLAYLISTS),

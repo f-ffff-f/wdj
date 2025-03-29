@@ -5,12 +5,11 @@ import { handleServerActionError } from '@/lib/server/handleServerError'
 import { prisma } from '@/lib/shared/prisma'
 import { Playlist, Track } from '@prisma/client'
 
-export const getTracks = async (playlistId: string): Promise<Track[]> => {
+export const getTracks = async (playlistId?: string): Promise<Track[]> => {
     const userId = await getUserIdFromSession()
 
     try {
-        // 'library'는 특별한 케이스로 모든 트랙을 가져옴
-        if (playlistId === 'library') {
+        if (!playlistId) {
             const allTracks = await prisma.track.findMany({
                 where: { userId },
                 orderBy: { createdAt: 'desc' },

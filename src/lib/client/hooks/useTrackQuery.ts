@@ -5,10 +5,10 @@ import { useQuery } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 import { API_TRACKS, API_PLAYLISTS, QUERY_KEYS } from '@/lib/client/constants/endpoints'
 
+/** @deprecated */
 export const useTrackQuery = () => {
     const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
 
-    /** @deprecated */
     const tracksQuery = useQuery<Track[]>({
         queryKey: QUERY_KEYS.TRACKS,
         queryFn: () => customFetcher(API_TRACKS),

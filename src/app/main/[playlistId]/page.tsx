@@ -1,11 +1,9 @@
 import { getPlaylists, getTracks } from '@/app/main/actions'
 import { auth } from '@/auth'
-import AppSidebar from '@/components/AppSidebar'
 import MainView from '@/components/MainView'
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
 import { Playlist } from '@prisma/client'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 
 const DEFAULT_PLAYLIST_ID = 'library'
 
@@ -14,13 +12,6 @@ type MainProps = {
 }
 
 const PlaylistPage = async ({ params }: MainProps) => {
-    const session = await auth()
-
-    if (!session) {
-        redirect('/')
-    }
-
-    // Next.js 15에서는 params가 Promise이므로 await해야 함
     const { playlistId } = await params
 
     const queryClient = new QueryClient()
@@ -51,13 +42,7 @@ const PlaylistPage = async ({ params }: MainProps) => {
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <SidebarProvider defaultOpen={true}>
-                <AppSidebar />
-                <SidebarTrigger />
-                <div className="flex-1">
-                    <MainView />
-                </div>
-            </SidebarProvider>
+            <MainView />
         </HydrationBoundary>
     )
 }

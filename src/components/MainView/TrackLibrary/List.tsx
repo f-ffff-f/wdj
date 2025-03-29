@@ -1,4 +1,4 @@
-import { getTracks } from '@/app/main/actions'
+import { getPlaylists, getTracks } from '@/app/main/actions'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {
@@ -12,14 +12,12 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { SidebarMenuAction } from '@/components/ui/sidebar'
 import { usePlaylistMutation } from '@/lib/client/hooks/usePlaylistMutation'
-import { usePlaylistQuery } from '@/lib/client/hooks/usePlaylistQuery'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
-import { useTrackQuery } from '@/lib/client/hooks/useTrackQuery'
 import { state } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
 import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
-import { Track } from '@prisma/client'
+import { Playlist, Track } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowUpCircle, MoreVertical } from 'lucide-react'
 import { useParams } from 'next/navigation'
@@ -151,8 +149,11 @@ const MarqueeText = ({ text }: { text: string }) => {
 }
 
 const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
+    const playlistsQuery = useQuery<Playlist[]>({
+        queryKey: ['playlists'],
+        queryFn: () => getPlaylists(),
+    })
     const { deleteTrackMutation } = useTrackMutation()
-    const { playlistsQuery } = usePlaylistQuery()
     const { addTracksToPlaylistMutation } = usePlaylistMutation()
 
     return (
@@ -168,7 +169,7 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
                         <span>Add to Playlist</span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
-                        {playlistsQuery?.map((playlist) => (
+                        {playlistsQuery.data?.map((playlist) => (
                             <DropdownMenuItem
                                 key={playlist.id}
                                 onClick={() => {

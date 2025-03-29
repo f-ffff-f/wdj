@@ -68,7 +68,7 @@ const Playlists = () => {
                                 state.UI.currentPlaylistId = ''
                             }}
                         >
-                            <Link href="/main/library">Library</Link>
+                            <Link href="/main">Library</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     {playlistsQuery?.data?.map((playlist) => {

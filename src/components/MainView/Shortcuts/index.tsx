@@ -8,13 +8,22 @@ import { state } from '@/lib/client/state'
 import { Button } from '@/components/ui/button'
 import React, { useEffect, useRef, useState } from 'react'
 import { KeyboardIcon, XIcon } from 'lucide-react'
-import { useTrackQuery } from '@/lib/client/hooks/useTrackQuery'
+import { useParams } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import { getTracks } from '@/app/main/actions'
+import { Track } from '@prisma/client'
 
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {
+    const { playlistId } = useParams<{ playlistId?: string }>()
+
     const ref = useRef<HTMLDivElement>(null)
     const [showHelp, setShowHelp] = useState(false)
+
+    const tracksQuery = useQuery<Track[]>({
+        queryKey: ['tracks', playlistId],
+        queryFn: () => getTracks(playlistId),
+    })
     const { getTrackBlobUrl } = useTrackBlob()
-    const { tracksQuery, playlistTracksQuery } = useTrackQuery()
     useEffect(() => {
         ref.current?.focus()
     }, [])
