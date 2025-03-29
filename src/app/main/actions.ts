@@ -2,14 +2,15 @@
 
 import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { handleServerActionError } from '@/lib/server/handleServerError'
+import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { prisma } from '@/lib/shared/prisma'
 import { Playlist, Track } from '@prisma/client'
 
-export const getTracks = async (playlistId?: string): Promise<Track[]> => {
+export const getTracks = async (playlistId: string | typeof PLAYLIST_DEFAULT_ID): Promise<Track[]> => {
     const userId = await getUserIdFromSession()
 
     try {
-        if (!playlistId) {
+        if (playlistId === PLAYLIST_DEFAULT_ID) {
             const allTracks = await prisma.track.findMany({
                 where: { userId },
                 orderBy: { createdAt: 'desc' },

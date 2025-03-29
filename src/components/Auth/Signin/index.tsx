@@ -6,14 +6,16 @@ import { Label } from '@/components/ui/label'
 import TurnstileWidget from '@/lib/client/components/TurnstileWidget'
 import Link from 'next/link'
 import { useActionState, useState } from 'react'
-import { signInAction } from '@/app/actions'
+import { signInAction } from '@/app/(auth)/actions'
 
 const SignIn = () => {
     const [turnstileToken, setTurnstileToken] = useState<string>('')
     const [resetTrigger, setResetTrigger] = useState<number>(0)
+    const [isTurnstilePending, setIsTurnstilePending] = useState(true)
 
     const handleTokenChange = (token: string) => {
         setTurnstileToken(token)
+        setIsTurnstilePending(false)
     }
 
     const handleAction = async (prevState: { success: boolean; message: string }, formData: FormData) => {
@@ -35,7 +37,7 @@ const SignIn = () => {
 
         // Reset the Turnstile widget after submission
         setResetTrigger((prev) => prev + 1)
-
+        setIsTurnstilePending(true)
         return result
     }
 
@@ -47,7 +49,7 @@ const SignIn = () => {
     return (
         <div className="max-w-md m-auto p-4">
             <form action={formAction}>
-                <fieldset disabled={isPending}>
+                <fieldset disabled={isPending || isTurnstilePending}>
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="email">Email</Label>
                         <Input type="email" name="email" />

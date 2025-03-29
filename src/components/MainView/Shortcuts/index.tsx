@@ -14,14 +14,14 @@ import { getTracks } from '@/app/main/actions'
 import { Track } from '@prisma/client'
 
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {
-    const { playlistId } = useParams<{ playlistId?: string }>()
+    const { playlistId: playlistIdParam } = useParams<{ playlistId: string }>()
 
     const ref = useRef<HTMLDivElement>(null)
     const [showHelp, setShowHelp] = useState(false)
 
     const tracksQuery = useQuery<Track[]>({
-        queryKey: ['tracks', playlistId],
-        queryFn: () => getTracks(playlistId),
+        queryKey: ['tracks', playlistIdParam],
+        queryFn: () => getTracks(playlistIdParam),
     })
 
     const { getTrackBlobUrl } = useTrackBlob()
@@ -132,7 +132,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         return () => {
             element?.removeEventListener('keydown', handleKeyDown)
         }
-    }, [tracksQuery.data, getTrackBlobUrl, playlistId])
+    }, [tracksQuery.data, getTrackBlobUrl, playlistIdParam])
 
     return (
         <div

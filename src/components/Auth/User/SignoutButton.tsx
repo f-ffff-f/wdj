@@ -17,7 +17,7 @@ const SignoutButton = () => {
     })
     return (
         <Button onClick={() => signOutMutation.mutate()} disabled={signOutMutation.isPending}>
-            Logout
+            Sign Out
         </Button>
     )
 }

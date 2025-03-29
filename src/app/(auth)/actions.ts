@@ -1,6 +1,6 @@
 'use server'
 
-import { signIn, signOut } from '@/auth'
+import { signIn } from '@/auth'
 import { handleServerActionError } from '@/lib/server/handleServerError'
 import { BadRequestError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { BadRequestErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'

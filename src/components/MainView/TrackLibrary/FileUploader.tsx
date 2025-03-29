@@ -1,8 +1,7 @@
 import React from 'react'
 import { InputFile } from '@/components/ui/inputFile'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
-import { LoaderCircle } from 'lucide-react'
-
+import MyLoaderIcon from '@/components/ui/myLoaderIcon'
 const FileUploader = () => {
     const { createTrackMutation } = useTrackMutation()
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,7 +16,7 @@ const FileUploader = () => {
         <div>
             {createTrackMutation.isPending ? (
                 <div className="flex items-center justify-center">
-                    <LoaderCircle className="animate-spin" />
+                    <MyLoaderIcon />
                 </div>
             ) : (
                 <InputFile type="file" accept="audio/mp3" onChange={(e) => handleFileUpload(e)} id="file-uploader" />

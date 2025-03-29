@@ -1,3 +1,5 @@
+'use client'
+
 import { getPlaylists, getTracks } from '@/app/main/actions'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -10,12 +12,14 @@ import {
     DropdownMenuSubTrigger,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Label } from '@/components/ui/label'
 import { SidebarMenuAction } from '@/components/ui/sidebar'
 import { usePlaylistMutation } from '@/lib/client/hooks/usePlaylistMutation'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
 import { state } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
+import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
 import { Playlist, Track } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
@@ -25,12 +29,12 @@ import React, { useEffect, useRef, useState } from 'react'
 import Marquee from 'react-fast-marquee'
 import { useSnapshot } from 'valtio'
 
-const List = () => {
-    const { playlistId } = useParams<{ playlistId: string }>()
+const TrackList = () => {
+    const { playlistId: playlistIdParam } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
 
     const tracksQuery = useQuery<Track[]>({
-        queryKey: ['tracks', playlistId],
-        queryFn: () => getTracks(playlistId),
+        queryKey: ['tracks', playlistIdParam],
+        queryFn: () => getTracks(playlistIdParam),
     })
 
     const focusedTrackId = useSnapshot(state).UI.focusedTrackId
@@ -45,15 +49,15 @@ const List = () => {
     }
 
     if (tracksQuery?.error) {
-        return <div>Error: {tracksQuery.error.message}</div>
+        return <Label>Error: {tracksQuery.error.message}</Label>
     }
 
     if (tracksQuery.isLoading) {
-        return <div>Loading tracks...</div>
+        return <Label>Loading tracks...</Label>
     }
 
     if (!tracksQuery.data || tracksQuery.data.length === 0) {
-        return <div>No tracks available</div>
+        return <Label>No tracks available</Label>
     }
 
     return (
@@ -67,7 +71,7 @@ const List = () => {
                     handleLoadToDeck={handleLoadToDeck}
                     handleClick={handleClick}
                 >
-                    {playlistId === 'library' ? (
+                    {playlistIdParam === PLAYLIST_DEFAULT_ID ? (
                         <LibraryDropdownMenu trackId={track.id} />
                     ) : (
                         <PlaylistDropdownMenu trackId={track.id} />
@@ -208,4 +212,4 @@ const PlaylistDropdownMenu = ({ trackId }: { trackId: string }) => {
     )
 }
 
-export default List
+export default TrackList

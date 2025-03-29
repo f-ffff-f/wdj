@@ -17,6 +17,7 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import PlaylistForm from './PlaylistForm'
+import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 
 const Playlists = () => {
     const router = useRouter()
@@ -45,7 +46,7 @@ const Playlists = () => {
     const handleDeletePlaylist = (selectedPlaylistId: string) => {
         deletePlaylistMutation.mutate(selectedPlaylistId)
         if (playlistId === selectedPlaylistId) {
-            router.push('/main')
+            router.push(`/main/${PLAYLIST_DEFAULT_ID}`)
         }
     }
 
@@ -65,7 +66,7 @@ const Playlists = () => {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton className="cursor-pointer" isActive={!playlistId} asChild>
-                            <Link href="/main">Library</Link>
+                            <Link href={`/main/${PLAYLIST_DEFAULT_ID}`}>Library</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     {playlistsQuery?.data?.map((playlist) => {

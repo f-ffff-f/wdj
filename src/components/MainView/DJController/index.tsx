@@ -2,7 +2,6 @@
 
 import WaveformVisualizer from '@/components/MainView/DJController/WaveformVisualizer'
 import FileUploader from '@/components/MainView/TrackLibrary/FileUploader'
-import List from '@/components/MainView/TrackLibrary/List'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { SliderCrossfade } from '@/components/ui/sliderCrossfade'
@@ -51,7 +50,7 @@ const INITIAL_UI: IDJContollerUI = {
     crossFade: deckoSingleton.getCrossFade(),
 }
 
-export const DJController = () => {
+export const DJController = ({ children: TrackListComponent }: { children: React.ReactNode }) => {
     const [stateUI, setStateUI] = useState(INITIAL_UI)
 
     // 매 프레임 인스턴스를 조회해서 UI 상태 갱신
@@ -163,7 +162,7 @@ export const DJController = () => {
                     </Label>
                     <FileUploader />
                 </div>
-                <List />
+                {TrackListComponent}
             </div>
         </div>
     )
