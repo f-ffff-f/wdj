@@ -20,13 +20,13 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     })
 
     return (
-        <HydrationBoundary state={dehydrate(queryClient)}>
-            <SidebarProvider defaultOpen={true}>
+        <SidebarProvider defaultOpen={true}>
+            <HydrationBoundary state={dehydrate(queryClient)}>
                 <AppSidebar />
-                <SidebarTrigger />
-                <div className="flex-1">{children}</div>
-            </SidebarProvider>
-        </HydrationBoundary>
+            </HydrationBoundary>
+            <SidebarTrigger />
+            <div className="flex-1">{children}</div>
+        </SidebarProvider>
     )
 }
 

@@ -4,6 +4,7 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 
 const MainPage = async () => {
     const queryClient = new QueryClient()
+
     await queryClient.prefetchQuery({
         queryKey: ['tracks', null],
         queryFn: () => getTracks(),

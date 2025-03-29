@@ -1,11 +1,8 @@
 import { getPlaylists, getTracks } from '@/app/main/actions'
-import { auth } from '@/auth'
 import MainView from '@/components/MainView'
 import { Playlist } from '@prisma/client'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 import { notFound } from 'next/navigation'
-
-const DEFAULT_PLAYLIST_ID = 'library'
 
 type MainProps = {
     params: Promise<{ playlistId: string }>
