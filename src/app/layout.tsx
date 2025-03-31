@@ -7,6 +7,13 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import './globals.css'
+import { Geist_Mono } from 'next/font/google'
+
+const geistMono = Geist_Mono({
+    subsets: ['latin'],
+    weight: ['400'],
+    variable: '--font-geist-mono',
+})
 
 export const metadata: Metadata = {
     title: 'Create Next App',
@@ -19,7 +26,7 @@ export default function RootLayout({
     children: React.ReactNode
 }>) {
     return (
-        <html lang="en" className="dark">
+        <html lang="en" className={`${geistMono.variable} dark`}>
             <body className={`antialiased`}>
                 <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer />
 
