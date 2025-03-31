@@ -1,10 +1,11 @@
 'use client'
 
 import WaveformSkeleton from '@/components/MainView/DJController/WaveformSkeleton'
-import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
+import { TDeckId } from '@/lib/client/constants/deck'
+import { deckoSingleton } from '@ghr95223/decko'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
 
-const Waveform = ({ deckId }: { deckId: EDeckIds }) => {
+const Waveform = ({ deckId }: { deckId: TDeckId }) => {
     const containerRef = useRef<HTMLDivElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const audioBuffer = deckoSingleton.getAudioBuffer(deckId)

@@ -6,7 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export const formatTimeUI = (seconds: number): string => {
-    const min = Math.floor(seconds / 60)
-    const sec = Math.floor(seconds % 60)
-    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`
+    const absSeconds = Math.abs(seconds)
+
+    const min = Math.floor(absSeconds / 60)
+    const sec = Math.floor(absSeconds % 60)
+    const ms = Math.floor((absSeconds % 1) * 100)
+    return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}.${ms.toString().padStart(2, '0')}`
 }

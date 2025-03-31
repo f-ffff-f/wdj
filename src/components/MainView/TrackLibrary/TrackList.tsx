@@ -14,13 +14,14 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Label } from '@/components/ui/label'
 import { SidebarMenuAction } from '@/components/ui/sidebar'
+import { DECK_IDS, TDeckId } from '@/lib/client/constants/deck'
 import { usePlaylistMutation } from '@/lib/client/hooks/usePlaylistMutation'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
 import { state } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
-import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
+import { deckoSingleton } from '@ghr95223/decko'
 import { Playlist, Track } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowUpCircle, MoreVertical } from 'lucide-react'
@@ -40,7 +41,7 @@ const TrackList = () => {
     const focusedTrackId = useSnapshot(state).UI.focusedTrackId
     const { getTrackBlobUrl } = useTrackBlob()
 
-    const handleLoadToDeck = async (deckId: EDeckIds, id: string) => {
+    const handleLoadToDeck = async (deckId: TDeckId, id: string) => {
         const url = await getTrackBlobUrl(id)
         deckoSingleton.loadTrack(deckId, url)
     }
@@ -86,7 +87,7 @@ interface ITrackListItemProps {
     trackId: string
     fileName: string
     isFocused: boolean
-    handleLoadToDeck: (deckId: EDeckIds, url: string) => void
+    handleLoadToDeck: (deckId: TDeckId, url: string) => void
     handleClick: (id: string) => void
     children: React.ReactNode
 }
@@ -108,11 +109,11 @@ const Item: React.FC<ITrackListItemProps> = ({
                 )}
                 onClick={() => handleClick(trackId)}
             >
-                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_1, trackId)}>
+                <Button onClick={() => handleLoadToDeck(DECK_IDS.ID_1, trackId)}>
                     <ArrowUpCircle />
                 </Button>
                 <MarqueeText text={fileName} />
-                <Button onClick={() => handleLoadToDeck(EDeckIds.DECK_2, trackId)}>
+                <Button onClick={() => handleLoadToDeck(DECK_IDS.ID_2, trackId)}>
                     <ArrowUpCircle />
                 </Button>
                 {children}

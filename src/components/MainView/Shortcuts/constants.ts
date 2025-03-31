@@ -1,4 +1,4 @@
-import { EDeckIds } from '@ghr95223/decko'
+import { DECK_IDS } from '@/lib/client/constants/deck'
 
 export enum EShortcut {
     KeyQ = 'KeyQ',
@@ -29,18 +29,18 @@ type ShortcutConfig = {
 type AllShortcutsCheck = Record<EShortcut, ShortcutConfig>
 
 export const UI_SHORTCUTS: AllShortcutsCheck = {
-    [EShortcut.KeyQ]: { label: 'Q', target: `#speed-${EDeckIds.DECK_1}` },
-    [EShortcut.KeyA]: { label: 'A', target: `#speed-${EDeckIds.DECK_1}`, position: 'bottom' },
-    [EShortcut.KeyW]: { label: 'W', target: `#gain-${EDeckIds.DECK_1}` },
-    [EShortcut.KeyS]: { label: 'S', target: `#gain-${EDeckIds.DECK_1}`, position: 'bottom' },
-    [EShortcut.BracketRight]: { label: ']', target: `#speed-${EDeckIds.DECK_2}` },
-    [EShortcut.Quote]: { label: '"', target: `#speed-${EDeckIds.DECK_2}`, position: 'bottom' },
-    [EShortcut.BracketLeft]: { label: '[', target: `#gain-${EDeckIds.DECK_2}` },
-    [EShortcut.Semicolon]: { label: ';', target: `#gain-${EDeckIds.DECK_2}`, position: 'bottom' },
+    [EShortcut.KeyQ]: { label: 'Q', target: `#speed-${DECK_IDS.ID_1}` },
+    [EShortcut.KeyA]: { label: 'A', target: `#speed-${DECK_IDS.ID_1}`, position: 'bottom' },
+    [EShortcut.KeyW]: { label: 'W', target: `#gain-${DECK_IDS.ID_1}` },
+    [EShortcut.KeyS]: { label: 'S', target: `#gain-${DECK_IDS.ID_1}`, position: 'bottom' },
+    [EShortcut.BracketRight]: { label: ']', target: `#speed-${DECK_IDS.ID_2}` },
+    [EShortcut.Quote]: { label: '"', target: `#speed-${DECK_IDS.ID_2}`, position: 'bottom' },
+    [EShortcut.BracketLeft]: { label: '[', target: `#gain-${DECK_IDS.ID_2}` },
+    [EShortcut.Semicolon]: { label: ';', target: `#gain-${DECK_IDS.ID_2}`, position: 'bottom' },
     [EShortcut.KeyZ]: { label: 'Z', target: `#crossfader` },
     [EShortcut.Slash]: { label: '/', target: `#crossfader`, position: 'right' },
-    [EShortcut.ShiftLeft]: { label: 'Shift Left', target: `#play-pause-${EDeckIds.DECK_1}` },
-    [EShortcut.ShiftRight]: { label: 'Shift Right', target: `#play-pause-${EDeckIds.DECK_2}`, position: 'right' },
+    [EShortcut.ShiftLeft]: { label: 'Shift Left', target: `#play-pause-${DECK_IDS.ID_1}` },
+    [EShortcut.ShiftRight]: { label: 'Shift Right', target: `#play-pause-${DECK_IDS.ID_2}`, position: 'right' },
     [EShortcut.Enter]: { label: 'Enter', target: `#file-uploader` },
     [EShortcut.ArrowUp]: { label: '↑', target: `#track-list`, position: 'center' },
     [EShortcut.ArrowDown]: { label: '↓', target: `#track-list`, position: 'bottom' },

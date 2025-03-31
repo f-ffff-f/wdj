@@ -7,12 +7,12 @@ import { Label } from '@/components/ui/label'
 import { SliderCrossfade } from '@/components/ui/sliderCrossfade'
 import { SliderSpeed } from '@/components/ui/sliderSpeed'
 import { SliderVolume } from '@/components/ui/sliderVolume'
+import { DECK_IDS, TDeckId } from '@/lib/client/constants/deck'
 import { cn, formatTimeUI } from '@/lib/client/utils'
-import { deckoSingleton, EDeckIds } from '@ghr95223/decko'
+import { deckoSingleton } from '@ghr95223/decko'
 import { useEffect, useState } from 'react'
-
 interface IDeckUI {
-    id: EDeckIds
+    id: TDeckId
     volume: number
     speed: number
     playbackTime: number
@@ -29,22 +29,22 @@ interface IDJContollerUI {
 const INITIAL_UI: IDJContollerUI = {
     deckList: [
         {
-            id: deckoSingleton.getDeck(EDeckIds.DECK_1)?.id ?? EDeckIds.DECK_1,
-            volume: deckoSingleton.getDeck(EDeckIds.DECK_1)?.gainNode.gain.value ?? 0,
-            speed: deckoSingleton.getDeck(EDeckIds.DECK_1)?.speed ?? 1,
+            id: DECK_IDS.ID_1,
+            volume: deckoSingleton.getDeck(DECK_IDS.ID_1)?.gainNode.gain.value ?? 0,
+            speed: deckoSingleton.getDeck(DECK_IDS.ID_1)?.speed ?? 1,
             playbackTime: 0,
             audioBufferDuration: 0,
-            isPlaying: deckoSingleton.getDeck(EDeckIds.DECK_1)?.isPlaying ?? false,
-            isSeeking: deckoSingleton.getDeck(EDeckIds.DECK_1)?.isSeeking ?? false,
+            isPlaying: deckoSingleton.getDeck(DECK_IDS.ID_1)?.isPlaying ?? false,
+            isSeeking: deckoSingleton.getDeck(DECK_IDS.ID_1)?.isSeeking ?? false,
         },
         {
-            id: deckoSingleton.getDeck(EDeckIds.DECK_2)?.id ?? EDeckIds.DECK_2,
-            volume: deckoSingleton.getDeck(EDeckIds.DECK_2)?.gainNode.gain.value ?? 0,
-            speed: deckoSingleton.getDeck(EDeckIds.DECK_2)?.speed ?? 1,
+            id: DECK_IDS.ID_2,
+            volume: deckoSingleton.getDeck(DECK_IDS.ID_2)?.gainNode.gain.value ?? 0,
+            speed: deckoSingleton.getDeck(DECK_IDS.ID_2)?.speed ?? 1,
             playbackTime: 0,
             audioBufferDuration: 0,
-            isPlaying: deckoSingleton.getDeck(EDeckIds.DECK_2)?.isPlaying ?? false,
-            isSeeking: deckoSingleton.getDeck(EDeckIds.DECK_2)?.isSeeking ?? false,
+            isPlaying: deckoSingleton.getDeck(DECK_IDS.ID_2)?.isPlaying ?? false,
+            isSeeking: deckoSingleton.getDeck(DECK_IDS.ID_2)?.isSeeking ?? false,
         },
     ],
     crossFade: deckoSingleton.getCrossFade(),
@@ -95,7 +95,7 @@ export const DJController = ({ children: TrackListComponent }: { children: React
                             className={cn(
                                 'max-md:flex-wrap',
                                 'flex items-baseline gap-1',
-                                deckUI.id === EDeckIds.DECK_1 ? 'flex-row-reverse' : 'flex-row',
+                                deckUI.id === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row',
                             )}
                         >
                             <div className="flex flex-col items-center gap-2">
@@ -125,19 +125,20 @@ export const DJController = ({ children: TrackListComponent }: { children: React
                         <div
                             className={cn(
                                 'flex items-center gap-4',
-                                deckUI.id === EDeckIds.DECK_1 ? 'flex-row-reverse' : 'flex-row',
+                                deckUI.id === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row',
                             )}
                         >
                             <Button
                                 onClick={() => deckoSingleton.playPauseDeck(deckUI.id)}
                                 id={`play-pause-${deckUI.id}`}
+                                className="min-w-[80px] text-center"
                             >
                                 {deckUI.isPlaying ? 'pause' : 'play'}
                             </Button>
-                            <Label>
-                                {formatTimeUI(deckUI.playbackTime)} /{' '}
+                            <Label className="min-w-[10ch] inline-block text-center text-xs">
+                                {formatTimeUI(deckUI.playbackTime)} / -
                                 {Number.isFinite(deckUI.audioBufferDuration)
-                                    ? formatTimeUI(deckUI.audioBufferDuration)
+                                    ? formatTimeUI(deckUI.playbackTime - deckUI.audioBufferDuration)
                                     : '∞'}
                             </Label>
                         </div>

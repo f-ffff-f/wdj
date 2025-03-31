@@ -22,6 +22,7 @@ const verifyTurnstile = async (formData: FormData) => {
     })
 }
 
+// Next.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다.
 export const signInAction = async (_: { success: boolean; message: string }, formData: FormData) => {
     try {
         await verifyTurnstile(formData)
@@ -29,7 +30,6 @@ export const signInAction = async (_: { success: boolean; message: string }, for
         return handleServerActionError(error, { userId: null, action: 'actions/signInAction' })
     }
 
-    // Next.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다.
     if (formData.get('userSignin')) {
         const result = MemberSigninSchema.safeParse({
             email: formData.get('email'),
