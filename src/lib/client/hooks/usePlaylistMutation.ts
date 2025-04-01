@@ -4,10 +4,12 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSnapshot } from 'valtio'
 import { Playlist, Track } from '@prisma/client'
 import { API_PLAYLISTS, QUERY_KEYS } from '@/lib/client/constants/endpoints'
+import { useParams } from 'next/navigation'
+import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 
 /** @deprecated */
 export const usePlaylistMutation = () => {
-    const currentPlaylistId = useSnapshot(state).UI.currentPlaylistId
+    const { playlistId: routePlaylistId } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
 
     const queryClient = useQueryClient()
 
@@ -143,7 +145,7 @@ export const usePlaylistMutation = () => {
 
     const deleteTracksFromPlaylistMutation = useMutation({
         mutationFn: async (trackIds: string[]) => {
-            return customFetcher(`${API_PLAYLISTS}/${currentPlaylistId}/tracks`, {
+            return customFetcher(`${API_PLAYLISTS}/${routePlaylistId}/tracks`, {
                 method: 'DELETE',
                 body: JSON.stringify({ trackIds }),
             })

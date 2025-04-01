@@ -1,61 +1,56 @@
 import { deleteTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/db/indexedDB'
 import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
 import { state } from '@/lib/client/state'
-import { customFetcher } from '@/lib/client/utils/customFetcher'
-import { handleClientError } from '@/lib/client/utils/handleClientError'
 import { Track } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useSnapshot } from 'valtio'
-import { API_TRACKS, QUERY_KEYS } from '@/lib/client/constants/endpoints'
+import { uploadTrack, getTrackPresignedUrl, deleteTrack, deleteAllTracksDB } from '@/app/main/actions'
+import { handleClientError } from '@/lib/client/utils/handleClientError'
+import { useParams } from 'next/navigation'
+import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 
-/** @deprecated */
+/**
+ * 트랙 관련 서버 액션을 사용하는 뮤테이션 훅
+ * 기존 API 엔드포인트 대신 server actions을 사용하도록 수정됨
+ */
 export const useTrackMutation = () => {
     const { isMember } = useClientAuth()
-    const snapshot = useSnapshot(state)
-
+    const { playlistId: routePlaylistId } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
     const queryClient = useQueryClient()
 
     // 트랙 생성 뮤테이션
     const createTrackMutation = useMutation<Track, Error, File>({
         mutationFn: async (file: File) => {
-            // 1. db 저장 요청
-            const playlistId = snapshot.UI.currentPlaylistId
+            // FormData 객체 생성
+            const formData = new FormData()
+            formData.append('fileName', file.name)
 
-            const response = await customFetcher(`${API_TRACKS}/create`, {
-                method: 'POST',
-                body: JSON.stringify({
-                    fileName: file.name,
-                    playlistId,
-                }),
-            })
+            // URL에서 현재 플레이리스트 ID 사용
+            // 기본 플레이리스트(라이브러리)가 아닌 경우에만 플레이리스트 ID 전송
+            if (routePlaylistId && routePlaylistId !== PLAYLIST_DEFAULT_ID) {
+                formData.append('playlistId', routePlaylistId)
+            }
 
-            // Store in IndexedDB and make the track available immediately
+            // 1. 서버 액션으로 트랙 생성
+            const response = await uploadTrack(formData)
+
+            // 2. IndexedDB에 파일 저장
             await setTrackToIndexedDB(response.id, file)
 
-            // Update UI to focus on the new track immediately after IndexedDB storage
+            // 3. UI 상태 업데이트
             state.UI.focusedTrackId = response.id
 
-            // Invalidate queries to refresh UI with the new track
-            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRACKS })
-            queryClient.invalidateQueries({
-                queryKey: ['/api/playlist', snapshot.UI.currentPlaylistId],
-            })
+            // 4. 캐시 업데이트 - 트랙 리스트 및 현재 플레이리스트
+            // TrackList.tsx에서 사용하는 쿼리 키 형식 ['tracks', playlistId]
+            queryClient.invalidateQueries({ queryKey: ['tracks', routePlaylistId] })
 
+            // 5. 멤버인 경우 S3 업로드 진행
             if (isMember) {
-                // 2. 프리사인드 URL 요청 - this happens in the background now
                 try {
-                    const presignedResponse = await customFetcher('/api/upload/presigned-url', {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            id: response.id,
-                            fileName: response.fileName,
-                            fileType: file.type,
-                        }),
-                    })
+                    // 프리사인드 URL 요청
+                    const presignedUrlData = await getTrackPresignedUrl(response.id, response.fileName, file.type)
 
-                    // 3. S3에 파일 업로드.
-                    // 예외적으로 customFetcher 미사용
-                    const uploadResponse = await fetch(presignedResponse.url, {
+                    // S3에 파일 업로드
+                    const uploadResponse = await fetch(presignedUrlData.url, {
                         method: 'PUT',
                         body: file,
                         headers: {
@@ -67,56 +62,83 @@ export const useTrackMutation = () => {
                         await handleClientError(uploadResponse)
                     }
                 } catch (error) {
-                    // Log errors but don't prevent the function from returning
+                    // 업로드 실패해도 함수는 정상 반환
                     console.error('Background S3 upload failed:', error)
-                    // We could add a state flag here to indicate upload status if needed
                 }
             }
 
             return response
         },
         onError: (error) => {
-            alert(error)
+            console.error('Track creation error:', error)
+            alert(error.message || 'Failed to create track')
         },
     })
 
     // 트랙 삭제 뮤테이션
     const deleteTrackMutation = useMutation({
         mutationFn: async (id: string) => {
+            // 1. IndexedDB에서 트랙 삭제
             deleteTrackFromIndexedDB(id)
 
-            return customFetcher(`${API_TRACKS}/${id}/delete`, {
-                method: 'DELETE',
-            })
+            // 2. 서버 액션으로 트랙 삭제
+            return deleteTrack(id)
         },
         onMutate: async (id) => {
-            await queryClient.cancelQueries({ queryKey: QUERY_KEYS.TRACKS })
+            // 낙관적 업데이트 시작 - TrackList.tsx의 쿼리 키 형식 사용
+            await queryClient.cancelQueries({ queryKey: ['tracks', routePlaylistId] })
 
-            const previousTracks = queryClient.getQueryData<Track[]>(QUERY_KEYS.TRACKS)
-            queryClient.setQueryData<Track[]>(QUERY_KEYS.TRACKS, (old = []) => old.filter((track) => track.id !== id))
+            // 이전 데이터 저장
+            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', routePlaylistId])
+
+            // 캐시 업데이트
+            queryClient.setQueryData<Track[]>(['tracks', routePlaylistId], (old = []) =>
+                old.filter((track) => track.id !== id),
+            )
 
             return { previousTracks }
         },
         onError: (error, id, context) => {
-            queryClient.setQueryData(QUERY_KEYS.TRACKS, context?.previousTracks)
-            alert(error)
+            // 에러 발생 시 원래 데이터로 복원
+            queryClient.setQueryData(['tracks', routePlaylistId], context?.previousTracks)
+            console.error('Track deletion error:', error)
+            alert('Failed to delete track')
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRACKS })
+            // 작업 완료 후 캐시 무효화하여 최신 데이터 요청
+            queryClient.invalidateQueries({ queryKey: ['tracks', routePlaylistId] })
         },
     })
 
-    // 모든 트랙 삭제
-    const deleteAllTracksMutation = useMutation({
+    // DB에서만 모든 트랙 삭제
+    const deleteAllTracksDBMutation = useMutation({
         mutationFn: async () => {
-            return customFetcher(`${API_TRACKS}/delete`, {
-                method: 'DELETE',
-            })
+            // 서버 액션으로 모든 트랙 삭제
+            return deleteAllTracksDB()
+        },
+        onMutate: async () => {
+            // 관련 쿼리 취소
+            await queryClient.cancelQueries({ queryKey: ['tracks', routePlaylistId] })
+
+            // 이전 데이터 저장
+            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', routePlaylistId])
+
+            // 낙관적으로 캐시 비우기
+            queryClient.setQueryData<Track[]>(['tracks', routePlaylistId], [])
+
+            return { previousTracks }
+        },
+        onError: (error, _, context) => {
+            // 에러 발생 시 원래 데이터로 복원
+            queryClient.setQueryData(['tracks', routePlaylistId], context?.previousTracks)
+            console.error('All tracks deletion error:', error)
+            alert('Failed to delete all tracks')
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.TRACKS })
+            // 작업 완료 후 캐시 무효화하여 최신 데이터 요청
+            queryClient.invalidateQueries({ queryKey: ['tracks', routePlaylistId] })
         },
     })
 
-    return { createTrackMutation, deleteTrackMutation, deleteAllTracksMutation }
+    return { createTrackMutation, deleteTrackMutation, deleteAllTracksDBMutation }
 }

@@ -7,6 +7,7 @@ import { BadRequestError, NotFoundError, UnauthorizedError } from '@/lib/shared/
  * @description customFetcher에서 사용. customFetcher를 사용하지 않는 query는 직접 참조
  */
 
+/** @deprecated */
 export const handleClientError = async (res: Response): Promise<Error> => {
     const errorData = await res.json()
 

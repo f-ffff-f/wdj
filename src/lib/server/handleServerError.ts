@@ -6,6 +6,8 @@ import { ZodError } from 'zod'
 /**
  * @description 서버의 API 라우트용 에러 핸들러
  */
+
+/** @deprecated */
 export const handleServerError = (
     error: unknown,
     option?: {

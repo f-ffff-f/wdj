@@ -13,7 +13,7 @@ import { useSnapshot } from 'valtio'
 const StorageIndicator = () => {
     const storageEstimate = useSnapshot(state).UI.storageEstimate
     const { isMember } = useClientAuth()
-    const { deleteAllTracksMutation } = useTrackMutation()
+    const { deleteAllTracksDBMutation } = useTrackMutation()
 
     const handleClearAllTracksFromIndexedDB = async () => {
         if (isMember) {
@@ -25,7 +25,7 @@ const StorageIndicator = () => {
                 )
             ) {
                 await clearAllTracksFromIndexedDB()
-                deleteAllTracksMutation.mutate()
+                deleteAllTracksDBMutation.mutate()
             }
         }
     }

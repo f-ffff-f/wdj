@@ -9,7 +9,7 @@ export const UploadUrlRequestSchema = z.object({
 
 export const CreateTrackSchema = z.object({
     fileName: z.string().min(1),
-    playlistId: z.string().optional(),
+    playlistId: z.string().nullish(),
 })
 
 export const TrackIdsSchema = z.object({
