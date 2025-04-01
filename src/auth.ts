@@ -74,6 +74,7 @@ export const config = {
         },
         session({ session, token }) {
             session.user.id = token.userId
+            session.user.role = token.role as Role
             return session
         },
     },
