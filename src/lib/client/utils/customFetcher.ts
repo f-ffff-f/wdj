@@ -4,7 +4,7 @@
  * @param url - API endpoint URL
  * @returns Promise with parsed JSON response
  */
-
+/** @deprecated */
 import { handleClientError } from '@/lib/client/utils/handleClientError'
 
 export const customFetcher = async (url: string, options: RequestInit = {}) => {
