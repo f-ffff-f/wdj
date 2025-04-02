@@ -6,6 +6,7 @@ import { prisma } from '@/lib/shared/prisma'
 
 import { NextResponse } from 'next/server'
 
+/** @deprecated */
 export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params
     let userId: string | undefined

@@ -1,6 +1,7 @@
 'use client'
 
-import { getPlaylists, getTracks } from '@/app/main/actions'
+import { getPlaylists } from '@/app/main/_actions/playlist'
+import { getTracks } from '@/app/main/_actions/track'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import {

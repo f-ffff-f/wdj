@@ -13,6 +13,7 @@ import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
  * 새로운 플레이리스트를 생성하는 API 엔드포인트
  * 인증된 사용자만 플레이리스트를 생성할 수 있음
  */
+/** @deprecated */
 export async function POST(request: Request) {
     let userId: string | undefined
 

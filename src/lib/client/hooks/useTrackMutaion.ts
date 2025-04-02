@@ -3,14 +3,13 @@ import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
 import { state } from '@/lib/client/state'
 import { Track } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { uploadTrack, getTrackPresignedUrl, deleteTrack, deleteAllTracksDB } from '@/app/main/actions'
+import { uploadTrack, getTrackPresignedUrl, deleteTrack, deleteAllTracksDB } from '@/app/main/_actions/track'
 import { handleClientError } from '@/lib/client/utils/handleClientError'
 import { useParams } from 'next/navigation'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 
 /**
- * 트랙 관련 서버 액션을 사용하는 뮤테이션 훅
- * 기존 API 엔드포인트 대신 server actions을 사용하도록 수정됨
+ * 트랙 서버 액션을 사용하는 뮤테이션 훅
  */
 export const useTrackMutation = () => {
     const { isMember } = useClientAuth()

@@ -1,4 +1,4 @@
-import { getPlaylists } from '@/app/main/actions'
+import { getPlaylists } from '@/app/main/_actions/playlist'
 import { auth } from '@/auth'
 import AppSidebar from '@/components/AppSidebar'
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'

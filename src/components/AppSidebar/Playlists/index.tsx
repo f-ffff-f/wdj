@@ -1,5 +1,5 @@
 'use client'
-import { getPlaylists } from '@/app/main/actions'
+import { getPlaylists } from '@/app/main/_actions/playlist'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import {
     SidebarGroupContent,

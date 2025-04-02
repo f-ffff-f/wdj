@@ -11,7 +11,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { KeyboardIcon, XIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { getTracks } from '@/app/main/actions'
+import { getTracks } from '@/app/main/_actions/track'
 import { Track } from '@prisma/client'
 
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {

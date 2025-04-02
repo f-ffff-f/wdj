@@ -9,6 +9,7 @@ import { handleServerError } from '@/lib/server/handleServerError'
 import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
 
+/** @deprecated */
 export async function PATCH(request: Request, props: { params: Promise<{ id: string }> }) {
     const params = await props.params
     let userId: string | undefined

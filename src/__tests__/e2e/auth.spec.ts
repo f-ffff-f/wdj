@@ -7,7 +7,6 @@ test.describe('NextAuth Authentication Tests', () => {
     })
 
     test('2. Member login flow', async ({ page }) => {
-        // Note: This test assumes you have set environment variables for test credentials
         await memberLogin(page)
     })
 

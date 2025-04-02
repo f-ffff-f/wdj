@@ -55,25 +55,6 @@ export const getTracks = async (playlistId: string | typeof PLAYLIST_DEFAULT_ID)
     }
 }
 
-export const getPlaylists = async (): Promise<Playlist[]> => {
-    const userId = await getUserIdFromSession()
-
-    try {
-        const playlists = await prisma.playlist.findMany({
-            where: { userId: userId },
-            orderBy: { createdAt: 'desc' },
-        })
-
-        return playlists
-    } catch (error) {
-        console.error(error)
-        throw handleServerActionError(error, {
-            userId: userId,
-            action: 'actions/getPlaylists',
-        })
-    }
-}
-
 /**
  * 트랙 생성 서버 액션
  * 클라이언트에서 업로드할 트랙의 파일명과 연결할 플레이리스트 ID를 받아

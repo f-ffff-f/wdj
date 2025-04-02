@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label'
 import TurnstileWidget from '@/lib/client/components/TurnstileWidget'
 import Link from 'next/link'
 import { useActionState, useState } from 'react'
-import { signInAction } from '@/app/(auth)/actions'
+import { signInAction } from '@/app/(auth)/_actions/signIn'
 
 const SignIn = () => {
     const [turnstileToken, setTurnstileToken] = useState<string>('')

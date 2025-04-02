@@ -7,7 +7,9 @@ import { API_PLAYLISTS, QUERY_KEYS } from '@/lib/client/constants/endpoints'
 import { useParams } from 'next/navigation'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 
-/** @deprecated */
+/**
+ * 플레이리스트 서버 액션을 사용하는 뮤테이션 훅
+ */
 export const usePlaylistMutation = () => {
     const { playlistId: routePlaylistId } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
 
