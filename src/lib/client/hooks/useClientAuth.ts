@@ -6,11 +6,14 @@ import { useSession } from 'next-auth/react'
  * Provides convenient methods for signin, signout, and checking authentication status
  */
 export const useClientAuth = () => {
-    const { data: session } = useSession()
+    const { data: session, update } = useSession()
 
     const { data: isMember } = useQuery({
         queryKey: ['auth', 'isMember', session?.user?.id],
-        queryFn: () => session?.user?.role === Role.MEMBER,
+        queryFn: async () => {
+            await update()
+            return session?.user?.role === Role.MEMBER
+        },
         staleTime: Infinity,
         gcTime: 1000 * 60 * 60,
     })
