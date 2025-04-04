@@ -29,16 +29,16 @@ const SignIn = () => {
         }
 
         // Call the server action
-        const result = await signInAction(prevState, formData)
+        const { success, message } = await signInAction(prevState, formData)
 
-        if (!result.success) {
-            alert(result.message)
+        if (!success) {
+            alert(message)
         }
 
         // Reset the Turnstile widget after submission
         setResetTrigger((prev) => prev + 1)
         setIsTurnstilePending(true)
-        return result
+        return { success, message: message ?? '' }
     }
 
     const [, formAction, isPending] = useActionState(handleAction, {

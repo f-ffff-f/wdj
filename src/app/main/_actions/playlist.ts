@@ -1,12 +1,14 @@
 import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { handleServerActionError } from '@/lib/server/handleServerError'
 import { prisma } from '@/lib/shared/prisma'
-import { BadRequestError } from '@/lib/shared/errors/CustomError'
-import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { BadRequestError, NotFoundError } from '@/lib/shared/errors/CustomError'
+import { BadRequestErrorMessage, NotFoundErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
 import { Playlist } from '@prisma/client'
+import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
+import { TServerActionResponse } from '@/lib/shared/types'
 
-export const getPlaylists = async (): Promise<Playlist[]> => {
+export const getPlaylists = async (): Promise<TServerActionResponse<Playlist[]>> => {
     const userId = await getUserIdFromSession()
 
     try {
@@ -15,7 +17,10 @@ export const getPlaylists = async (): Promise<Playlist[]> => {
             orderBy: { createdAt: 'desc' },
         })
 
-        return playlists
+        return {
+            success: true,
+            data: playlists,
+        }
     } catch (error) {
         console.error(error)
         throw handleServerActionError(error, {
@@ -25,7 +30,38 @@ export const getPlaylists = async (): Promise<Playlist[]> => {
     }
 }
 
-export const createPlaylist = async (playlistData: { name: string }) => {
+export const getIsValidPlaylist = async (playlistId: string): Promise<TServerActionResponse<boolean>> => {
+    if (playlistId === PLAYLIST_DEFAULT_ID) {
+        return {
+            success: true,
+            data: true,
+        }
+    }
+
+    const userId = await getUserIdFromSession()
+
+    try {
+        const playlist = await prisma.playlist.findFirst({
+            where: { id: playlistId, userId: userId },
+        })
+
+        if (!playlist) {
+            throw new NotFoundError(NotFoundErrorMessage.PLAYLIST_NOT_FOUND)
+        }
+
+        return {
+            success: true,
+            data: true,
+        }
+    } catch (error) {
+        throw handleServerActionError(error, {
+            userId,
+            action: `actions/getPlaylist/${playlistId}`,
+        })
+    }
+}
+
+export const createPlaylist = async (playlistData: { name: string }): Promise<TServerActionResponse<Playlist>> => {
     let userId: string | undefined
 
     try {
@@ -49,10 +85,15 @@ export const createPlaylist = async (playlistData: { name: string }) => {
                 id: true,
                 name: true,
                 createdAt: true,
+                updatedAt: true,
+                userId: true,
             },
         })
 
-        return playlist
+        return {
+            success: true,
+            data: playlist,
+        }
     } catch (error) {
         throw handleServerActionError(error, {
             userId,
@@ -61,7 +102,7 @@ export const createPlaylist = async (playlistData: { name: string }) => {
     }
 }
 
-export const deletePlaylist = async (id: string) => {
+export const deletePlaylist = async (id: string): Promise<TServerActionResponse<null>> => {
     let userId: string | undefined
 
     try {
@@ -74,7 +115,10 @@ export const deletePlaylist = async (id: string) => {
             },
         })
 
-        return { success: true, message: 'Playlist deleted successfully' }
+        return {
+            success: true,
+            data: null,
+        }
     } catch (error) {
         throw handleServerActionError(error, {
             userId,
@@ -112,7 +156,10 @@ export const updatePlaylist = async (id: string, playlistData: { name: string })
             },
         })
 
-        return playlist
+        return {
+            success: true,
+            data: playlist,
+        }
     } catch (error) {
         throw handleServerActionError(error, {
             userId,

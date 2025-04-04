@@ -10,20 +10,19 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar'
 import { usePlaylistMutation } from '@/lib/client/hooks/usePlaylistMutation'
-import { Playlist } from '@prisma/client'
+import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { useQuery } from '@tanstack/react-query'
 import { MoreHorizontal } from 'lucide-react'
 import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import PlaylistForm from './PlaylistForm'
-import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 
 const Playlists = () => {
     const router = useRouter()
     const { playlistId } = useParams<{ playlistId?: string }>()
 
-    const playlistsQuery = useQuery<Playlist[]>({
+    const { data: playlists } = useQuery({
         queryKey: ['playlists'],
         queryFn: getPlaylists,
     })
@@ -69,7 +68,8 @@ const Playlists = () => {
                             <Link href={`/main/${PLAYLIST_DEFAULT_ID}`}>Library</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
-                    {playlistsQuery?.data?.map((playlist) => {
+                    {playlists?.message && <div>{playlists?.message}</div>}
+                    {playlists?.data?.map((playlist) => {
                         return editingPlaylistId !== playlist.id ? (
                             <SidebarMenuItem key={playlist.id}>
                                 <SidebarMenuButton

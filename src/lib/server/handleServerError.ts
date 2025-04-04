@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { BadRequestError, NotFoundError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { ZodError } from 'zod'
+import { TServerActionResponse } from '@/lib/shared/types'
 
 /**
  * @description 서버의 API 라우트용 에러 핸들러
@@ -26,25 +27,6 @@ export const handleServerError = (
         },
         { status },
     )
-}
-
-/**
- * @description 서버 액션용 에러 핸들러
- */
-export const handleServerActionError = (
-    error: unknown,
-    option?: {
-        userId?: string | null
-        action?: string
-    },
-) => {
-    const { errorCode, message } = classifyError(error, option)
-
-    // 서버 액션에 적합한 형식으로 에러 객체 반환
-    return {
-        success: false,
-        message,
-    }
 }
 
 function classifyError(
@@ -98,4 +80,23 @@ function classifyError(
     })
 
     return { status, errorCode, message }
+}
+
+/**
+ * @description 서버 액션용 에러 핸들러
+ */
+export const handleServerActionError = (
+    error: unknown,
+    option?: {
+        userId?: string | null
+        action?: string
+    },
+): TServerActionResponse<never> => {
+    const { message } = classifyError(error, option)
+
+    // 서버 액션에 적합한 형식으로 에러 객체 반환
+    return {
+        success: false,
+        message,
+    }
 }

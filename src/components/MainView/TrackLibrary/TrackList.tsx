@@ -23,7 +23,7 @@ import { state } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { deckoSingleton } from '@ghr95223/decko'
-import { Playlist, Track } from '@prisma/client'
+import { Playlist } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowUpCircle, MoreVertical } from 'lucide-react'
 import { useParams } from 'next/navigation'
@@ -34,7 +34,11 @@ import { useSnapshot } from 'valtio'
 const TrackList = () => {
     const { playlistId: playlistIdParam } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
 
-    const tracksQuery = useQuery<Track[]>({
+    const {
+        data: tracks,
+        isLoading,
+        error,
+    } = useQuery({
         queryKey: ['tracks', playlistIdParam],
         queryFn: () => getTracks(playlistIdParam),
     })
@@ -50,21 +54,21 @@ const TrackList = () => {
         state.UI.focusedTrackId = id
     }
 
-    if (tracksQuery?.error) {
-        return <Label>Error: {tracksQuery.error.message}</Label>
-    }
-
-    if (tracksQuery.isLoading) {
+    if (isLoading) {
         return <Label>Loading tracks...</Label>
     }
 
-    if (!tracksQuery.data || tracksQuery.data.length === 0) {
+    if (error) {
+        return <Label>Error: {error.message}</Label>
+    }
+
+    if (!tracks?.data) {
         return <Label>No tracks available</Label>
     }
 
     return (
         <div className="max-w-2xl min-h-10 flex flex-col gap-1 overflow-x-hidden" id="track-list">
-            {tracksQuery.data.map((track) => (
+            {tracks?.data?.map((track) => (
                 <Item
                     key={track.id}
                     trackId={track.id}
@@ -155,9 +159,9 @@ const MarqueeText = ({ text }: { text: string }) => {
 }
 
 const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
-    const playlistsQuery = useQuery<Playlist[]>({
+    const { data: playlists } = useQuery({
         queryKey: ['playlists'],
-        queryFn: () => getPlaylists(),
+        queryFn: getPlaylists,
     })
     const { deleteTrackMutation } = useTrackMutation()
     const { addTracksToPlaylistMutation } = usePlaylistMutation()
@@ -175,7 +179,7 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
                         <span>Add to Playlist</span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
-                        {playlistsQuery.data?.map((playlist) => (
+                        {playlists?.data?.map((playlist) => (
                             <DropdownMenuItem
                                 key={playlist.id}
                                 onClick={() => {

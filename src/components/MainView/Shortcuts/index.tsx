@@ -1,25 +1,24 @@
 'use client'
 
+import { getTracks } from '@/app/main/_actions/track'
 import { EShortcut } from '@/components/MainView/Shortcuts/constants'
 import OverlayGuide from '@/components/MainView/Shortcuts/OverlayGuide'
+import { Button } from '@/components/ui/button'
 import { DECK_IDS } from '@/lib/client/constants/deck'
-import { deckoSingleton } from '@ghr95223/decko'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { state } from '@/lib/client/state'
-import { Button } from '@/components/ui/button'
-import React, { useEffect, useRef, useState } from 'react'
+import { deckoSingleton } from '@ghr95223/decko'
+import { useQuery } from '@tanstack/react-query'
 import { KeyboardIcon, XIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { useQuery } from '@tanstack/react-query'
-import { getTracks } from '@/app/main/_actions/track'
-import { Track } from '@prisma/client'
+import React, { useEffect, useRef, useState } from 'react'
 
 const Shortcuts = ({ children }: { children: React.ReactNode }) => {
     const { playlistId: playlistIdParam } = useParams<{ playlistId: string }>()
     const ref = useRef<HTMLDivElement>(null)
     const [showHelp, setShowHelp] = useState(false)
 
-    const tracksQuery = useQuery<Track[]>({
+    const { data: tracks } = useQuery({
         queryKey: ['tracks', playlistIdParam],
         queryFn: () => getTracks(playlistIdParam),
     })
@@ -77,31 +76,31 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             },
             [EShortcut.ArrowUp]: () => {
                 if (state.UI.focusedTrackId) {
-                    const index = findIndex(tracksQuery.data, state.UI.focusedTrackId)
-                    if (index > 0 && tracksQuery.data) {
-                        state.UI.focusedTrackId = tracksQuery.data[index - 1].id
+                    const index = findIndex(tracks?.data, state.UI.focusedTrackId)
+                    if (index > 0 && tracks?.data) {
+                        state.UI.focusedTrackId = tracks?.data[index - 1].id
                     } else {
-                        const index = findIndex(tracksQuery.data, state.UI.focusedTrackId)
-                        if (index > 0 && tracksQuery.data) {
-                            state.UI.focusedTrackId = tracksQuery.data[index - 1].id
+                        const index = findIndex(tracks?.data, state.UI.focusedTrackId)
+                        if (index > 0 && tracks?.data) {
+                            state.UI.focusedTrackId = tracks?.data[index - 1].id
                         }
                     }
                 }
             },
             [EShortcut.ArrowDown]: () => {
-                if (state.UI.focusedTrackId && tracksQuery.data) {
-                    const index = findIndex(tracksQuery.data, state.UI.focusedTrackId)
-                    if (index < tracksQuery.data.length - 1) {
-                        state.UI.focusedTrackId = tracksQuery.data[index + 1].id
+                if (state.UI.focusedTrackId && tracks?.data) {
+                    const index = findIndex(tracks?.data, state.UI.focusedTrackId)
+                    if (index < tracks?.data.length - 1) {
+                        state.UI.focusedTrackId = tracks?.data[index + 1].id
                     }
                 }
             },
             [EShortcut.ArrowLeft]: async () => {
                 if (state.UI.focusedTrackId) {
-                    if (tracksQuery.data) {
-                        const index = findIndex(tracksQuery.data, state.UI.focusedTrackId)
+                    if (tracks?.data) {
+                        const index = findIndex(tracks?.data, state.UI.focusedTrackId)
                         if (index >= 0) {
-                            const url = await getTrackBlobUrl(tracksQuery.data[index].id)
+                            const url = await getTrackBlobUrl(tracks?.data[index].id)
                             deckoSingleton.loadTrack(DECK_IDS.ID_1, url)
                         }
                     }
@@ -109,10 +108,10 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             },
             [EShortcut.ArrowRight]: async () => {
                 if (state.UI.focusedTrackId) {
-                    if (tracksQuery.data) {
-                        const index = findIndex(tracksQuery.data, state.UI.focusedTrackId)
-                        if (index <= tracksQuery.data.length - 1) {
-                            const url = await getTrackBlobUrl(tracksQuery.data[index].id)
+                    if (tracks?.data) {
+                        const index = findIndex(tracks?.data, state.UI.focusedTrackId)
+                        if (index <= tracks?.data.length - 1) {
+                            const url = await getTrackBlobUrl(tracks?.data[index].id)
                             deckoSingleton.loadTrack(DECK_IDS.ID_2, url)
                         }
                     }
@@ -132,7 +131,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         return () => {
             element?.removeEventListener('keydown', handleKeyDown)
         }
-    }, [tracksQuery.data, getTrackBlobUrl, playlistIdParam])
+    }, [tracks?.data, getTrackBlobUrl, playlistIdParam])
 
     return (
         <div

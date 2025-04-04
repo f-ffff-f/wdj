@@ -4,7 +4,6 @@ import { state } from '@/lib/client/state'
 import { Track } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { uploadTrack, getTrackPresignedUrl, deleteTrack, deleteAllTracksDB } from '@/app/main/_actions/track'
-import { handleClientError } from '@/lib/client/utils/handleClientError'
 import { useParams } from 'next/navigation'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 
@@ -17,7 +16,7 @@ export const useTrackMutation = () => {
     const queryClient = useQueryClient()
 
     // 트랙 생성 뮤테이션
-    const createTrackMutation = useMutation<Track, Error, File>({
+    const createTrackMutation = useMutation({
         mutationFn: async (file: File) => {
             // FormData 객체 생성
             const formData = new FormData()
@@ -30,23 +29,31 @@ export const useTrackMutation = () => {
             }
 
             // 1. 서버 액션으로 트랙 생성
-            const response = await uploadTrack(formData)
+            const { success, data: track } = await uploadTrack(formData)
+
+            if (!track || !success) {
+                throw new Error('Failed to create track')
+            }
 
             // 2. IndexedDB에 파일 저장
-            await setTrackToIndexedDB(response.id, file)
+            await setTrackToIndexedDB(track.id, file)
 
             // 3. UI 상태 업데이트
-            state.UI.focusedTrackId = response.id
+            state.UI.focusedTrackId = track.id
 
             // 4. 캐시 업데이트 - 트랙 리스트 및 현재 플레이리스트
-            // TrackList.tsx에서 사용하는 쿼리 키 형식 ['tracks', playlistId]
+            // TrackList.tsx에서 사용하는 쿼리 키 형식 ['tracks']
             queryClient.invalidateQueries({ queryKey: ['tracks', routePlaylistId] })
 
             // 5. 멤버인 경우 S3 업로드 진행
             if (isMember) {
                 try {
                     // 프리사인드 URL 요청
-                    const presignedUrlData = await getTrackPresignedUrl(response.id, response.fileName, file.type)
+                    const { data: presignedUrlData } = await getTrackPresignedUrl(track.id, track.fileName, file.type)
+
+                    if (!presignedUrlData) {
+                        throw new Error('Failed to get presigned url')
+                    }
 
                     // S3에 파일 업로드
                     const uploadResponse = await fetch(presignedUrlData.url, {
@@ -58,15 +65,14 @@ export const useTrackMutation = () => {
                     })
 
                     if (!uploadResponse.ok) {
-                        await handleClientError(uploadResponse)
+                        throw new Error('Failed to upload track to S3')
                     }
                 } catch (error) {
-                    // 업로드 실패해도 함수는 정상 반환
-                    console.error('Background S3 upload failed:', error)
+                    throw new Error('Background S3 upload failed')
                 }
             }
 
-            return response
+            return track
         },
         onError: (error) => {
             console.error('Track creation error:', error)
