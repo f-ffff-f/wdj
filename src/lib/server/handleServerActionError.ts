@@ -1,33 +1,7 @@
 import { Prisma } from '@prisma/client'
-import { NextResponse } from 'next/server'
 import { BadRequestError, NotFoundError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { ZodError } from 'zod'
 import { TServerActionResponse } from '@/lib/shared/types'
-
-/**
- * @description 서버의 API 라우트용 에러 핸들러
- */
-
-/** @deprecated */
-export const handleServerError = (
-    error: unknown,
-    option?: {
-        userId?: string | null
-        action?: string
-    },
-) => {
-    const { status, errorCode, message } = classifyError(error, option)
-
-    // Return consistent response format for API routes
-    return NextResponse.json(
-        {
-            success: false,
-            errorCode,
-            message,
-        },
-        { status },
-    )
-}
 
 function classifyError(
     error: unknown,

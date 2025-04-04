@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { DialogDescription } from '@/components/ui/dialog'
-import { clearAllTracksFromIndexedDB } from '@/lib/client/db/indexedDB'
+import { clearAllTracksFromIndexedDB } from '@/lib/client/indexedDB'
 import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
 import { state, updateStorageEstimate } from '@/lib/client/state'

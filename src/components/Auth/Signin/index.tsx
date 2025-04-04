@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import TurnstileWidget from '@/lib/client/components/TurnstileWidget'
+import TurnstileWidget from '@/components/utils/TurnstileWidget'
 import Link from 'next/link'
 import { useActionState, useState } from 'react'
 import { signInAction } from '@/app/(auth)/_actions/signIn'

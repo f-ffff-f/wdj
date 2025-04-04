@@ -1,7 +1,5 @@
-'use server'
-
 import { signIn } from '@/auth'
-import { handleServerActionError } from '@/lib/server/handleServerError'
+import { handleServerActionError } from '@/lib/server/handleServerActionError'
 import { BadRequestError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
 import { BadRequestErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { prisma } from '@/lib/shared/prisma'

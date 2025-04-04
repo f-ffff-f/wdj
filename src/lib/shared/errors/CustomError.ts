@@ -10,6 +10,7 @@ interface ICustomError {
     message: string
 }
 // 400 error
+/** @deprecated */
 export class BadRequestError extends Error implements ICustomError {
     static status = 400 as const
     static errorCode = 'BAD_REQUEST' as const
@@ -26,6 +27,7 @@ export class BadRequestError extends Error implements ICustomError {
 }
 
 // 401 error
+/** @deprecated */
 export class UnauthorizedError extends Error implements ICustomError {
     static status = 401 as const
     static errorCode = 'UNAUTHORIZED' as const
@@ -42,6 +44,7 @@ export class UnauthorizedError extends Error implements ICustomError {
 }
 
 // 404 error
+/** @deprecated */
 export class NotFoundError extends Error implements ICustomError {
     static status = 404 as const
     static errorCode = 'NOT_FOUND' as const

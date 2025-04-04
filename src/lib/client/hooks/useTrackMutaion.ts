@@ -1,4 +1,4 @@
-import { deleteTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/db/indexedDB'
+import { deleteTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/indexedDB'
 import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
 import { state } from '@/lib/client/state'
 import { Track } from '@prisma/client'

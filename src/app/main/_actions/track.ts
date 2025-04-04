@@ -1,7 +1,7 @@
 'use server'
 
 import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
-import { handleServerActionError } from '@/lib/server/handleServerError'
+import { handleServerActionError } from '@/lib/server/handleServerActionError'
 import { generateS3FilePath, getEnv } from '@/lib/server/utils'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { BadRequestError, NotFoundError } from '@/lib/shared/errors/CustomError'

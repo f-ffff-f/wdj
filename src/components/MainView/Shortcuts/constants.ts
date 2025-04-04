@@ -1,4 +1,4 @@
-import { DECK_IDS } from '@/lib/client/constants/deck'
+import { DECK_IDS } from '@/lib/client/deck'
 
 export enum EShortcut {
     KeyQ = 'KeyQ',

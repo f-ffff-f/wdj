@@ -1,5 +1,5 @@
 import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
-import { handleServerActionError } from '@/lib/server/handleServerError'
+import { handleServerActionError } from '@/lib/server/handleServerActionError'
 import { prisma } from '@/lib/shared/prisma'
 import { BadRequestError, NotFoundError } from '@/lib/shared/errors/CustomError'
 import { BadRequestErrorMessage, NotFoundErrorMessage } from '@/lib/shared/errors/ErrorMessage'

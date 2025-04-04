@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Label } from '@/components/ui/label'
 import { SidebarMenuAction } from '@/components/ui/sidebar'
-import { DECK_IDS, TDeckId } from '@/lib/client/constants/deck'
+import { DECK_IDS, TDeckId } from '@/lib/client/deck'
 import { usePlaylistMutation } from '@/lib/client/hooks/usePlaylistMutation'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'

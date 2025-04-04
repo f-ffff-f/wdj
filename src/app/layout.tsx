@@ -1,4 +1,4 @@
-import { DevEnvIndicator } from '@/lib/client/components/DevEnvIndicator'
+import { DevEnvIndicator } from '@/components/utils/DevEnvIndicator'
 import { QueryProvider } from '@/app/QueryProvider'
 import { SessionProvider } from '@/app/SessionProvider'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'

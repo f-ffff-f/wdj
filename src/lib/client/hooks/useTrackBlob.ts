@@ -1,9 +1,7 @@
-import { getTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/db/indexedDB'
+import { getTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/indexedDB'
 import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
-import { customFetcher } from '@/lib/client/utils/customFetcher'
 import { useCallback } from 'react'
-
-const BASE_URL = '/api/tracks'
+import { getTrackDownloadUrl } from '@/app/main/_actions/track'
 
 export const useTrackBlob = () => {
     const { isMember } = useClientAuth()
@@ -15,15 +13,13 @@ export const useTrackBlob = () => {
                 return blob
             } else {
                 if (isMember) {
-                    const response = await customFetcher(`${BASE_URL}/${id}/presigned-url`, {
-                        method: 'GET',
-                    })
+                    const { data, success, message } = await getTrackDownloadUrl(id)
 
-                    if (response.error) {
-                        throw new Error('Failed to fetch track presigned URL')
+                    if (!data || !success) {
+                        throw new Error(message || 'Failed to fetch track presigned URL')
                     }
 
-                    const fileResponse = await fetch(response.presignedUrl)
+                    const fileResponse = await fetch(data.presignedUrl)
                     const blob = await fileResponse.blob()
 
                     setTrackToIndexedDB(id, blob)
