@@ -12,7 +12,7 @@ import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
  */
 export const useTrackMutation = () => {
     const { isMember } = useClientAuth()
-    const { playlistId: routePlaylistId } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
+    const { playlistId } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
     const queryClient = useQueryClient()
 
     // 트랙 생성 뮤테이션
@@ -24,8 +24,8 @@ export const useTrackMutation = () => {
 
             // URL에서 현재 플레이리스트 ID 사용
             // 기본 플레이리스트(라이브러리)가 아닌 경우에만 플레이리스트 ID 전송
-            if (routePlaylistId && routePlaylistId !== PLAYLIST_DEFAULT_ID) {
-                formData.append('playlistId', routePlaylistId)
+            if (playlistId && playlistId !== PLAYLIST_DEFAULT_ID) {
+                formData.append('playlistId', playlistId)
             }
 
             // 1. 서버 액션으로 트랙 생성
@@ -43,7 +43,7 @@ export const useTrackMutation = () => {
 
             // 4. 캐시 업데이트 - 트랙 리스트 및 현재 플레이리스트
             // TrackList.tsx에서 사용하는 쿼리 키 형식 ['tracks']
-            queryClient.invalidateQueries({ queryKey: ['tracks', routePlaylistId] })
+            queryClient.invalidateQueries({ queryKey: ['tracks', playlistId] })
 
             // 5. 멤버인 경우 S3 업로드 진행
             if (isMember) {
@@ -91,13 +91,13 @@ export const useTrackMutation = () => {
         },
         onMutate: async (id) => {
             // 낙관적 업데이트 시작 - TrackList.tsx의 쿼리 키 형식 사용
-            await queryClient.cancelQueries({ queryKey: ['tracks', routePlaylistId] })
+            await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
 
             // 이전 데이터 저장
-            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', routePlaylistId])
+            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', playlistId])
 
             // 캐시 업데이트
-            queryClient.setQueryData<Track[]>(['tracks', routePlaylistId], (old = []) =>
+            queryClient.setQueryData<Track[]>(['tracks', playlistId], (old = []) =>
                 old.filter((track) => track.id !== id),
             )
 
@@ -105,13 +105,13 @@ export const useTrackMutation = () => {
         },
         onError: (error, id, context) => {
             // 에러 발생 시 원래 데이터로 복원
-            queryClient.setQueryData(['tracks', routePlaylistId], context?.previousTracks)
+            queryClient.setQueryData(['tracks', playlistId], context?.previousTracks)
             console.error('Track deletion error:', error)
             alert('Failed to delete track')
         },
         onSettled: () => {
             // 작업 완료 후 캐시 무효화하여 최신 데이터 요청
-            queryClient.invalidateQueries({ queryKey: ['tracks', routePlaylistId] })
+            queryClient.invalidateQueries({ queryKey: ['tracks', playlistId] })
         },
     })
 
@@ -123,25 +123,25 @@ export const useTrackMutation = () => {
         },
         onMutate: async () => {
             // 관련 쿼리 취소
-            await queryClient.cancelQueries({ queryKey: ['tracks', routePlaylistId] })
+            await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
 
             // 이전 데이터 저장
-            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', routePlaylistId])
+            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', playlistId])
 
             // 낙관적으로 캐시 비우기
-            queryClient.setQueryData<Track[]>(['tracks', routePlaylistId], [])
+            queryClient.setQueryData<Track[]>(['tracks', playlistId], [])
 
             return { previousTracks }
         },
         onError: (error, _, context) => {
             // 에러 발생 시 원래 데이터로 복원
-            queryClient.setQueryData(['tracks', routePlaylistId], context?.previousTracks)
+            queryClient.setQueryData(['tracks', playlistId], context?.previousTracks)
             console.error('All tracks deletion error:', error)
             alert('Failed to delete all tracks')
         },
         onSettled: () => {
             // 작업 완료 후 캐시 무효화하여 최신 데이터 요청
-            queryClient.invalidateQueries({ queryKey: ['tracks', routePlaylistId] })
+            queryClient.invalidateQueries({ queryKey: ['tracks', playlistId] })
         },
     })
 

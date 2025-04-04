@@ -14,20 +14,20 @@ type Props = {
 }
 
 const PlaylistPage = async ({ params }: Props) => {
-    const { playlistId: playlistIdParam } = await params
+    const { playlistId } = await params
     const { isMobileDevice } = await detectMobileDevice()
 
     const queryClient = new QueryClient()
 
-    const isValidPlaylist = await getIsValidPlaylist(playlistIdParam)
+    const isValidPlaylist = await getIsValidPlaylist(playlistId)
 
     if (!isValidPlaylist) {
         notFound()
     }
 
     await queryClient.prefetchQuery({
-        queryKey: ['tracks', playlistIdParam],
-        queryFn: () => getTracks(playlistIdParam),
+        queryKey: ['tracks', playlistId],
+        queryFn: () => getTracks(playlistId),
     })
 
     return (

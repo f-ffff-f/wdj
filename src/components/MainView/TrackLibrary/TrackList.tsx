@@ -158,14 +158,13 @@ const MarqueeText = ({ text }: { text: string }) => {
     )
 }
 
+/** @TODO */
 const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
     const { data: playlists } = useQuery({
         queryKey: ['playlists'],
         queryFn: getPlaylists,
     })
     const { deleteTrackMutation } = useTrackMutation()
-    const { addTracksToPlaylistMutation } = usePlaylistMutation()
-
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-1">
@@ -183,7 +182,7 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
                             <DropdownMenuItem
                                 key={playlist.id}
                                 onClick={() => {
-                                    addTracksToPlaylistMutation.mutate({ id: playlist.id, trackIds: [trackId] })
+                                    // createTrackMutation.mutate({ id: playlist.id, trackIds: [trackId] })
                                 }}
                             >
                                 <span>{playlist.name}</span>
@@ -199,8 +198,9 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
     )
 }
 
+/** @TODO */
 const PlaylistDropdownMenu = ({ trackId }: { trackId: string }) => {
-    const { deleteTracksFromPlaylistMutation } = usePlaylistMutation()
+    // const { deleteTracksFromPlaylistMutation } = usePlaylistMutation()
 
     return (
         <DropdownMenu>
@@ -210,7 +210,11 @@ const PlaylistDropdownMenu = ({ trackId }: { trackId: string }) => {
                 </SidebarMenuAction>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="center">
-                <DropdownMenuItem onClick={() => deleteTracksFromPlaylistMutation.mutate([trackId])}>
+                <DropdownMenuItem
+                // onClick={() =>
+                // deleteTracksFromPlaylistMutation.mutate([trackId])
+                // }
+                >
                     <span>Delete Track from Playlist</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>

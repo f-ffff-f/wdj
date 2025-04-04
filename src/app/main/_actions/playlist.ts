@@ -61,19 +61,17 @@ export const getIsValidPlaylist = async (playlistId: string): Promise<TServerAct
     }
 }
 
-export const createPlaylist = async (playlistData: { name: string }): Promise<TServerActionResponse<Playlist>> => {
+export const createPlaylist = async (name: string): Promise<TServerActionResponse<Playlist>> => {
     let userId: string | undefined
 
     try {
         userId = await getUserIdFromSession()
 
         // Zod로 입력 유효성 검사
-        const parseResult = PlaylistSchema.safeParse(playlistData)
+        const parseResult = PlaylistSchema.safeParse({ name })
         if (!parseResult.success) {
             throw new BadRequestError(BadRequestErrorMessage.INVALID_PLAYLIST_NAME)
         }
-
-        const { name } = parseResult.data
 
         // 플레이리스트 생성
         const playlist = await prisma.playlist.create({
@@ -102,44 +100,17 @@ export const createPlaylist = async (playlistData: { name: string }): Promise<TS
     }
 }
 
-export const deletePlaylist = async (id: string): Promise<TServerActionResponse<null>> => {
-    let userId: string | undefined
-
-    try {
-        userId = await getUserIdFromSession()
-
-        await prisma.playlist.delete({
-            where: {
-                id: id,
-                userId: userId,
-            },
-        })
-
-        return {
-            success: true,
-            data: null,
-        }
-    } catch (error) {
-        throw handleServerActionError(error, {
-            userId,
-            action: `actions/deletePlaylist/${id}`,
-        })
-    }
-}
-
-export const updatePlaylist = async (id: string, playlistData: { name: string }) => {
+export const updatePlaylist = async (id: string, name: string) => {
     let userId: string | undefined
 
     try {
         userId = await getUserIdFromSession()
 
         // Zod로 입력 유효성 검사
-        const parseResult = PlaylistSchema.safeParse(playlistData)
+        const parseResult = PlaylistSchema.safeParse({ name })
         if (!parseResult.success) {
             throw new BadRequestError(BadRequestErrorMessage.INVALID_PLAYLIST_NAME)
         }
-
-        const { name } = parseResult.data
 
         const playlist = await prisma.playlist.update({
             where: {
@@ -164,6 +135,31 @@ export const updatePlaylist = async (id: string, playlistData: { name: string })
         throw handleServerActionError(error, {
             userId,
             action: `actions/updatePlaylist/${id}`,
+        })
+    }
+}
+
+export const deletePlaylist = async (id: string): Promise<TServerActionResponse<null>> => {
+    let userId: string | undefined
+
+    try {
+        userId = await getUserIdFromSession()
+
+        await prisma.playlist.delete({
+            where: {
+                id: id,
+                userId: userId,
+            },
+        })
+
+        return {
+            success: true,
+            data: null,
+        }
+    } catch (error) {
+        throw handleServerActionError(error, {
+            userId,
+            action: `actions/deletePlaylist/${id}`,
         })
     }
 }
