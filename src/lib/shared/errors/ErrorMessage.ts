@@ -1,3 +1,4 @@
+/** @deprecated */
 export enum BadRequestErrorMessage {
     INVALID_TRACK_IDS = 'Invalid track IDs format',
     INVALID_PLAYLIST_NAME = 'Invalid playlist name',
@@ -10,13 +11,16 @@ export enum BadRequestErrorMessage {
     INVALID_TURNSTILE_TOKEN = 'Invalid turnstile token',
 }
 
+/** @deprecated */
 export enum UnauthorizedErrorMessage {
     INVALID_TOKEN = 'Invalid token',
     TOKEN_NOT_EXIST = 'Token is not exist',
     USER_NOT_AUTHENTICATED = 'User not authenticated',
     INVALID_CREDENTIALS = 'Invalid credentials',
+    INVALID_GUEST_USER_ID = 'Invalid guest user ID',
 }
 
+/** @deprecated */
 export enum NotFoundErrorMessage {
     USER_NOT_FOUND = 'User not found',
     PLAYLIST_NOT_FOUND = 'Playlist not found',

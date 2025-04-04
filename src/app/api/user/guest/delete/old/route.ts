@@ -1,9 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { Role } from '@prisma/client'
-import { handleServerError } from '@/lib/server/handleServerError'
-import { UnauthorizedError } from '@/lib/shared/errors/CustomError'
-import { UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 
 const prisma = new PrismaClient()
 
@@ -13,7 +10,7 @@ export async function GET(req: NextRequest) {
     const authHeader = req.headers.get('authorization')
 
     if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-        throw new UnauthorizedError(UnauthorizedErrorMessage.USER_NOT_AUTHENTICATED)
+        throw new Error('Unauthorized')
     }
 
     const twentyFourHoursAgo = new Date()
@@ -32,6 +29,11 @@ export async function GET(req: NextRequest) {
         })
     } catch (error) {
         console.error('Failed to delete guest users:', error)
-        return handleServerError(error)
+        return NextResponse.json(
+            {
+                message: 'Failed to delete guest users',
+            },
+            { status: 500 },
+        )
     }
 }

@@ -1,67 +1,25 @@
 import { Role } from '@prisma/client'
+import { useQuery } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
-import { SigninSchema } from '@/lib/shared/validations/userSchemas'
-import { z } from 'zod'
-import { useMutation } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
-import { signIn as nextAuthSignIn, signOut as nextAuthSignOut } from 'next-auth/react'
 /**
  * Custom authentication hook that wraps NextAuth's useSession
  * Provides convenient methods for signin, signout, and checking authentication status
- * Uses React Query mutations for better state management and error handling
  */
 export const useClientAuth = () => {
-    const router = useRouter()
-    const { data: session } = useSession()
+    const { data: session, update } = useSession()
 
-    const isMember = session?.user?.role === Role.MEMBER
-    const isGuest = session?.user?.role === Role.GUEST
-
-    /**
-     * React Query mutation for signing in with credentials
-     */
-    const signInMutation = useMutation({
-        mutationFn: async (data: z.infer<typeof SigninSchema>) => {
-            const result = await nextAuthSignIn('credentials', {
-                ...data,
-                redirect: false,
-            })
-
-            if (result?.error) {
-                throw new Error(result.error)
-            }
-
-            return result
+    const { data: isMember } = useQuery({
+        queryKey: ['auth', 'isMember', session?.user?.id],
+        queryFn: async () => {
+            await update()
+            return session?.user?.role === Role.MEMBER
         },
-        onSuccess: () => {
-            router.refresh()
-        },
-        onError: (error) => {
-            console.error('Signin error:', error)
-            alert(error)
-        },
-    })
-
-    /**
-     * React Query mutation for signing out current user
-     */
-    const signOutMutation = useMutation({
-        mutationFn: async () => {
-            await nextAuthSignOut({ redirect: false })
-        },
-        onSuccess: () => {
-            router.refresh()
-        },
-        onError: (error) => {
-            console.error('Logout error:', error)
-        },
+        staleTime: Infinity,
+        gcTime: 1000 * 60 * 60,
     })
 
     return {
-        signInMutation,
-        signOutMutation,
         session,
         isMember,
-        isGuest,
     }
 }
