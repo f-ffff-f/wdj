@@ -52,10 +52,10 @@ const SignIn = () => {
                 <fieldset disabled={isPending || isTurnstilePending}>
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input type="email" name="email" />
+                        <Input type="email" name="email" defaultValue={'test@user.com'} />
 
                         <Label htmlFor="password">Password</Label>
-                        <Input type="password" name="password" />
+                        <Input type="password" name="password" defaultValue={'test1234'} />
 
                         <input type="hidden" name="turnstileToken" value={turnstileToken} />
 
