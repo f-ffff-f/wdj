@@ -1,16 +1,12 @@
 import { createPlaylist, deletePlaylist, updatePlaylist } from '@/app/main/_actions/playlist'
-import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { TServerActionResponse } from '@/lib/shared/types'
 import { Playlist } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useParams } from 'next/navigation'
 
 /**
  * 플레이리스트 서버 액션을 사용하는 뮤테이션 훅
  */
 export const usePlaylistMutation = () => {
-    const { playlistId } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
-
     const queryClient = useQueryClient()
 
     /**
@@ -19,12 +15,9 @@ export const usePlaylistMutation = () => {
     const createPlaylistMutation = useMutation({
         mutationFn: async (name: string) => createPlaylist(name),
         onMutate: async (name) => {
-            await queryClient.cancelQueries({ queryKey: ['playlists', playlistId] })
+            await queryClient.cancelQueries({ queryKey: ['playlists'] })
 
-            const previousPlaylists = queryClient.getQueryData<TServerActionResponse<Playlist[]>>([
-                'playlists',
-                playlistId,
-            ])
+            const previousPlaylists = queryClient.getQueryData<TServerActionResponse<Playlist[]>>(['playlists'])
 
             const tempId = `temp-${Date.now()}`
 
@@ -37,7 +30,7 @@ export const usePlaylistMutation = () => {
                     userId: '', // 실제 값은 서버에서 설정됨
                 }
 
-                queryClient.setQueryData<TServerActionResponse<Playlist[]>>(['playlists', playlistId], {
+                queryClient.setQueryData<TServerActionResponse<Playlist[]>>(['playlists'], {
                     data: [newPlaylist, ...(previousPlaylists.data ?? [])],
                     success: true,
                 })
@@ -47,12 +40,12 @@ export const usePlaylistMutation = () => {
         },
         onError: (error, na_, context) => {
             if (context?.previousPlaylists) {
-                queryClient.setQueryData(['playlists', playlistId], context.previousPlaylists)
+                queryClient.setQueryData(['playlists'], context.previousPlaylists)
             }
             alert(error)
         },
         onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ['playlists', playlistId] })
+            queryClient.invalidateQueries({ queryKey: ['playlists'] })
         },
     })
 
