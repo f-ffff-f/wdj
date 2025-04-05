@@ -1,17 +1,19 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { DialogDescription } from '@/components/ui/dialog'
-import { clearAllTracksFromIndexedDB } from '@/lib/client/db/indexedDB'
-import { useAuth } from '@/lib/client/hooks/useAuth'
-import { useTrack } from '@/lib/client/hooks/useTrack'
+import { clearAllTracksFromIndexedDB } from '@/lib/client/indexedDB'
+import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
+import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
 import { state, updateStorageEstimate } from '@/lib/client/state'
 import { Trash } from 'lucide-react'
 import { useEffect } from 'react'
 import { useSnapshot } from 'valtio'
 
 const StorageIndicator = () => {
-    const snapshot = useSnapshot(state)
-    const { isMember } = useAuth()
-    const { deleteAllTracks } = useTrack()
+    const storageEstimate = useSnapshot(state).UI.storageEstimate
+    const { isMember } = useClientAuth()
+    const { deleteAllTracksDBMutation } = useTrackMutation()
 
     const handleClearAllTracksFromIndexedDB = async () => {
         if (isMember) {
@@ -23,7 +25,7 @@ const StorageIndicator = () => {
                 )
             ) {
                 await clearAllTracksFromIndexedDB()
-                deleteAllTracks()
+                deleteAllTracksDBMutation.mutate()
             }
         }
     }
@@ -34,8 +36,8 @@ const StorageIndicator = () => {
 
     const getUsageValueString = () => {
         let number = 0
-        if (snapshot.UI.storageEstimate?.usage) {
-            number = Number((snapshot.UI.storageEstimate.usage / (1024 * 1024)).toFixed(1))
+        if (storageEstimate?.usage) {
+            number = Number((storageEstimate.usage / (1024 * 1024)).toFixed(1))
         }
         if (number < 1) {
             number = 0

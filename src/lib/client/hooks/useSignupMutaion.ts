@@ -1,5 +1,5 @@
-import { customFetcher } from '@/lib/client/utils/customFetcher'
-import { User } from '@prisma/client'
+import { OmitPasswordUser, signUp } from '@/app/(auth)/_actions/signUp'
+import { TServerActionResponse } from '@/lib/shared/types'
 import { useMutation } from '@tanstack/react-query'
 
 type SignupRequest = {
@@ -7,13 +7,10 @@ type SignupRequest = {
     password: string
 }
 
-export const useSignupMutation = (handleSuccess?: (data: User) => void) => {
-    return useMutation<User, Error, SignupRequest>({
+export const useSignupMutation = (handleSuccess?: (data: TServerActionResponse<OmitPasswordUser>) => void) => {
+    return useMutation({
         mutationFn: async ({ email, password }: SignupRequest) => {
-            return customFetcher('/api/user/member/create', {
-                method: 'POST',
-                body: JSON.stringify({ email, password }),
-            })
+            return signUp({ email, password })
         },
         onSuccess: (data) => {
             if (handleSuccess) handleSuccess(data)
