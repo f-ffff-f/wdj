@@ -6,6 +6,11 @@ import { GuestSigninSchema, MemberSigninSchema } from '@/lib/shared/validations/
 import { Role } from '@prisma/client'
 
 const verifyTurnstile = async (formData: FormData) => {
+    // Skip verification in test environment
+    if (process.env.GITHUB_ACTIONS === 'true') {
+        return
+    }
+
     const formDataTurnstile = new URLSearchParams()
     formDataTurnstile.append('secret', process.env.TURNSTILE_SECRET_KEY || '')
     formDataTurnstile.append('response', formData.get('turnstileToken') as string)
