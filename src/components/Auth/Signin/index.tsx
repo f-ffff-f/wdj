@@ -49,7 +49,7 @@ const SignIn = () => {
     return (
         <div className="max-w-md m-auto p-4">
             <form action={formAction}>
-                <fieldset disabled={process.env.GITHUB_ACTIONS === 'true' ? false : isPending || isTurnstilePending}>
+                <fieldset disabled={process.env.NEXT_PUBLIC_IS_CI ? false : isPending || isTurnstilePending}>
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="email">Email</Label>
                         <Input type="email" name="email" defaultValue={'test@user.com'} />

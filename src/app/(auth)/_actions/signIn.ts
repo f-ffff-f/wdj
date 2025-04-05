@@ -7,7 +7,7 @@ import { Role } from '@prisma/client'
 
 const verifyTurnstile = async (formData: FormData) => {
     // Skip verification in test environment
-    if (process.env.GITHUB_ACTIONS === 'true') {
+    if (process.env.IS_CI) {
         return
     }
 
