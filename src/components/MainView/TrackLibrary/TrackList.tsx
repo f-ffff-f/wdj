@@ -156,13 +156,12 @@ const MarqueeText = ({ text }: { text: string }) => {
     )
 }
 
-/** @TODO */
 const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
     const { data: playlists } = useQuery({
         queryKey: ['playlists'],
         queryFn: getPlaylists,
     })
-    const { deleteTrackMutation } = useTrackMutation()
+    const { connectTrackToPlaylistMutation, deleteTrackMutation } = useTrackMutation()
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-1">
@@ -180,7 +179,10 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
                             <DropdownMenuItem
                                 key={playlist.id}
                                 onClick={() => {
-                                    // createTrackMutation.mutate({ id: playlist.id, trackIds: [trackId] })
+                                    connectTrackToPlaylistMutation.mutate({
+                                        playlistId: playlist.id,
+                                        trackId,
+                                    })
                                 }}
                             >
                                 <span>{playlist.name}</span>
@@ -199,9 +201,9 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
     )
 }
 
-/** @TODO */
 const PlaylistDropdownMenu = ({ trackId }: { trackId: string }) => {
-    // const { deleteTracksFromPlaylistMutation } = usePlaylistMutation()
+    const { disconnectTrackFromPlaylistMutation } = useTrackMutation()
+    const { playlistId: playlistIdParam } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
 
     return (
         <DropdownMenu>
@@ -212,9 +214,12 @@ const PlaylistDropdownMenu = ({ trackId }: { trackId: string }) => {
             </DropdownMenuTrigger>
             <DropdownMenuContent side="right" align="center">
                 <DropdownMenuItem
-                // onClick={() =>
-                // deleteTracksFromPlaylistMutation.mutate([trackId])
-                // }
+                    onClick={() =>
+                        disconnectTrackFromPlaylistMutation.mutate({
+                            playlistId: playlistIdParam,
+                            trackId,
+                        })
+                    }
                 >
                     <span>Delete Track from Playlist</span>
                 </DropdownMenuItem>

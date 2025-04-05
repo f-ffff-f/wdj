@@ -3,9 +3,17 @@ import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
 import { state } from '@/lib/client/state'
 import { Track } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { uploadTrack, getTrackPresignedUrl, deleteTrack, deleteAllTracksDB } from '@/app/main/_actions/track'
+import {
+    uploadTrack,
+    getTrackPresignedUrl,
+    deleteTrack,
+    deleteAllTracksDB,
+    connectTrackToPlaylist,
+    disconnectTrackFromPlaylist,
+} from '@/app/main/_actions/track'
 import { useParams } from 'next/navigation'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
+import { TServerActionResponse } from '@/lib/shared/types'
 
 /**
  * 트랙 서버 액션을 사용하는 뮤테이션 훅
@@ -94,12 +102,16 @@ export const useTrackMutation = () => {
             await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
 
             // 이전 데이터 저장
-            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', playlistId])
+            const previousTracks = queryClient.getQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId])
 
             // 캐시 업데이트
-            queryClient.setQueryData<Track[]>(['tracks', playlistId], (old = []) =>
-                old.filter((track) => track.id !== id),
-            )
+            queryClient.setQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId], (old) => {
+                if (!old) return { data: [], success: true }
+                return {
+                    data: old.data?.filter((track) => track.id !== id) ?? [],
+                    success: true,
+                }
+            })
 
             return { previousTracks }
         },
@@ -126,10 +138,13 @@ export const useTrackMutation = () => {
             await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
 
             // 이전 데이터 저장
-            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', playlistId])
+            const previousTracks = queryClient.getQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId])
 
             // 낙관적으로 캐시 비우기
-            queryClient.setQueryData<Track[]>(['tracks', playlistId], [])
+            queryClient.setQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId], {
+                data: [],
+                success: true,
+            })
 
             return { previousTracks }
         },
@@ -145,5 +160,70 @@ export const useTrackMutation = () => {
         },
     })
 
-    return { createTrackMutation, deleteTrackMutation, deleteAllTracksDBMutation }
+    // 트랙에 플레이리스트 연결 뮤테이션
+    const connectTrackToPlaylistMutation = useMutation({
+        mutationFn: async ({ trackId, playlistId: targetPlaylistId }: { trackId: string; playlistId: string }) => {
+            // 서버 액션으로 트랙에 플레이리스트 연결
+            return connectTrackToPlaylist(trackId, targetPlaylistId)
+        },
+        onSuccess: () => {
+            // 성공 시 관련 쿼리 무효화
+            queryClient.invalidateQueries({ queryKey: ['tracks', playlistId] })
+            queryClient.invalidateQueries({ queryKey: ['playlists'] })
+        },
+        onError: (error) => {
+            console.error('Connect track to playlist error:', error)
+            alert('Failed to add track to playlist')
+        },
+    })
+
+    // 트랙에서 플레이리스트 연결 해제 뮤테이션
+    const disconnectTrackFromPlaylistMutation = useMutation({
+        mutationFn: async ({ trackId, playlistId: targetPlaylistId }: { trackId: string; playlistId: string }) => {
+            // 서버 액션으로 트랙에서 플레이리스트 연결 해제
+            return disconnectTrackFromPlaylist(trackId, targetPlaylistId)
+        },
+        onMutate: async ({ trackId }) => {
+            // 낙관적 업데이트 - 현재 플레이리스트에서만 작동
+            if (playlistId !== PLAYLIST_DEFAULT_ID) {
+                await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
+
+                // 이전 데이터 저장
+                const previousTracks = queryClient.getQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId])
+
+                // 캐시 업데이트 - 현재 플레이리스트에서 트랙 제거
+                queryClient.setQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId], (old) => {
+                    if (!old) return { data: [], success: true }
+                    return {
+                        data: old.data?.filter((track) => track.id !== trackId) ?? [],
+                        success: true,
+                    }
+                })
+
+                return { previousTracks }
+            }
+            return {}
+        },
+        onError: (error, variables, context) => {
+            // 에러 발생 시 원래 데이터로 복원
+            if (playlistId !== PLAYLIST_DEFAULT_ID && context?.previousTracks) {
+                queryClient.setQueryData(['tracks', playlistId], context.previousTracks)
+            }
+            console.error('Disconnect track from playlist error:', error)
+            alert('Failed to remove track from playlist')
+        },
+        onSettled: () => {
+            // 작업 완료 후 캐시 무효화하여 최신 데이터 요청
+            queryClient.invalidateQueries({ queryKey: ['tracks', playlistId] })
+            queryClient.invalidateQueries({ queryKey: ['playlists'] })
+        },
+    })
+
+    return {
+        createTrackMutation,
+        deleteTrackMutation,
+        deleteAllTracksDBMutation,
+        connectTrackToPlaylistMutation,
+        disconnectTrackFromPlaylistMutation,
+    }
 }

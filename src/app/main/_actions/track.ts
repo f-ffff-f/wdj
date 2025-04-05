@@ -228,7 +228,7 @@ export async function getTrackDownloadUrl(trackId: string): Promise<TServerActio
  * 트랙 삭제 서버 액션
  * 데이터베이스에서 트랙을 삭제하고, 멤버인 경우 S3에서도 파일 삭제
  */
-export async function deleteTrack(trackId: string): Promise<TServerActionResponse<null>> {
+export async function deleteTrack(trackId: string): Promise<TServerActionResponse<{ id: string }>> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -275,7 +275,9 @@ export async function deleteTrack(trackId: string): Promise<TServerActionRespons
 
         return {
             success: true,
-            data: null,
+            data: {
+                id: trackId,
+            },
         }
     } catch (error) {
         return {
@@ -320,6 +322,146 @@ export async function deleteAllTracksDB(): Promise<TServerActionResponse<null>> 
         return {
             success: false,
             message: 'failed to delete all tracks',
+        }
+    }
+}
+
+/**
+ * 트랙에 플레이리스트 연결 서버 액션
+ */
+
+export async function connectTrackToPlaylist(
+    trackId: string,
+    playlistId: string,
+): Promise<TServerActionResponse<Track>> {
+    const userId = await getUserIdFromSession()
+
+    try {
+        // 트랙이 존재하며 현재 사용자 소유인지 확인
+        const track = await prisma.track.findFirst({
+            where: {
+                id: trackId,
+                userId,
+            },
+        })
+
+        if (!track) {
+            throw new NotFoundError(NotFoundErrorMessage.TRACK_NOT_FOUND)
+        }
+
+        // 플레이리스트가 존재하며 현재 사용자 소유인지 확인
+        const playlist = await prisma.playlist.findFirst({
+            where: {
+                id: playlistId,
+                userId,
+            },
+        })
+
+        if (!playlist) {
+            throw new NotFoundError(NotFoundErrorMessage.PLAYLIST_NOT_FOUND)
+        }
+
+        // 트랙과 플레이리스트 연결
+        const updatedTrack = await prisma.track.update({
+            where: {
+                id: trackId,
+            },
+            data: {
+                playlists: {
+                    connect: {
+                        id: playlistId,
+                    },
+                },
+            },
+            include: {
+                playlists: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+            },
+        })
+
+        return {
+            success: true,
+            data: updatedTrack,
+        }
+    } catch (error) {
+        console.error('Error connecting track to playlist:', error)
+        return {
+            success: false,
+            message: error instanceof Error ? error.message : 'Failed to connect track to playlist',
+        }
+    }
+}
+
+/**
+ * 트랙에서 플레이리스트 연결 해제 서버 액션
+ */
+
+export async function disconnectTrackFromPlaylist(
+    trackId: string,
+    playlistId: string,
+): Promise<TServerActionResponse<Track>> {
+    const userId = await getUserIdFromSession()
+
+    try {
+        // 트랙이 존재하며 현재 사용자 소유인지 확인
+        const track = await prisma.track.findFirst({
+            where: {
+                id: trackId,
+                userId,
+            },
+        })
+
+        if (!track) {
+            throw new NotFoundError(NotFoundErrorMessage.TRACK_NOT_FOUND)
+        }
+
+        // 플레이리스트가 존재하며 현재 사용자 소유인지 확인
+        const playlist = await prisma.playlist.findFirst({
+            where: {
+                id: playlistId,
+                userId,
+            },
+        })
+
+        if (!playlist) {
+            throw new NotFoundError(NotFoundErrorMessage.PLAYLIST_NOT_FOUND)
+        }
+
+        // 트랙과 플레이리스트 연결 해제
+        const updatedTrack = await prisma.track.update({
+            where: {
+                id: trackId,
+            },
+            data: {
+                playlists: {
+                    disconnect: {
+                        id: playlistId,
+                    },
+                },
+            },
+            include: {
+                playlists: {
+                    select: {
+                        id: true,
+                        name: true,
+                    },
+                },
+            },
+        })
+
+        return {
+            success: true,
+            data: updatedTrack,
+        }
+    } catch (error) {
+        console.error('Error disconnecting track from playlist:', error)
+        return {
+            success: false,
+            message: error instanceof Error ? error.message : 'Failed to disconnect track from playlist',
         }
     }
 }
