@@ -16,14 +16,12 @@ import {
 import { Label } from '@/components/ui/label'
 import { SidebarMenuAction } from '@/components/ui/sidebar'
 import { DECK_IDS, TDeckId } from '@/lib/client/deck'
-import { usePlaylistMutation } from '@/lib/client/hooks/usePlaylistMutation'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
 import { state } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { deckoSingleton } from '@ghr95223/decko'
-import { Playlist } from '@prisma/client'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowUpCircle, MoreVertical } from 'lucide-react'
 import { useParams } from 'next/navigation'
@@ -106,7 +104,7 @@ const Item: React.FC<ITrackListItemProps> = ({
     children,
 }) => {
     return (
-        <div className="flex">
+        <div className="flex" data-trackid={trackId}>
             <Card
                 className={cn(
                     'w-full relative flex items-center justify-between p-4 pr-6 shadow-none',
@@ -168,11 +166,11 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-1">
-                <SidebarMenuAction>
+                <SidebarMenuAction data-testid={`dropdown-trigger-${trackId}`}>
                     <MoreVertical />
                 </SidebarMenuAction>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="center">
+            <DropdownMenuContent side="right" align="center" data-testid={`dropdown-content-${trackId}`}>
                 <DropdownMenuSub>
                     <DropdownMenuSubTrigger>
                         <span>Add to Playlist</span>
@@ -190,7 +188,10 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
                         ))}
                     </DropdownMenuSubContent>
                 </DropdownMenuSub>
-                <DropdownMenuItem onClick={() => deleteTrackMutation.mutate(trackId)}>
+                <DropdownMenuItem
+                    data-testid={`dropdown-item-delete-${trackId}`}
+                    onClick={() => deleteTrackMutation.mutate(trackId)}
+                >
                     <span>Delete Track from Library</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>

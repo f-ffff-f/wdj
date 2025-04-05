@@ -18,6 +18,7 @@ prisma/dev.db-journal
 # testing
 /coverage
 test-results
+fixtures/
 
 # next.js
 /.next/

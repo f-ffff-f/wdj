@@ -1,7 +1,6 @@
 'use server'
 
 import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
-import { handleServerActionError } from '@/lib/server/handleServerActionError'
 import { generateS3FilePath, getEnv } from '@/lib/server/utils'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { BadRequestError, NotFoundError } from '@/lib/shared/errors/CustomError'
@@ -56,11 +55,10 @@ export const getTracks = async (
             }
         }
     } catch (error) {
-        console.error(error)
-        return handleServerActionError(error, {
-            userId,
-            action: `actions/getTracks/${playlistId}`,
-        })
+        return {
+            success: false,
+            message: 'failed to get tracks',
+        }
     }
 }
 
@@ -123,11 +121,10 @@ export async function uploadTrack(formData: FormData): Promise<TServerActionResp
             data: newTrack,
         }
     } catch (error) {
-        console.error(error)
-        return handleServerActionError(error, {
-            userId,
-            action: 'actions/uploadTrack',
-        })
+        return {
+            success: false,
+            message: 'failed to upload track',
+        }
     }
 }
 
@@ -176,11 +173,10 @@ export async function getTrackPresignedUrl(
             },
         }
     } catch (error) {
-        console.error(error)
-        return handleServerActionError(error, {
-            userId,
-            action: 'actions/getTrackPresignedUrl',
-        })
+        return {
+            success: false,
+            message: 'failed to get track presigned url',
+        }
     }
 }
 
@@ -221,11 +217,10 @@ export async function getTrackDownloadUrl(trackId: string): Promise<TServerActio
             },
         }
     } catch (error) {
-        console.error(error)
-        return handleServerActionError(error, {
-            userId,
-            action: `actions/getTrackDownloadUrl/${trackId}`,
-        })
+        return {
+            success: false,
+            message: 'failed to get track download url',
+        }
     }
 }
 
@@ -283,11 +278,10 @@ export async function deleteTrack(trackId: string): Promise<TServerActionRespons
             data: null,
         }
     } catch (error) {
-        console.error(error)
-        return handleServerActionError(error, {
-            userId,
-            action: `actions/deleteTrack/${trackId}`,
-        })
+        return {
+            success: false,
+            message: 'failed to delete track',
+        }
     }
 }
 
@@ -323,10 +317,9 @@ export async function deleteAllTracksDB(): Promise<TServerActionResponse<null>> 
             data: null,
         }
     } catch (error) {
-        console.error(error)
-        return handleServerActionError(error, {
-            userId,
-            action: 'actions/deleteAllTracks',
-        })
+        return {
+            success: false,
+            message: 'failed to delete all tracks',
+        }
     }
 }

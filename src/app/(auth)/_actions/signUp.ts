@@ -1,11 +1,10 @@
+'use server'
+
 import { prisma } from '@/lib/shared/prisma'
-import bcryptjs from 'bcryptjs'
-import { BadRequestError } from '@/lib/shared/errors/CustomError'
-import { handleServerActionError } from '@/lib/server/handleServerActionError'
-import { BadRequestErrorMessage } from '@/lib/shared/errors/ErrorMessage'
+import { TServerActionResponse } from '@/lib/shared/types'
 import { CreateUserSchema } from '@/lib/shared/validations/userSchemas'
 import { Role, User } from '@prisma/client'
-import { TServerActionResponse } from '@/lib/shared/types'
+import bcryptjs from 'bcryptjs'
 
 export type OmitPasswordUser = Omit<User, 'password'>
 
@@ -25,7 +24,10 @@ export const signUp = async (
         // Validate input data
         const parseResult = CreateUserSchema.safeParse(rawData)
         if (!parseResult.success) {
-            throw new BadRequestError(BadRequestErrorMessage.INVALID_INPUT)
+            return {
+                success: false,
+                message: 'Invalid input',
+            }
         }
 
         const { email, password } = parseResult.data
@@ -33,7 +35,10 @@ export const signUp = async (
         // Check for existing user with same email
         const existing = await prisma.user.findUnique({ where: { email } })
         if (existing) {
-            throw new BadRequestError(BadRequestErrorMessage.USER_ALREADY_EXISTS)
+            return {
+                success: false,
+                message: 'User already exists',
+            }
         }
 
         // Hash password
@@ -52,8 +57,9 @@ export const signUp = async (
         const { password: _, ...userWithoutPassword } = user
         return { success: true, data: userWithoutPassword }
     } catch (error) {
-        return handleServerActionError(error, {
-            action: 'signUp',
-        })
+        return {
+            success: false,
+            message: 'unknown error',
+        }
     }
 }

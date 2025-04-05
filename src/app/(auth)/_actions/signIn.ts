@@ -1,8 +1,7 @@
+'use server'
 import { signIn } from '@/auth'
-import { handleServerActionError } from '@/lib/server/handleServerActionError'
-import { BadRequestError, UnauthorizedError } from '@/lib/shared/errors/CustomError'
-import { BadRequestErrorMessage, UnauthorizedErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { prisma } from '@/lib/shared/prisma'
+import { TServerActionResponse } from '@/lib/shared/types'
 import { GuestSigninSchema, MemberSigninSchema } from '@/lib/shared/validations/userSchemas'
 import { Role } from '@prisma/client'
 
@@ -11,21 +10,33 @@ const verifyTurnstile = async (formData: FormData) => {
     formDataTurnstile.append('secret', process.env.TURNSTILE_SECRET_KEY || '')
     formDataTurnstile.append('response', formData.get('turnstileToken') as string)
 
-    await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+    const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
         method: 'POST',
         body: formDataTurnstile,
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
     })
+
+    const data = await response.json()
+
+    if (!data.success) {
+        throw new Error('Turnstile verification failed')
+    }
 }
 
 // Next.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다.
-export const signInAction = async (_: { success: boolean; message: string }, formData: FormData) => {
+export const signInAction = async (
+    _: { success: boolean; message: string },
+    formData: FormData,
+): Promise<TServerActionResponse<never>> => {
     try {
         await verifyTurnstile(formData)
     } catch (error) {
-        return handleServerActionError(error, { userId: null, action: 'actions/signInAction' })
+        return {
+            success: false,
+            message: 'Turnstile verification failed',
+        }
     }
 
     if (formData.get('userSignin')) {
@@ -35,10 +46,10 @@ export const signInAction = async (_: { success: boolean; message: string }, for
         })
 
         if (!result.success) {
-            return handleServerActionError(new BadRequestError(BadRequestErrorMessage.INVALID_INPUT), {
-                userId: null,
-                action: 'actions/signInAction',
-            })
+            return {
+                success: false,
+                message: 'Invalid input',
+            }
         }
 
         try {
@@ -57,10 +68,10 @@ export const signInAction = async (_: { success: boolean; message: string }, for
                 throw error
             }
 
-            return handleServerActionError(new UnauthorizedError(UnauthorizedErrorMessage.INVALID_CREDENTIALS), {
-                userId: null,
-                action: 'actions/signInAction',
-            })
+            return {
+                success: false,
+                message: 'Invalid credentials',
+            }
         }
     } else {
         try {
@@ -75,10 +86,10 @@ export const signInAction = async (_: { success: boolean; message: string }, for
             })
 
             if (!result.success) {
-                return handleServerActionError(new BadRequestError(BadRequestErrorMessage.INVALID_INPUT), {
-                    userId: null,
-                    action: 'actions/signInAction',
-                })
+                return {
+                    success: false,
+                    message: 'Invalid input',
+                }
             }
 
             await signIn('credentials', {
@@ -92,10 +103,10 @@ export const signInAction = async (_: { success: boolean; message: string }, for
             }
 
             // unknown error
-            return handleServerActionError(new UnauthorizedError(UnauthorizedErrorMessage.INVALID_GUEST_USER_ID), {
-                userId: null,
-                action: 'actions/signInAction',
-            })
+            return {
+                success: false,
+                message: 'unknown error',
+            }
         }
     }
 }

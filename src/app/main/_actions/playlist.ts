@@ -1,5 +1,6 @@
+'use server'
+
 import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
-import { handleServerActionError } from '@/lib/server/handleServerActionError'
 import { prisma } from '@/lib/shared/prisma'
 import { BadRequestError, NotFoundError } from '@/lib/shared/errors/CustomError'
 import { BadRequestErrorMessage, NotFoundErrorMessage } from '@/lib/shared/errors/ErrorMessage'
@@ -22,11 +23,10 @@ export const getPlaylists = async (): Promise<TServerActionResponse<Playlist[]>>
             data: playlists,
         }
     } catch (error) {
-        console.error(error)
-        throw handleServerActionError(error, {
-            userId: userId,
-            action: 'actions/getPlaylists',
-        })
+        return {
+            success: false,
+            message: 'failed to get playlists',
+        }
     }
 }
 
@@ -54,10 +54,10 @@ export const getIsValidPlaylist = async (playlistId: string): Promise<TServerAct
             data: true,
         }
     } catch (error) {
-        throw handleServerActionError(error, {
-            userId,
-            action: `actions/getPlaylist/${playlistId}`,
-        })
+        return {
+            success: false,
+            message: 'failed to find playlist',
+        }
     }
 }
 
@@ -93,10 +93,10 @@ export const createPlaylist = async (name: string): Promise<TServerActionRespons
             data: playlist,
         }
     } catch (error) {
-        throw handleServerActionError(error, {
-            userId,
-            action: 'actions/createPlaylist',
-        })
+        return {
+            success: false,
+            message: 'failed to create playlist',
+        }
     }
 }
 
@@ -132,10 +132,10 @@ export const updatePlaylist = async (id: string, name: string) => {
             data: playlist,
         }
     } catch (error) {
-        throw handleServerActionError(error, {
-            userId,
-            action: `actions/updatePlaylist/${id}`,
-        })
+        return {
+            success: false,
+            message: 'failed to update playlist',
+        }
     }
 }
 
@@ -157,9 +157,9 @@ export const deletePlaylist = async (id: string): Promise<TServerActionResponse<
             data: null,
         }
     } catch (error) {
-        throw handleServerActionError(error, {
-            userId,
-            action: `actions/deletePlaylist/${id}`,
-        })
+        return {
+            success: false,
+            message: 'failed to delete playlist',
+        }
     }
 }
