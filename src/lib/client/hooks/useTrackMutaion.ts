@@ -1,5 +1,5 @@
 import { deleteTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/indexedDB'
-import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
+import { useIsMember } from '@/lib/client/hooks/useIsMember'
 import { state } from '@/lib/client/state'
 import { Track } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -19,7 +19,7 @@ import { TServerActionResponse } from '@/lib/shared/types'
  * 트랙 서버 액션을 사용하는 뮤테이션 훅
  */
 export const useTrackMutation = () => {
-    const { isMember } = useClientAuth()
+    const { isMember } = useIsMember()
     const { playlistId } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
     const queryClient = useQueryClient()
 

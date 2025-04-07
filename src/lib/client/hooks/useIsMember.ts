@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react'
  * Custom authentication hook that wraps NextAuth's useSession
  * Provides convenient methods for signin, signout, and checking authentication status
  */
-export const useClientAuth = () => {
+export const useIsMember = () => {
     const { data: session, update } = useSession()
 
     const { data: isMember } = useQuery({
@@ -19,7 +19,6 @@ export const useClientAuth = () => {
     })
 
     return {
-        session,
         isMember,
     }
 }
