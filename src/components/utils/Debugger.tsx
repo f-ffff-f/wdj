@@ -7,8 +7,7 @@ import { useSnapshot } from 'valtio'
 
 const Debugger: React.FC = () => {
     const [audioManagerState, setAudioManagerState] = useState<string>('')
-    const defferedAudioManagerState = useDeferredValue(audioManagerState)
-
+    const deferredAudioManagerState = useDeferredValue(audioManagerState)
     const snapshot = useSnapshot(state)
 
     useEffect(() => {
