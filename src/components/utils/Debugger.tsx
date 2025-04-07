@@ -20,7 +20,7 @@ const Debugger: React.FC = () => {
 
     return (
         <div className="flex whitespace-pre-wrap text-xs p-4 text-gray-500">
-            <pre>{defferedAudioManagerState}</pre>
+            <pre>{deferredAudioManagerState}</pre>
             <pre>{JSON.stringify(snapshot, null, 2)}</pre>
         </div>
     )
