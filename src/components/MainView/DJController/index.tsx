@@ -10,7 +10,7 @@ import { SliderVolume } from '@/components/ui/sliderVolume'
 import { DECK_IDS, TDeckId } from '@/lib/client/deck'
 import { cn, formatTimeUI } from '@/lib/client/utils'
 import { deckoSingleton } from '@ghr95223/decko'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 interface IDeckUI {
     id: TDeckId
     volume: number
@@ -52,32 +52,35 @@ const INITIAL_UI: IDJContollerUI = {
 
 export const DJController = ({ children: TrackListComponent }: { children: React.ReactNode }) => {
     const [stateUI, setStateUI] = useState(INITIAL_UI)
+    const [isPending, startTransition] = useTransition()
 
     // 매 프레임 인스턴스를 조회해서 UI 상태 갱신
     useEffect(() => {
         let rafId: number
         const updateDecks = () => {
-            setStateUI((prev) => ({
-                ...prev,
-                deckList: prev.deckList.map((deck) => {
-                    const playbackTime = deckoSingleton.getPlaybackTime(deck.id)
-                    const audioBufferDuration = deckoSingleton.getAudioBufferDuration(deck.id)
-                    const volume = deckoSingleton.getVolume(deck.id)
-                    const speed = deckoSingleton.getSpeed(deck.id)
-                    const isPlaying = deckoSingleton.isPlaying(deck.id)
-                    const isSeeking = deckoSingleton.isSeeking(deck.id)
-                    return {
-                        ...deck,
-                        playbackTime,
-                        audioBufferDuration,
-                        volume,
-                        speed,
-                        isPlaying,
-                        isSeeking,
-                    }
-                }),
-                crossFade: deckoSingleton.getCrossFade(),
-            }))
+            startTransition(() => {
+                setStateUI((prev) => ({
+                    ...prev,
+                    deckList: prev.deckList.map((deck) => {
+                        const playbackTime = deckoSingleton.getPlaybackTime(deck.id)
+                        const audioBufferDuration = deckoSingleton.getAudioBufferDuration(deck.id)
+                        const volume = deckoSingleton.getVolume(deck.id)
+                        const speed = deckoSingleton.getSpeed(deck.id)
+                        const isPlaying = deckoSingleton.isPlaying(deck.id)
+                        const isSeeking = deckoSingleton.isSeeking(deck.id)
+                        return {
+                            ...deck,
+                            playbackTime,
+                            audioBufferDuration,
+                            volume,
+                            speed,
+                            isPlaying,
+                            isSeeking,
+                        }
+                    }),
+                    crossFade: deckoSingleton.getCrossFade(),
+                }))
+            })
             rafId = requestAnimationFrame(updateDecks)
         }
         updateDecks()
