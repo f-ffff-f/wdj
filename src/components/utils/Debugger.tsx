@@ -1,17 +1,20 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useTransition } from 'react'
 import { useSnapshot } from 'valtio'
 import { state } from '@/lib/client/state'
 import { deckoSingleton } from '@ghr95223/decko'
 
 const Debugger: React.FC = () => {
+    const [isPending, startTransition] = useTransition()
     const [audioManagerState, setAudioManagerState] = useState<string>('')
     const snapshot = useSnapshot(state)
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setAudioManagerState(deckoSingleton.debugManager())
+            startTransition(() => {
+                setAudioManagerState(deckoSingleton.debugManager())
+            })
         }, 1000)
 
         return () => clearInterval(interval)
