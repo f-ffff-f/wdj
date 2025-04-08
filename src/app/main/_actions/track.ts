@@ -1,12 +1,12 @@
 'use server'
 
+import { AppError } from '@/lib/server/error/AppError'
+import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
 import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
+import { handleServerError } from '@/lib/server/error/handleServerError'
 import { generateS3FilePath, getEnv } from '@/lib/server/utils'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
-import { BadRequestError, NotFoundError } from '@/lib/shared/errors/CustomError'
-import { BadRequestErrorMessage, NotFoundErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { prisma } from '@/lib/shared/prisma'
-import { TServerActionResponse } from '@/lib/shared/types'
 import { CreateTrackSchema, UploadUrlRequestSchema } from '@/lib/shared/validations/trackSchema'
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
@@ -21,9 +21,7 @@ const s3 = new S3Client({
     },
 })
 
-export const getTracks = async (
-    playlistId: string | typeof PLAYLIST_DEFAULT_ID,
-): Promise<TServerActionResponse<Track[]>> => {
+export const getTracks = async (playlistId: string | typeof PLAYLIST_DEFAULT_ID): Promise<Track[]> => {
     const userId = await getUserIdFromSession()
 
     try {
@@ -33,10 +31,7 @@ export const getTracks = async (
                 orderBy: { createdAt: 'desc' },
             })
 
-            return {
-                success: true,
-                data: allTracks,
-            }
+            return allTracks
         } else {
             // 특정 플레이리스트의 트랙만 가져옴
             const playlist = await prisma.playlist.findUnique({
@@ -49,16 +44,10 @@ export const getTracks = async (
                 },
             })
 
-            return {
-                success: true,
-                data: playlist?.tracks ?? [],
-            }
+            return playlist?.tracks ?? []
         }
     } catch (error) {
-        return {
-            success: false,
-            message: 'failed to get tracks',
-        }
+        return handleServerError(error)
     }
 }
 
@@ -67,7 +56,7 @@ export const getTracks = async (
  * 클라이언트에서 업로드할 트랙의 파일명과 연결할 플레이리스트 ID를 받아
  * 데이터베이스에 트랙 정보를 생성한다
  */
-export async function uploadTrack(formData: FormData): Promise<TServerActionResponse<Track>> {
+export async function uploadTrack(formData: FormData): Promise<Track> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -81,7 +70,7 @@ export async function uploadTrack(formData: FormData): Promise<TServerActionResp
         })
 
         if (!parseResult.success) {
-            throw new BadRequestError(BadRequestErrorMessage.INVALID_FILE_NAME)
+            throw new AppError(ErrorMessage.INVALID_FILE_NAME)
         }
 
         const { fileName: validatedFileName, playlistId: validatedPlaylistId } = parseResult.data
@@ -116,15 +105,9 @@ export async function uploadTrack(formData: FormData): Promise<TServerActionResp
             },
         })
 
-        return {
-            success: true,
-            data: newTrack,
-        }
+        return newTrack
     } catch (error) {
-        return {
-            success: false,
-            message: 'failed to upload track',
-        }
+        return handleServerError(error)
     }
 }
 
@@ -135,7 +118,7 @@ export async function getTrackPresignedUrl(
     id: string,
     fileName: string,
     fileType: string,
-): Promise<TServerActionResponse<{ url: string; key: string }>> {
+): Promise<{ url: string; key: string }> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -147,7 +130,7 @@ export async function getTrackPresignedUrl(
         })
 
         if (!parseResult.success) {
-            throw new BadRequestError(BadRequestErrorMessage.MISSING_FILE_INFO)
+            throw new AppError(ErrorMessage.MISSING_FILE_INFO)
         }
 
         // 고유 파일 키 생성
@@ -166,24 +149,18 @@ export async function getTrackPresignedUrl(
         })
 
         return {
-            success: true,
-            data: {
-                url: presignedUrl,
-                key: fileKey,
-            },
+            url: presignedUrl,
+            key: fileKey,
         }
     } catch (error) {
-        return {
-            success: false,
-            message: 'failed to get track presigned url',
-        }
+        return handleServerError(error)
     }
 }
 
 /**
  * 트랙 다운로드를 위한 presigned URL 생성 서버 액션
  */
-export async function getTrackDownloadUrl(trackId: string): Promise<TServerActionResponse<{ presignedUrl: string }>> {
+export async function getTrackDownloadUrl(trackId: string): Promise<{ presignedUrl: string }> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -196,7 +173,7 @@ export async function getTrackDownloadUrl(trackId: string): Promise<TServerActio
         })
 
         if (!track) {
-            throw new BadRequestError(BadRequestErrorMessage.MISSING_FILE_INFO)
+            throw new AppError(ErrorMessage.TRACK_NOT_FOUND)
         }
 
         const fileKey = generateS3FilePath(userId, track.id)
@@ -210,17 +187,15 @@ export async function getTrackDownloadUrl(trackId: string): Promise<TServerActio
         // presigned URL 생성 (15분 유효)
         const presignedUrl = await getSignedUrl(s3, getCommand, { expiresIn: 15 * 60 })
 
+        if (!presignedUrl) {
+            throw new AppError(ErrorMessage.FAILED_TO_GET_DOWNLOAD_URL)
+        }
+
         return {
-            success: true,
-            data: {
-                presignedUrl,
-            },
+            presignedUrl,
         }
     } catch (error) {
-        return {
-            success: false,
-            message: 'failed to get track download url',
-        }
+        return handleServerError(error)
     }
 }
 
@@ -228,7 +203,7 @@ export async function getTrackDownloadUrl(trackId: string): Promise<TServerActio
  * 트랙 삭제 서버 액션
  * 데이터베이스에서 트랙을 삭제하고, 멤버인 경우 S3에서도 파일 삭제
  */
-export async function deleteTrack(trackId: string): Promise<TServerActionResponse<{ id: string }>> {
+export async function deleteTrack(trackId: string): Promise<{ id: string }> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -250,7 +225,7 @@ export async function deleteTrack(trackId: string): Promise<TServerActionRespons
         })
 
         if (!track) {
-            throw new NotFoundError(NotFoundErrorMessage.TRACK_UNAUTHORIZED)
+            throw new AppError(ErrorMessage.TRACK_NOT_FOUND)
         }
 
         // 멤버 사용자인 경우 S3에서 파일 삭제
@@ -274,16 +249,10 @@ export async function deleteTrack(trackId: string): Promise<TServerActionRespons
         })
 
         return {
-            success: true,
-            data: {
-                id: trackId,
-            },
+            id: trackId,
         }
     } catch (error) {
-        return {
-            success: false,
-            message: 'failed to delete track',
-        }
+        return handleServerError(error)
     }
 }
 
@@ -291,38 +260,15 @@ export async function deleteTrack(trackId: string): Promise<TServerActionRespons
  * 모든 트랙 삭제 서버 액션
  * 데이터베이스에서만 모든 트랙 삭제
  */
-export async function deleteAllTracksDB(): Promise<TServerActionResponse<null>> {
+export async function deleteAllTracksDB(): Promise<void> {
     const userId = await getUserIdFromSession()
 
     try {
-        // 유저가 존재하고 자기자신인지 확인
-        const user = await prisma.user.findFirst({
-            where: {
-                id: userId,
-            },
-            select: {
-                id: true,
-                role: true,
-            },
-        })
-
-        if (!user || user.id !== userId) {
-            throw new NotFoundError(NotFoundErrorMessage.USER_NOT_FOUND)
-        }
-
         await prisma.track.deleteMany({
             where: { userId },
         })
-
-        return {
-            success: true,
-            data: null,
-        }
     } catch (error) {
-        return {
-            success: false,
-            message: 'failed to delete all tracks',
-        }
+        return handleServerError(error)
     }
 }
 
@@ -330,10 +276,7 @@ export async function deleteAllTracksDB(): Promise<TServerActionResponse<null>> 
  * 트랙에 플레이리스트 연결 서버 액션
  */
 
-export async function connectTrackToPlaylist(
-    trackId: string,
-    playlistId: string,
-): Promise<TServerActionResponse<Track>> {
+export async function connectTrackToPlaylist(trackId: string, playlistId: string): Promise<Track> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -346,7 +289,7 @@ export async function connectTrackToPlaylist(
         })
 
         if (!track) {
-            throw new NotFoundError(NotFoundErrorMessage.TRACK_NOT_FOUND)
+            throw new AppError(ErrorMessage.TRACK_NOT_FOUND)
         }
 
         // 플레이리스트가 존재하며 현재 사용자 소유인지 확인
@@ -358,7 +301,7 @@ export async function connectTrackToPlaylist(
         })
 
         if (!playlist) {
-            throw new NotFoundError(NotFoundErrorMessage.PLAYLIST_NOT_FOUND)
+            throw new AppError(ErrorMessage.PLAYLIST_NOT_FOUND)
         }
 
         // 트랙과 플레이리스트 연결
@@ -383,16 +326,9 @@ export async function connectTrackToPlaylist(
             },
         })
 
-        return {
-            success: true,
-            data: updatedTrack,
-        }
+        return updatedTrack
     } catch (error) {
-        console.error('Error connecting track to playlist:', error)
-        return {
-            success: false,
-            message: error instanceof Error ? error.message : 'Failed to connect track to playlist',
-        }
+        return handleServerError(error)
     }
 }
 
@@ -400,10 +336,7 @@ export async function connectTrackToPlaylist(
  * 트랙에서 플레이리스트 연결 해제 서버 액션
  */
 
-export async function disconnectTrackFromPlaylist(
-    trackId: string,
-    playlistId: string,
-): Promise<TServerActionResponse<Track>> {
+export async function disconnectTrackFromPlaylist(trackId: string, playlistId: string): Promise<Track> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -416,7 +349,7 @@ export async function disconnectTrackFromPlaylist(
         })
 
         if (!track) {
-            throw new NotFoundError(NotFoundErrorMessage.TRACK_NOT_FOUND)
+            throw new AppError(ErrorMessage.TRACK_NOT_FOUND)
         }
 
         // 플레이리스트가 존재하며 현재 사용자 소유인지 확인
@@ -428,7 +361,7 @@ export async function disconnectTrackFromPlaylist(
         })
 
         if (!playlist) {
-            throw new NotFoundError(NotFoundErrorMessage.PLAYLIST_NOT_FOUND)
+            throw new AppError(ErrorMessage.PLAYLIST_NOT_FOUND)
         }
 
         // 트랙과 플레이리스트 연결 해제
@@ -453,15 +386,8 @@ export async function disconnectTrackFromPlaylist(
             },
         })
 
-        return {
-            success: true,
-            data: updatedTrack,
-        }
+        return updatedTrack
     } catch (error) {
-        console.error('Error disconnecting track from playlist:', error)
-        return {
-            success: false,
-            message: error instanceof Error ? error.message : 'Failed to disconnect track from playlist',
-        }
+        return handleServerError(error)
     }
 }

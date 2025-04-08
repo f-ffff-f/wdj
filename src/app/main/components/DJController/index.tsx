@@ -123,7 +123,8 @@ const PlayBackTime = React.memo(
 
 PlayBackTime.displayName = 'PlayBackTime'
 
-const Crossfader = React.memo(({ value, onChange }: { value: number; onChange: (numbers: number[]) => void }) => {
+const Crossfader = React.memo(({ value }: { value: number }) => {
+    const onChange = useCallback((numbers: number[]) => deckoSingleton.setCrossFade(numbers[0]), [])
     return (
         <div className="w-1/2 self-center flex flex-col gap-2">
             <SliderCrossfade id="crossfader" min={0} max={1} step={0.01} value={[value]} onValueChange={onChange} />
@@ -153,9 +154,6 @@ export const DJController = ({ children: TrackListComponent }: { children: React
     const [crossFade, setCrossFade] = useState(deckoSingleton.getCrossFade())
 
     const [, startTransition] = useTransition()
-
-    const handleCrossfadeChange = useCallback((numbers: number[]) => deckoSingleton.setCrossFade(numbers[0]), [])
-
     // Throttle UI updates to roughly 30fps
     useEffect(() => {
         let rafId: number
@@ -215,7 +213,7 @@ export const DJController = ({ children: TrackListComponent }: { children: React
                     isPlaying={isPlaying2}
                 />
             </div>
-            <Crossfader value={crossFade} onChange={handleCrossfadeChange} />
+            <Crossfader value={crossFade} />
             <div className="flex flex-col items-center self-center gap-4">
                 <FileUploader />
                 {TrackListComponent}

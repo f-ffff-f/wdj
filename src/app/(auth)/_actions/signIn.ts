@@ -1,9 +1,10 @@
 'use server'
 import { signIn } from '@/auth'
 import { prisma } from '@/lib/shared/prisma'
-import { TServerActionResponse } from '@/lib/shared/types'
-import { GuestSigninSchema, MemberSigninSchema } from '@/lib/shared/validations/userSchemas'
+import { GuestSigninSchema, MemberSignSchema } from '@/lib/shared/validations/userSchemas'
+import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
 import { Role } from '@prisma/client'
+import { AppError } from '@/lib/server/error/AppError'
 
 const verifyTurnstile = async (formData: FormData) => {
     // Skip verification in test environment
@@ -26,26 +27,23 @@ const verifyTurnstile = async (formData: FormData) => {
     const data = await response.json()
 
     if (!data.success) {
-        throw new Error('Turnstile verification failed')
+        throw new AppError(ErrorMessage.TURNSTILE_VERIFICATION_FAILED)
     }
 }
 
-// Next.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다.
-export const signInAction = async (
-    _: { success: boolean; message: string },
-    formData: FormData,
-): Promise<TServerActionResponse<never>> => {
+// Auth.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다. 예외적으로 error 객체를 throw 하는 패턴 사용하지 않습니다.
+export const signInAction = async (_: { success: boolean; message: string }, formData: FormData) => {
     try {
         await verifyTurnstile(formData)
     } catch (error) {
         return {
             success: false,
-            message: 'Turnstile verification failed',
+            message: ErrorMessage.TURNSTILE_VERIFICATION_FAILED,
         }
     }
 
     if (formData.get('userSignin')) {
-        const result = MemberSigninSchema.safeParse({
+        const result = MemberSignSchema.safeParse({
             email: formData.get('email'),
             password: formData.get('password'),
         })
@@ -53,7 +51,7 @@ export const signInAction = async (
         if (!result.success) {
             return {
                 success: false,
-                message: 'Invalid input',
+                message: ErrorMessage.INVALID_INPUT,
             }
         }
 
@@ -75,7 +73,7 @@ export const signInAction = async (
 
             return {
                 success: false,
-                message: 'Invalid credentials',
+                message: ErrorMessage.INVALID_CREDENTIALS,
             }
         }
     } else {
@@ -93,7 +91,7 @@ export const signInAction = async (
             if (!result.success) {
                 return {
                     success: false,
-                    message: 'Invalid input',
+                    message: ErrorMessage.INVALID_INPUT,
                 }
             }
 
@@ -110,7 +108,7 @@ export const signInAction = async (
             // unknown error
             return {
                 success: false,
-                message: 'unknown error',
+                message: ErrorMessage.UNKNOWN_ERROR,
             }
         }
     }
