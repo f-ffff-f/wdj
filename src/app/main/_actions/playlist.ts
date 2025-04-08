@@ -1,10 +1,13 @@
 'use server'
 
+import { AppError } from '@/lib/server/error/AppError'
+import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
 import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
+import { handleServerError } from '@/lib/server/error/handleServerError'
+import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { prisma } from '@/lib/shared/prisma'
 import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
 import { Playlist } from '@prisma/client'
-import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 
 export const getPlaylists = async (): Promise<Playlist[]> => {
     const userId = await getUserIdFromSession()
@@ -17,7 +20,7 @@ export const getPlaylists = async (): Promise<Playlist[]> => {
 
         return playlists
     } catch (error) {
-        throw new Error('failed to get playlists')
+        return handleServerError(error)
     }
 }
 
@@ -34,12 +37,12 @@ export const getIsValidPlaylist = async (playlistId: string): Promise<boolean> =
         })
 
         if (!playlist) {
-            throw new Error('Playlist not found')
+            throw new AppError(ErrorMessage.PLAYLIST_NOT_FOUND)
         }
 
         return true
     } catch (error) {
-        throw new Error('failed to find playlist')
+        return handleServerError(error)
     }
 }
 
@@ -52,7 +55,7 @@ export const createPlaylist = async (name: string): Promise<Playlist> => {
         // Zod로 입력 유효성 검사
         const parseResult = PlaylistSchema.safeParse({ name })
         if (!parseResult.success) {
-            throw new Error('Invalid playlist name')
+            throw new AppError(ErrorMessage.INVALID_PLAYLIST_NAME)
         }
 
         // 플레이리스트 생성
@@ -72,7 +75,7 @@ export const createPlaylist = async (name: string): Promise<Playlist> => {
 
         return playlist
     } catch (error) {
-        throw new Error('failed to create playlist')
+        return handleServerError(error)
     }
 }
 
@@ -85,7 +88,7 @@ export const updatePlaylist = async (id: string, name: string) => {
         // Zod로 입력 유효성 검사
         const parseResult = PlaylistSchema.safeParse({ name })
         if (!parseResult.success) {
-            throw new Error('Invalid playlist name')
+            throw new AppError(ErrorMessage.INVALID_PLAYLIST_NAME)
         }
 
         const playlist = await prisma.playlist.update({
@@ -105,7 +108,7 @@ export const updatePlaylist = async (id: string, name: string) => {
 
         return playlist
     } catch (error) {
-        throw new Error('failed to update playlist')
+        return handleServerError(error)
     }
 }
 
@@ -122,6 +125,6 @@ export const deletePlaylist = async (id: string): Promise<void> => {
             },
         })
     } catch (error) {
-        throw new Error('failed to delete playlist')
+        return handleServerError(error)
     }
 }

@@ -2,8 +2,10 @@
 
 import { prisma } from '@/lib/shared/prisma'
 import { MemberSignSchema } from '@/lib/shared/validations/userSchemas'
+import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
 import { Role, User } from '@prisma/client'
 import bcryptjs from 'bcryptjs'
+import { handleServerError } from '@/lib/server/error/handleServerError'
 
 export type OmitPasswordUser = Omit<User, 'password'>
 
@@ -21,7 +23,7 @@ export const signUp = async (formData: FormData | { email: string; password: str
         // Validate input data
         const parseResult = MemberSignSchema.safeParse(rawData)
         if (!parseResult.success) {
-            throw new Error('Invalid input')
+            throw new Error(ErrorMessage.INVALID_INPUT)
         }
 
         const { email, password } = parseResult.data
@@ -29,7 +31,7 @@ export const signUp = async (formData: FormData | { email: string; password: str
         // Check for existing user with same email
         const existing = await prisma.user.findUnique({ where: { email } })
         if (existing) {
-            throw new Error('User already exists')
+            throw new Error(ErrorMessage.USER_ALREADY_EXISTS)
         }
 
         // Hash password
@@ -48,6 +50,6 @@ export const signUp = async (formData: FormData | { email: string; password: str
         const { password: _, ...userWithoutPassword } = user
         return userWithoutPassword
     } catch (error) {
-        throw new Error('unknown error')
+        return handleServerError(error)
     }
 }

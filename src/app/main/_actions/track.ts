@@ -1,6 +1,9 @@
 'use server'
 
+import { AppError } from '@/lib/server/error/AppError'
+import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
 import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
+import { handleServerError } from '@/lib/server/error/handleServerError'
 import { generateS3FilePath, getEnv } from '@/lib/server/utils'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { prisma } from '@/lib/shared/prisma'
@@ -44,7 +47,7 @@ export const getTracks = async (playlistId: string | typeof PLAYLIST_DEFAULT_ID)
             return playlist?.tracks ?? []
         }
     } catch (error) {
-        throw new Error('failed to get tracks')
+        return handleServerError(error)
     }
 }
 
@@ -67,7 +70,7 @@ export async function uploadTrack(formData: FormData): Promise<Track> {
         })
 
         if (!parseResult.success) {
-            throw new Error('Invalid file name')
+            throw new AppError(ErrorMessage.INVALID_FILE_NAME)
         }
 
         const { fileName: validatedFileName, playlistId: validatedPlaylistId } = parseResult.data
@@ -104,7 +107,7 @@ export async function uploadTrack(formData: FormData): Promise<Track> {
 
         return newTrack
     } catch (error) {
-        throw new Error('failed to upload track')
+        return handleServerError(error)
     }
 }
 
@@ -127,7 +130,7 @@ export async function getTrackPresignedUrl(
         })
 
         if (!parseResult.success) {
-            throw new Error('Missing file info')
+            throw new AppError(ErrorMessage.MISSING_FILE_INFO)
         }
 
         // 고유 파일 키 생성
@@ -150,7 +153,7 @@ export async function getTrackPresignedUrl(
             key: fileKey,
         }
     } catch (error) {
-        throw new Error('failed to get track presigned url')
+        return handleServerError(error)
     }
 }
 
@@ -170,7 +173,7 @@ export async function getTrackDownloadUrl(trackId: string): Promise<{ presignedU
         })
 
         if (!track) {
-            throw new Error('Track not found')
+            throw new AppError(ErrorMessage.TRACK_NOT_FOUND)
         }
 
         const fileKey = generateS3FilePath(userId, track.id)
@@ -185,14 +188,14 @@ export async function getTrackDownloadUrl(trackId: string): Promise<{ presignedU
         const presignedUrl = await getSignedUrl(s3, getCommand, { expiresIn: 15 * 60 })
 
         if (!presignedUrl) {
-            throw new Error('Failed to get track download url')
+            throw new AppError(ErrorMessage.FAILED_TO_GET_DOWNLOAD_URL)
         }
 
         return {
             presignedUrl,
         }
     } catch (error) {
-        throw error
+        return handleServerError(error)
     }
 }
 
@@ -222,7 +225,7 @@ export async function deleteTrack(trackId: string): Promise<{ id: string }> {
         })
 
         if (!track) {
-            throw new Error('Track not found')
+            throw new AppError(ErrorMessage.TRACK_NOT_FOUND)
         }
 
         // 멤버 사용자인 경우 S3에서 파일 삭제
@@ -249,7 +252,7 @@ export async function deleteTrack(trackId: string): Promise<{ id: string }> {
             id: trackId,
         }
     } catch (error) {
-        throw new Error('failed to delete track')
+        return handleServerError(error)
     }
 }
 
@@ -261,26 +264,11 @@ export async function deleteAllTracksDB(): Promise<void> {
     const userId = await getUserIdFromSession()
 
     try {
-        // 유저가 존재하고 자기자신인지 확인
-        const user = await prisma.user.findFirst({
-            where: {
-                id: userId,
-            },
-            select: {
-                id: true,
-                role: true,
-            },
-        })
-
-        if (!user || user.id !== userId) {
-            throw new Error('User not found')
-        }
-
         await prisma.track.deleteMany({
             where: { userId },
         })
     } catch (error) {
-        throw new Error('failed to delete all tracks')
+        return handleServerError(error)
     }
 }
 
@@ -301,7 +289,7 @@ export async function connectTrackToPlaylist(trackId: string, playlistId: string
         })
 
         if (!track) {
-            throw new Error('Track not found')
+            throw new AppError(ErrorMessage.TRACK_NOT_FOUND)
         }
 
         // 플레이리스트가 존재하며 현재 사용자 소유인지 확인
@@ -313,7 +301,7 @@ export async function connectTrackToPlaylist(trackId: string, playlistId: string
         })
 
         if (!playlist) {
-            throw new Error('Playlist not found')
+            throw new AppError(ErrorMessage.PLAYLIST_NOT_FOUND)
         }
 
         // 트랙과 플레이리스트 연결
@@ -340,7 +328,7 @@ export async function connectTrackToPlaylist(trackId: string, playlistId: string
 
         return updatedTrack
     } catch (error) {
-        throw new Error('failed to connect track to playlist')
+        return handleServerError(error)
     }
 }
 
@@ -361,7 +349,7 @@ export async function disconnectTrackFromPlaylist(trackId: string, playlistId: s
         })
 
         if (!track) {
-            throw new Error('Track not found')
+            throw new AppError(ErrorMessage.TRACK_NOT_FOUND)
         }
 
         // 플레이리스트가 존재하며 현재 사용자 소유인지 확인
@@ -373,7 +361,7 @@ export async function disconnectTrackFromPlaylist(trackId: string, playlistId: s
         })
 
         if (!playlist) {
-            throw new Error('Playlist not found')
+            throw new AppError(ErrorMessage.PLAYLIST_NOT_FOUND)
         }
 
         // 트랙과 플레이리스트 연결 해제
@@ -400,6 +388,6 @@ export async function disconnectTrackFromPlaylist(trackId: string, playlistId: s
 
         return updatedTrack
     } catch (error) {
-        throw new Error('failed to disconnect track from playlist')
+        return handleServerError(error)
     }
 }
