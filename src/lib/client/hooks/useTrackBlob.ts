@@ -1,10 +1,10 @@
 import { getTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/indexedDB'
-import { useClientAuth } from '@/lib/client/hooks/useClientAuth'
+import { useIsMember } from '@/lib/client/hooks/useIsMember'
 import { useCallback } from 'react'
 import { getTrackDownloadUrl } from '@/app/main/_actions/track'
 
 export const useTrackBlob = () => {
-    const { isMember } = useClientAuth()
+    const { isMember } = useIsMember()
 
     const getTrackBlobUrl = useCallback(
         async (id: string): Promise<Blob> => {
