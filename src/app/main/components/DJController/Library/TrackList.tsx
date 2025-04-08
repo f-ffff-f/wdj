@@ -47,7 +47,9 @@ const TrackList = () => {
 
     const handleLoadToDeck = async (deckId: TDeckId, id: string) => {
         const url = await getTrackBlobUrl(id)
-        deckoSingleton.loadTrack(deckId, url)
+        if (url) {
+            deckoSingleton.loadTrack(deckId, url)
+        }
     }
     const handleClick = (id: string) => {
         state.UI.focusedTrackId = id
@@ -158,11 +160,21 @@ const MarqueeText = ({ text }: { text: string }) => {
 }
 
 const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
-    const { data: playlists } = useQuery({
+    const { data: playlists, error } = useQuery({
         queryKey: ['playlists'],
         queryFn: getPlaylists,
     })
+
     const { connectTrackToPlaylistMutation, deleteTrackMutation } = useTrackMutation()
+
+    if (error) {
+        return <Label>{error.message}</Label>
+    }
+
+    if (!playlists) {
+        return <Label>No playlists available</Label>
+    }
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-1">

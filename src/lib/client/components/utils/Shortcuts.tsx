@@ -221,7 +221,9 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                         const index = findIndex(tracks, state.UI.focusedTrackId)
                         if (index >= 0) {
                             const url = await getTrackBlobUrl(tracks[index].id)
-                            deckoSingleton.loadTrack(DECK_IDS.ID_1, url)
+                            if (url) {
+                                deckoSingleton.loadTrack(DECK_IDS.ID_1, url)
+                            }
                         }
                     }
                 }
@@ -232,7 +234,9 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                         const index = findIndex(tracks, state.UI.focusedTrackId)
                         if (index <= tracks.length - 1) {
                             const url = await getTrackBlobUrl(tracks[index].id)
-                            deckoSingleton.loadTrack(DECK_IDS.ID_2, url)
+                            if (url) {
+                                deckoSingleton.loadTrack(DECK_IDS.ID_2, url)
+                            }
                         }
                     }
                 }
