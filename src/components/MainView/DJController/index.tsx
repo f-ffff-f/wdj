@@ -10,7 +10,7 @@ import { SliderVolume } from '@/components/ui/sliderVolume'
 import { DECK_IDS, TDeckId } from '@/lib/client/deck'
 import { cn, formatTimeUI } from '@/lib/client/utils'
 import { deckoSingleton } from '@ghr95223/decko'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useTransition } from 'react'
 interface IDeckUI {
     id: TDeckId
     volume: number
@@ -26,14 +26,14 @@ interface IDJContollerUI {
     crossFade: number
 }
 
-const INITIAL_UI: IDJContollerUI = {
+const getInitialUI = () => ({
     deckList: [
         {
             id: DECK_IDS.ID_1,
             volume: deckoSingleton.getDeck(DECK_IDS.ID_1)?.gainNode.gain.value ?? 0,
             speed: deckoSingleton.getDeck(DECK_IDS.ID_1)?.speed ?? 1,
-            playbackTime: 0,
-            audioBufferDuration: 0,
+            playbackTime: deckoSingleton.getPlaybackTime(DECK_IDS.ID_1) ?? 0,
+            audioBufferDuration: deckoSingleton.getAudioBufferDuration(DECK_IDS.ID_1) ?? 0,
             isPlaying: deckoSingleton.getDeck(DECK_IDS.ID_1)?.isPlaying ?? false,
             isSeeking: deckoSingleton.getDeck(DECK_IDS.ID_1)?.isSeeking ?? false,
         },
@@ -41,43 +41,52 @@ const INITIAL_UI: IDJContollerUI = {
             id: DECK_IDS.ID_2,
             volume: deckoSingleton.getDeck(DECK_IDS.ID_2)?.gainNode.gain.value ?? 0,
             speed: deckoSingleton.getDeck(DECK_IDS.ID_2)?.speed ?? 1,
-            playbackTime: 0,
-            audioBufferDuration: 0,
+            playbackTime: deckoSingleton.getPlaybackTime(DECK_IDS.ID_2) ?? 0,
+            audioBufferDuration: deckoSingleton.getAudioBufferDuration(DECK_IDS.ID_2) ?? 0,
             isPlaying: deckoSingleton.getDeck(DECK_IDS.ID_2)?.isPlaying ?? false,
             isSeeking: deckoSingleton.getDeck(DECK_IDS.ID_2)?.isSeeking ?? false,
         },
     ],
     crossFade: deckoSingleton.getCrossFade(),
-}
+})
 
+const transitionCallback = (prev: IDJContollerUI) => ({
+    ...prev,
+    deckList: prev.deckList.map((deck) => {
+        const playbackTime = deckoSingleton.getPlaybackTime(deck.id)
+        const audioBufferDuration = deckoSingleton.getAudioBufferDuration(deck.id)
+        const volume = deckoSingleton.getVolume(deck.id)
+        const speed = deckoSingleton.getSpeed(deck.id)
+        const isPlaying = deckoSingleton.isPlaying(deck.id)
+        const isSeeking = deckoSingleton.isSeeking(deck.id)
+        return {
+            ...deck,
+            playbackTime,
+            audioBufferDuration,
+            volume,
+            speed,
+            isPlaying,
+            isSeeking,
+        }
+    }),
+    crossFade: deckoSingleton.getCrossFade(),
+})
 export const DJController = ({ children: TrackListComponent }: { children: React.ReactNode }) => {
-    const [stateUI, setStateUI] = useState(INITIAL_UI)
-
-    // 매 프레임 인스턴스를 조회해서 UI 상태 갱신
+    const [stateUI, setStateUI] = useState(getInitialUI())
+    const [, startTransition] = useTransition()
+    // Throttle UI updates to roughly 30fps to ease page transitions
     useEffect(() => {
         let rafId: number
+        let lastUpdate = performance.now()
+        const throttleInterval = 33 // roughly 30fps
         const updateDecks = () => {
-            setStateUI((prev) => ({
-                ...prev,
-                deckList: prev.deckList.map((deck) => {
-                    const playbackTime = deckoSingleton.getPlaybackTime(deck.id)
-                    const audioBufferDuration = deckoSingleton.getAudioBufferDuration(deck.id)
-                    const volume = deckoSingleton.getVolume(deck.id)
-                    const speed = deckoSingleton.getSpeed(deck.id)
-                    const isPlaying = deckoSingleton.isPlaying(deck.id)
-                    const isSeeking = deckoSingleton.isSeeking(deck.id)
-                    return {
-                        ...deck,
-                        playbackTime,
-                        audioBufferDuration,
-                        volume,
-                        speed,
-                        isPlaying,
-                        isSeeking,
-                    }
-                }),
-                crossFade: deckoSingleton.getCrossFade(),
-            }))
+            const now = performance.now()
+            if (now - lastUpdate >= throttleInterval) {
+                lastUpdate = now
+                startTransition(() => {
+                    setStateUI(transitionCallback)
+                })
+            }
             rafId = requestAnimationFrame(updateDecks)
         }
         updateDecks()
