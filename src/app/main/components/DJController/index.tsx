@@ -1,8 +1,7 @@
 'use client'
 
-import React, { useEffect, useState, useTransition, useCallback } from 'react'
-import WaveformVisualizer from '@/app/main/components/DJController/WaveformVisualizer'
-import FileUploader from '@/app/main/components/DJController/FileUploader'
+import FileUploader from '@/app/main/components/DJController/Library/FileUploader'
+import WaveformVisualizer from '@/app/main/components/DJController/Waveform/WaveformVisualizer'
 import { Button } from '@/lib/client/components/ui/button'
 import { Label } from '@/lib/client/components/ui/label'
 import { SliderCrossfade } from '@/lib/client/components/ui/sliderCrossfade'
@@ -12,6 +11,7 @@ import { DECK_IDS } from '@/lib/client/constants'
 import { TDeckId } from '@/lib/client/types'
 import { cn, formatPlaybackTimeUI } from '@/lib/client/utils'
 import { deckoSingleton } from '@ghr95223/decko'
+import React, { useCallback, useEffect, useState, useTransition } from 'react'
 
 // Memoized deck component with individual props instead of a deck object
 const DeckControl = React.memo(
