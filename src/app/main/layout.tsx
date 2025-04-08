@@ -1,7 +1,7 @@
 import { getPlaylists } from '@/app/main/_actions/playlist'
 import { auth } from '@/auth'
-import AppSidebar from '@/components/AppSidebar'
-import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import AppSidebar from '@/app/main/components/AppSidebar'
+import { SidebarProvider, SidebarTrigger } from '@/lib/client/components/ui/sidebar'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 import { redirect } from 'next/navigation'
 

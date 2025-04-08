@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
-export const formatTimeUI = (seconds: number): string => {
+export const formatPlaybackTimeUI = (seconds: number): string => {
     const absSeconds = Math.abs(seconds)
 
     const min = Math.floor(absSeconds / 60)
