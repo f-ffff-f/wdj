@@ -1,7 +1,7 @@
 import React from 'react'
 import { InputFile } from '@/components/ui/inputFile'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
-import MyLoaderIcon from '@/components/ui/myLoaderIcon'
+
 const FileUploader = () => {
     const { createTrackMutation } = useTrackMutation()
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,13 +14,13 @@ const FileUploader = () => {
     }
     return (
         <div>
-            {createTrackMutation.isPending ? (
-                <div className="flex items-center justify-center">
-                    <MyLoaderIcon />
-                </div>
-            ) : (
-                <InputFile type="file" accept="audio/mp3" onChange={(e) => handleFileUpload(e)} id="file-uploader" />
-            )}
+            <InputFile
+                type="file"
+                accept="audio/mp3"
+                onChange={(e) => handleFileUpload(e)}
+                id="file-uploader"
+                disabled={createTrackMutation.isPending}
+            />
         </div>
     )
 }
