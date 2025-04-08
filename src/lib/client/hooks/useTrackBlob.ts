@@ -13,13 +13,13 @@ export const useTrackBlob = () => {
                 return blob
             } else {
                 if (isMember) {
-                    const { data, success, message } = await getTrackDownloadUrl(id)
+                    const { presignedUrl } = await getTrackDownloadUrl(id)
 
-                    if (!data || !success) {
-                        throw new Error(message || 'Failed to fetch track presigned URL')
+                    if (!presignedUrl) {
+                        throw new Error('Failed to fetch track presigned URL')
                     }
 
-                    const fileResponse = await fetch(data.presignedUrl)
+                    const fileResponse = await fetch(presignedUrl)
                     const blob = await fileResponse.blob()
 
                     setTrackToIndexedDB(id, blob)

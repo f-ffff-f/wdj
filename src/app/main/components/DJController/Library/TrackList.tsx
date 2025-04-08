@@ -61,13 +61,13 @@ const TrackList = () => {
         return <Label>Error: {error.message}</Label>
     }
 
-    if (!tracks?.data) {
+    if (!tracks) {
         return <Label>No tracks available</Label>
     }
 
     return (
         <div className="max-w-2xl min-h-10 flex flex-col gap-1 overflow-x-hidden" id="track-list">
-            {tracks?.data?.map((track) => (
+            {tracks?.map((track) => (
                 <Item
                     key={track.id}
                     trackId={track.id}
@@ -176,7 +176,7 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
                         <span>Add to Playlist</span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
-                        {playlists?.data?.map((playlist) => (
+                        {playlists?.map((playlist) => (
                             <DropdownMenuItem
                                 key={playlist.id}
                                 onClick={() => {

@@ -13,7 +13,6 @@ import {
 } from '@/app/main/_actions/track'
 import { useParams } from 'next/navigation'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
-import { TServerActionResponse } from '@/lib/shared/types'
 
 /**
  * 트랙 서버 액션을 사용하는 뮤테이션 훅
@@ -37,9 +36,9 @@ export const useTrackMutation = () => {
             }
 
             // 1. 서버 액션으로 트랙 생성
-            const { success, data: track } = await uploadTrack(formData)
+            const track = await uploadTrack(formData)
 
-            if (!track || !success) {
+            if (!track) {
                 throw new Error('Failed to create track')
             }
 
@@ -57,14 +56,14 @@ export const useTrackMutation = () => {
             if (isMember) {
                 try {
                     // 프리사인드 URL 요청
-                    const { data: presignedUrlData } = await getTrackPresignedUrl(track.id, track.fileName, file.type)
+                    const { url } = await getTrackPresignedUrl(track.id, track.fileName, file.type)
 
-                    if (!presignedUrlData) {
+                    if (!url) {
                         throw new Error('Failed to get presigned url')
                     }
 
                     // S3에 파일 업로드
-                    const uploadResponse = await fetch(presignedUrlData.url, {
+                    const uploadResponse = await fetch(url, {
                         method: 'PUT',
                         body: file,
                         headers: {
@@ -76,14 +75,13 @@ export const useTrackMutation = () => {
                         throw new Error('Failed to upload track to S3')
                     }
                 } catch (error) {
-                    throw new Error('Background S3 upload failed')
+                    throw error
                 }
             }
 
             return track
         },
         onError: (error) => {
-            console.error('Track creation error:', error)
             alert(error.message || 'Failed to create track')
         },
     })
@@ -102,15 +100,12 @@ export const useTrackMutation = () => {
             await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
 
             // 이전 데이터 저장
-            const previousTracks = queryClient.getQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId])
+            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', playlistId])
 
             // 캐시 업데이트
-            queryClient.setQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId], (old) => {
-                if (!old) return { data: [], success: true }
-                return {
-                    data: old.data?.filter((track) => track.id !== id) ?? [],
-                    success: true,
-                }
+            queryClient.setQueryData<Track[]>(['tracks', playlistId], (old) => {
+                if (!old) return []
+                return old.filter((track) => track.id !== id)
             })
 
             return { previousTracks }
@@ -138,13 +133,10 @@ export const useTrackMutation = () => {
             await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
 
             // 이전 데이터 저장
-            const previousTracks = queryClient.getQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId])
+            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', playlistId])
 
             // 낙관적으로 캐시 비우기
-            queryClient.setQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId], {
-                data: [],
-                success: true,
-            })
+            queryClient.setQueryData<Track[]>(['tracks', playlistId], [])
 
             return { previousTracks }
         },
@@ -189,15 +181,12 @@ export const useTrackMutation = () => {
                 await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
 
                 // 이전 데이터 저장
-                const previousTracks = queryClient.getQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId])
+                const previousTracks = queryClient.getQueryData<Track[]>(['tracks', playlistId])
 
                 // 캐시 업데이트 - 현재 플레이리스트에서 트랙 제거
-                queryClient.setQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId], (old) => {
-                    if (!old) return { data: [], success: true }
-                    return {
-                        data: old.data?.filter((track) => track.id !== trackId) ?? [],
-                        success: true,
-                    }
+                queryClient.setQueryData<Track[]>(['tracks', playlistId], (old) => {
+                    if (!old) return []
+                    return old.filter((track) => track.id !== trackId)
                 })
 
                 return { previousTracks }

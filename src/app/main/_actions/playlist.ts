@@ -2,14 +2,11 @@
 
 import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { prisma } from '@/lib/shared/prisma'
-import { BadRequestError, NotFoundError } from '@/lib/shared/errors/CustomError'
-import { BadRequestErrorMessage, NotFoundErrorMessage } from '@/lib/shared/errors/ErrorMessage'
 import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
 import { Playlist } from '@prisma/client'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
-import { TServerActionResponse } from '@/lib/shared/types'
 
-export const getPlaylists = async (): Promise<TServerActionResponse<Playlist[]>> => {
+export const getPlaylists = async (): Promise<Playlist[]> => {
     const userId = await getUserIdFromSession()
 
     try {
@@ -18,24 +15,15 @@ export const getPlaylists = async (): Promise<TServerActionResponse<Playlist[]>>
             orderBy: { createdAt: 'desc' },
         })
 
-        return {
-            success: true,
-            data: playlists,
-        }
+        return playlists
     } catch (error) {
-        return {
-            success: false,
-            message: 'failed to get playlists',
-        }
+        throw new Error('failed to get playlists')
     }
 }
 
-export const getIsValidPlaylist = async (playlistId: string): Promise<TServerActionResponse<boolean>> => {
+export const getIsValidPlaylist = async (playlistId: string): Promise<boolean> => {
     if (playlistId === PLAYLIST_DEFAULT_ID) {
-        return {
-            success: true,
-            data: true,
-        }
+        return true
     }
 
     const userId = await getUserIdFromSession()
@@ -46,22 +34,16 @@ export const getIsValidPlaylist = async (playlistId: string): Promise<TServerAct
         })
 
         if (!playlist) {
-            throw new NotFoundError(NotFoundErrorMessage.PLAYLIST_NOT_FOUND)
+            throw new Error('Playlist not found')
         }
 
-        return {
-            success: true,
-            data: true,
-        }
+        return true
     } catch (error) {
-        return {
-            success: false,
-            message: 'failed to find playlist',
-        }
+        throw new Error('failed to find playlist')
     }
 }
 
-export const createPlaylist = async (name: string): Promise<TServerActionResponse<Playlist>> => {
+export const createPlaylist = async (name: string): Promise<Playlist> => {
     let userId: string | undefined
 
     try {
@@ -70,7 +52,7 @@ export const createPlaylist = async (name: string): Promise<TServerActionRespons
         // Zod로 입력 유효성 검사
         const parseResult = PlaylistSchema.safeParse({ name })
         if (!parseResult.success) {
-            throw new BadRequestError(BadRequestErrorMessage.INVALID_PLAYLIST_NAME)
+            throw new Error('Invalid playlist name')
         }
 
         // 플레이리스트 생성
@@ -88,15 +70,9 @@ export const createPlaylist = async (name: string): Promise<TServerActionRespons
             },
         })
 
-        return {
-            success: true,
-            data: playlist,
-        }
+        return playlist
     } catch (error) {
-        return {
-            success: false,
-            message: 'failed to create playlist',
-        }
+        throw new Error('failed to create playlist')
     }
 }
 
@@ -109,7 +85,7 @@ export const updatePlaylist = async (id: string, name: string) => {
         // Zod로 입력 유효성 검사
         const parseResult = PlaylistSchema.safeParse({ name })
         if (!parseResult.success) {
-            throw new BadRequestError(BadRequestErrorMessage.INVALID_PLAYLIST_NAME)
+            throw new Error('Invalid playlist name')
         }
 
         const playlist = await prisma.playlist.update({
@@ -127,19 +103,13 @@ export const updatePlaylist = async (id: string, name: string) => {
             },
         })
 
-        return {
-            success: true,
-            data: playlist,
-        }
+        return playlist
     } catch (error) {
-        return {
-            success: false,
-            message: 'failed to update playlist',
-        }
+        throw new Error('failed to update playlist')
     }
 }
 
-export const deletePlaylist = async (id: string): Promise<TServerActionResponse<null>> => {
+export const deletePlaylist = async (id: string): Promise<void> => {
     let userId: string | undefined
 
     try {
@@ -151,15 +121,7 @@ export const deletePlaylist = async (id: string): Promise<TServerActionResponse<
                 userId: userId,
             },
         })
-
-        return {
-            success: true,
-            data: null,
-        }
     } catch (error) {
-        return {
-            success: false,
-            message: 'failed to delete playlist',
-        }
+        throw new Error('failed to delete playlist')
     }
 }

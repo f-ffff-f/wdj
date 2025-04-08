@@ -1,16 +1,13 @@
 'use server'
 
 import { prisma } from '@/lib/shared/prisma'
-import { TServerActionResponse } from '@/lib/shared/types'
-import { CreateUserSchema } from '@/lib/shared/validations/userSchemas'
+import { MemberSignSchema } from '@/lib/shared/validations/userSchemas'
 import { Role, User } from '@prisma/client'
 import bcryptjs from 'bcryptjs'
 
 export type OmitPasswordUser = Omit<User, 'password'>
 
-export const signUp = async (
-    formData: FormData | { email: string; password: string },
-): Promise<TServerActionResponse<OmitPasswordUser>> => {
+export const signUp = async (formData: FormData | { email: string; password: string }): Promise<OmitPasswordUser> => {
     try {
         // Handle both FormData and direct object input
         const rawData =
@@ -22,12 +19,9 @@ export const signUp = async (
                 : formData
 
         // Validate input data
-        const parseResult = CreateUserSchema.safeParse(rawData)
+        const parseResult = MemberSignSchema.safeParse(rawData)
         if (!parseResult.success) {
-            return {
-                success: false,
-                message: 'Invalid input',
-            }
+            throw new Error('Invalid input')
         }
 
         const { email, password } = parseResult.data
@@ -35,10 +29,7 @@ export const signUp = async (
         // Check for existing user with same email
         const existing = await prisma.user.findUnique({ where: { email } })
         if (existing) {
-            return {
-                success: false,
-                message: 'User already exists',
-            }
+            throw new Error('User already exists')
         }
 
         // Hash password
@@ -55,11 +46,8 @@ export const signUp = async (
 
         // Return user without password
         const { password: _, ...userWithoutPassword } = user
-        return { success: true, data: userWithoutPassword }
+        return userWithoutPassword
     } catch (error) {
-        return {
-            success: false,
-            message: 'unknown error',
-        }
+        throw new Error('unknown error')
     }
 }

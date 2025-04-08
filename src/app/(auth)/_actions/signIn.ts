@@ -1,8 +1,7 @@
 'use server'
 import { signIn } from '@/auth'
 import { prisma } from '@/lib/shared/prisma'
-import { TServerActionResponse } from '@/lib/shared/types'
-import { GuestSigninSchema, MemberSigninSchema } from '@/lib/shared/validations/userSchemas'
+import { GuestSigninSchema, MemberSignSchema } from '@/lib/shared/validations/userSchemas'
 import { Role } from '@prisma/client'
 
 const verifyTurnstile = async (formData: FormData) => {
@@ -30,11 +29,8 @@ const verifyTurnstile = async (formData: FormData) => {
     }
 }
 
-// Next.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다.
-export const signInAction = async (
-    _: { success: boolean; message: string },
-    formData: FormData,
-): Promise<TServerActionResponse<never>> => {
+// Next.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다. throw를 사용하지 않습니다.
+export const signInAction = async (_: { success: boolean; message: string }, formData: FormData) => {
     try {
         await verifyTurnstile(formData)
     } catch (error) {
@@ -45,7 +41,7 @@ export const signInAction = async (
     }
 
     if (formData.get('userSignin')) {
-        const result = MemberSigninSchema.safeParse({
+        const result = MemberSignSchema.safeParse({
             email: formData.get('email'),
             password: formData.get('password'),
         })

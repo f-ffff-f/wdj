@@ -196,31 +196,31 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             },
             [EShortcut.ArrowUp]: () => {
                 if (state.UI.focusedTrackId) {
-                    const index = findIndex(tracks?.data, state.UI.focusedTrackId)
-                    if (index > 0 && tracks?.data) {
-                        state.UI.focusedTrackId = tracks?.data[index - 1].id
+                    const index = findIndex(tracks, state.UI.focusedTrackId)
+                    if (index > 0 && tracks) {
+                        state.UI.focusedTrackId = tracks[index - 1].id
                     } else {
-                        const index = findIndex(tracks?.data, state.UI.focusedTrackId)
-                        if (index > 0 && tracks?.data) {
-                            state.UI.focusedTrackId = tracks?.data[index - 1].id
+                        const index = findIndex(tracks, state.UI.focusedTrackId)
+                        if (index > 0 && tracks) {
+                            state.UI.focusedTrackId = tracks[index - 1].id
                         }
                     }
                 }
             },
             [EShortcut.ArrowDown]: () => {
-                if (state.UI.focusedTrackId && tracks?.data) {
-                    const index = findIndex(tracks?.data, state.UI.focusedTrackId)
-                    if (index < tracks?.data.length - 1) {
-                        state.UI.focusedTrackId = tracks?.data[index + 1].id
+                if (state.UI.focusedTrackId && tracks) {
+                    const index = findIndex(tracks, state.UI.focusedTrackId)
+                    if (index < tracks.length - 1) {
+                        state.UI.focusedTrackId = tracks[index + 1].id
                     }
                 }
             },
             [EShortcut.ArrowLeft]: async () => {
                 if (state.UI.focusedTrackId) {
-                    if (tracks?.data) {
-                        const index = findIndex(tracks?.data, state.UI.focusedTrackId)
+                    if (tracks) {
+                        const index = findIndex(tracks, state.UI.focusedTrackId)
                         if (index >= 0) {
-                            const url = await getTrackBlobUrl(tracks?.data[index].id)
+                            const url = await getTrackBlobUrl(tracks[index].id)
                             deckoSingleton.loadTrack(DECK_IDS.ID_1, url)
                         }
                     }
@@ -228,10 +228,10 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
             },
             [EShortcut.ArrowRight]: async () => {
                 if (state.UI.focusedTrackId) {
-                    if (tracks?.data) {
-                        const index = findIndex(tracks?.data, state.UI.focusedTrackId)
-                        if (index <= tracks?.data.length - 1) {
-                            const url = await getTrackBlobUrl(tracks?.data[index].id)
+                    if (tracks) {
+                        const index = findIndex(tracks, state.UI.focusedTrackId)
+                        if (index <= tracks.length - 1) {
+                            const url = await getTrackBlobUrl(tracks[index].id)
                             deckoSingleton.loadTrack(DECK_IDS.ID_2, url)
                         }
                     }
@@ -251,7 +251,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         return () => {
             element?.removeEventListener('keydown', handleKeyDown)
         }
-    }, [tracks?.data, getTrackBlobUrl, playlistIdParam])
+    }, [tracks, getTrackBlobUrl, playlistIdParam])
 
     return (
         <div
