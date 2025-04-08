@@ -1,6 +1,7 @@
 import React from 'react'
 import { InputFile } from '@/components/ui/inputFile'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
+import { Label } from '@/components/ui/label'
 
 const FileUploader = () => {
     const { createTrackMutation } = useTrackMutation()
@@ -14,6 +15,9 @@ const FileUploader = () => {
     }
     return (
         <div>
+            <Label className="self-start" htmlFor="file-uploader">
+                add audio file
+            </Label>
             <InputFile
                 type="file"
                 accept="audio/mp3"
@@ -25,4 +29,4 @@ const FileUploader = () => {
     )
 }
 
-export default FileUploader
+export default React.memo(FileUploader)
