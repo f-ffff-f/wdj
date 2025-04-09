@@ -1,236 +1,206 @@
-// import { test, expect, APIRequestContext } from '@playwright/test'
-// import { v4 as uuidv4 } from 'uuid'
+import { memberLogin } from '@/__tests__/e2e/util'
+import { test } from '@playwright/test'
+import { v4 as uuidv4 } from 'uuid'
 
-// // Base URL for the API
-// const baseURL = process.env.PLAYWRIGHT_TEST_BASE_URL || 'http://localhost:3000'
+/**
+ * Interfaces for API responses
+ */
+interface Track {
+    id: string
+    fileName: string
+    createdAt: string
+}
 
-// /**
-//  * Interfaces for API responses
-//  */
-// interface Track {
-//     id: string
-//     fileName: string
-//     createdAt: string
-// }
+interface Playlist {
+    id: string
+    name: string
+    tracks?: Track[]
+}
 
-// interface Playlist {
-//     id: string
-//     name: string
-//     tracks?: Track[]
-// }
+/**
+ * Playlist API Tests
+ * These tests now use server actions instead of API endpoints
+ */
+test.describe('Playlist Operations', () => {
+    let createdPlaylistName: string
 
-// /**
-//  * Playlist API Tests
-//  * These tests now use server actions instead of API endpoints
-//  */
-// test.describe('Playlist Operations', () => {
-//     let guestContext: APIRequestContext
-//     let guestUserId: string
-//     let createdPlaylistId: string
-//     let createdTrackId: string
+    // Setup: Create contexts for guest users
+    test.beforeEach(async ({ page }) => {
+        try {
+            // Use helper to create guest user
+            await memberLogin(page)
+        } catch (error) {
+            console.error('Error during guest setup:', error)
+            test.fail(true, 'Setup failed')
+        }
+    })
 
-//     // Setup: Create contexts for guest users
-//     test.beforeAll(async () => {
-//         test.setTimeout(60000) // Increase timeout for setup
+    test('should create a new playlist using server action', async ({ page }) => {
+        // First, visit the page to get a session
+        await page.goto('/main')
 
-//         try {
-//             // Use helper to create guest user
-//             const { guestContext: context, guestUserId: userId } = await createGuestUser()
-//             guestContext = context
-//             guestUserId = userId
+        // Wait for page to be loaded
+        await page.waitForSelector('body')
 
-//             console.log('Guest user created with ID:', guestUserId)
-//         } catch (error) {
-//             console.error('Error during guest setup:', error)
-//             test.fail(true, 'Setup failed')
-//         }
-//     })
+        const uniqueName = `Test Playlist ${uuidv4().slice(0, 4)}`
 
-//     // Cleanup contexts after all tests
-//     test.afterAll(async () => {
-//         await guestContext.dispose()
-//     })
+        await page.getByTestId('playlist-input').fill(uniqueName)
+        await page.getByTestId('playlist-submit').click()
 
-//     test('should create a new playlist using server action', async ({ page }) => {
-//         // First, visit the page to get a session
-//         await page.goto('/main')
+        await page.pause()
+        createdPlaylistName = uniqueName
+    })
 
-//         // Wait for page to be loaded
-//         await page.waitForSelector('body')
+    // test('should list all playlists using server action', async ({ page }) => {
+    //     // Visit the page to get a session
+    //     await page.goto('/main')
 
-//         const uniqueName = `Test Playlist ${uuidv4().slice(0, 8)}`
+    //     // Wait for page to be loaded
+    //     await page.waitForSelector('body')
 
-//         // Execute the server action using evaluate
-//         const result = await page.evaluate(async (name) => {
-//             // Call the server action from the client
-//             const res = await fetch('/main/actions', {
-//                 method: 'POST',
-//                 body: JSON.stringify({ name }),
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                     'X-Action': 'createPlaylist',
-//                 },
-//             })
+    //     // Use evaluate to call the server action
+    //     const result = await page.evaluate(async () => {
+    //         const res = await fetch('/main/actions', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'X-Action': 'getPlaylists',
+    //             },
+    //         })
 
-//             return await res.json()
-//         }, uniqueName)
+    //         return await res.json()
+    //     })
 
-//         console.log('Create playlist response:', result)
+    //     console.log('List playlists response:', result)
 
-//         // Verify playlist was created
-//         expect(result.id).toBeDefined()
-//         expect(result.name).toBe(uniqueName)
+    //     // Verify playlists are returned as an array
+    //     expect(Array.isArray(result)).toBeTruthy()
 
-//         // Save for use in later tests
-//         createdPlaylistId = result.id
-//     })
+    //     // Verify the playlist we created is in the list
+    //     if (createdPlaylistName) {
+    //         expect(result.some((playlist: Playlist) => playlist.id === createdPlaylistName)).toBeTruthy()
+    //     }
+    // })
 
-//     test('should list all playlists using server action', async ({ page }) => {
-//         // Visit the page to get a session
-//         await page.goto('/main')
+    // test('should add track to playlist', async ({ page }) => {
+    //     // Skip if playlist creation failed
+    //     test.skip(!createdPlaylistName, 'No playlist created to test with')
 
-//         // Wait for page to be loaded
-//         await page.waitForSelector('body')
+    //     // First create a track for the test
+    //     await page.goto('/main')
+    //     await page.waitForSelector('body')
 
-//         // Use evaluate to call the server action
-//         const result = await page.evaluate(async () => {
-//             const res = await fetch('/main/actions', {
-//                 method: 'POST',
-//                 headers: {
-//                     'X-Action': 'getPlaylists',
-//                 },
-//             })
+    //     const uniqueFileName = `test-track-playlist-${uuidv4()}.mp3`
 
-//             return await res.json()
-//         })
+    //     // Create a track first
+    //     const trackResult = await page.evaluate(async (fileName) => {
+    //         const formData = new FormData()
+    //         formData.append('fileName', fileName)
 
-//         console.log('List playlists response:', result)
+    //         const res = await fetch('/main/actions', {
+    //             method: 'POST',
+    //             body: formData,
+    //             headers: {
+    //                 'X-Action': 'uploadTrack',
+    //             },
+    //         })
 
-//         // Verify playlists are returned as an array
-//         expect(Array.isArray(result)).toBeTruthy()
+    //         return await res.json()
+    //     }, uniqueFileName)
 
-//         // Verify the playlist we created is in the list
-//         if (createdPlaylistId) {
-//             expect(result.some((playlist: Playlist) => playlist.id === createdPlaylistId)).toBeTruthy()
-//         }
-//     })
+    //     createdTrackId = trackResult.id
 
-//     test('should add track to playlist', async ({ page }) => {
-//         // Skip if playlist creation failed
-//         test.skip(!createdPlaylistId, 'No playlist created to test with')
+    //     // Now add the track to the playlist using server action
+    //     const result = await page.evaluate(
+    //         async (playlistId: string, trackId: string) => {
+    //             const res = await fetch('/main/actions', {
+    //                 method: 'POST',
+    //                 body: JSON.stringify({ playlistId, trackId }),
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                     'X-Action': 'addTrackToPlaylist',
+    //                 },
+    //             })
 
-//         // First create a track for the test
-//         await page.goto('/main')
-//         await page.waitForSelector('body')
+    //             return await res.json()
+    //         },
+    //         createdPlaylistName,
+    //         createdTrackId,
+    //     )
 
-//         const uniqueFileName = `test-track-playlist-${uuidv4()}.mp3`
+    //     console.log('Add track to playlist response:', result)
 
-//         // Create a track first
-//         const trackResult = await page.evaluate(async (fileName) => {
-//             const formData = new FormData()
-//             formData.append('fileName', fileName)
+    //     // Verify success
+    //     expect(result.success).toBeTruthy()
 
-//             const res = await fetch('/main/actions', {
-//                 method: 'POST',
-//                 body: formData,
-//                 headers: {
-//                     'X-Action': 'uploadTrack',
-//                 },
-//             })
+    //     // Verify track is in the playlist
+    //     const playlist = await page.evaluate(async (playlistId) => {
+    //         const res = await fetch('/main/actions', {
+    //             method: 'POST',
+    //             body: JSON.stringify({ playlistId }),
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'X-Action': 'getPlaylistById',
+    //             },
+    //         })
 
-//             return await res.json()
-//         }, uniqueFileName)
+    //         return await res.json()
+    //     }, createdPlaylistName)
 
-//         createdTrackId = trackResult.id
+    //     expect(playlist.tracks).toBeDefined()
+    //     expect(playlist.tracks.some((track: Track) => track.id === createdTrackId)).toBeTruthy()
 
-//         // Now add the track to the playlist using server action
-//         const result = await page.evaluate(async (playlistId: string, trackId: string) => {
-//             const res = await fetch('/main/actions', {
-//                 method: 'POST',
-//                 body: JSON.stringify({ playlistId, trackId }),
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                     'X-Action': 'addTrackToPlaylist',
-//                 },
-//             })
+    //     // Clean up the created track
+    //     await page.evaluate(async (trackId) => {
+    //         await fetch('/main/actions', {
+    //             method: 'POST',
+    //             body: JSON.stringify({ trackId }),
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'X-Action': 'deleteTrack',
+    //             },
+    //         })
+    //     }, createdTrackId)
+    // })
 
-//             return await res.json()
-//         }, createdPlaylistId, createdTrackId)
+    // test('should delete a playlist using server action', async ({ page }) => {
+    //     // Skip if no playlist was created
+    //     test.skip(!createdPlaylistName, 'No playlist created to test with')
 
-//         console.log('Add track to playlist response:', result)
+    //     // Visit the page to get a session
+    //     await page.goto('/main')
+    //     await page.waitForSelector('body')
 
-//         // Verify success
-//         expect(result.success).toBeTruthy()
+    //     // Delete the playlist
+    //     const result = await page.evaluate(async (playlistId) => {
+    //         const res = await fetch('/main/actions', {
+    //             method: 'POST',
+    //             body: JSON.stringify({ playlistId }),
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //                 'X-Action': 'deletePlaylist',
+    //             },
+    //         })
 
-//         // Verify track is in the playlist
-//         const playlist = await page.evaluate(async (playlistId) => {
-//             const res = await fetch('/main/actions', {
-//                 method: 'POST',
-//                 body: JSON.stringify({ playlistId }),
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                     'X-Action': 'getPlaylistById',
-//                 },
-//             })
+    //         return await res.json()
+    //     }, createdPlaylistName)
 
-//             return await res.json()
-//         }, createdPlaylistId)
+    //     console.log('Delete playlist response:', result)
 
-//         expect(playlist.tracks).toBeDefined()
-//         expect(playlist.tracks.some((track: Track) => track.id === createdTrackId)).toBeTruthy()
+    //     // Verify deletion was successful
+    //     expect(result.success).toBeTruthy()
 
-//         // Clean up the created track
-//         await page.evaluate(async (trackId) => {
-//             await fetch('/main/actions', {
-//                 method: 'POST',
-//                 body: JSON.stringify({ trackId }),
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                     'X-Action': 'deleteTrack',
-//                 },
-//             })
-//         }, createdTrackId)
-//     })
+    //     // Verify playlist is no longer in the list
+    //     const playlists = await page.evaluate(async () => {
+    //         const res = await fetch('/main/actions', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'X-Action': 'getPlaylists',
+    //             },
+    //         })
 
-//     test('should delete a playlist using server action', async ({ page }) => {
-//         // Skip if no playlist was created
-//         test.skip(!createdPlaylistId, 'No playlist created to test with')
+    //         return await res.json()
+    //     })
 
-//         // Visit the page to get a session
-//         await page.goto('/main')
-//         await page.waitForSelector('body')
-
-//         // Delete the playlist
-//         const result = await page.evaluate(async (playlistId) => {
-//             const res = await fetch('/main/actions', {
-//                 method: 'POST',
-//                 body: JSON.stringify({ playlistId }),
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                     'X-Action': 'deletePlaylist',
-//                 },
-//             })
-
-//             return await res.json()
-//         }, createdPlaylistId)
-
-//         console.log('Delete playlist response:', result)
-
-//         // Verify deletion was successful
-//         expect(result.success).toBeTruthy()
-
-//         // Verify playlist is no longer in the list
-//         const playlists = await page.evaluate(async () => {
-//             const res = await fetch('/main/actions', {
-//                 method: 'POST',
-//                 headers: {
-//                     'X-Action': 'getPlaylists',
-//                 },
-//             })
-
-//             return await res.json()
-//         })
-
-//         expect(playlists.every((playlist: Playlist) => playlist.id !== createdPlaylistId)).toBeTruthy()
-//     })
-// })
+    //     expect(playlists.every((playlist: Playlist) => playlist.id !== createdPlaylistName)).toBeTruthy()
+    // })
+})

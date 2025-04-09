@@ -16,7 +16,11 @@ const SignoutButton = () => {
         },
     })
     return (
-        <Button onClick={() => signOutMutation.mutate()} disabled={signOutMutation.isPending}>
+        <Button
+            onClick={() => signOutMutation.mutate()}
+            disabled={signOutMutation.isPending}
+            data-testid="signout-button"
+        >
             Sign Out
         </Button>
     )
