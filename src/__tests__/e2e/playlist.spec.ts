@@ -1,6 +1,7 @@
-import { memberLogin } from '@/__tests__/e2e/util'
-import { test } from '@playwright/test'
+import { memberLogin, createTrack } from '@/__tests__/e2e/util'
+import { test, expect } from '@playwright/test'
 import { v4 as uuidv4 } from 'uuid'
+import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 
 /**
  * Interfaces for API responses
@@ -23,6 +24,7 @@ interface Playlist {
  */
 test.describe('Playlist Operations', () => {
     let createdPlaylistName: string
+    let createdTrackId: string
 
     // Setup: Create contexts for guest users
     test.beforeEach(async ({ page }) => {
@@ -35,7 +37,7 @@ test.describe('Playlist Operations', () => {
         }
     })
 
-    test('should create a new playlist using server action', async ({ page }) => {
+    test('should create a new playlist using server action and navigate to its page', async ({ page }) => {
         // First, visit the page to get a session
         await page.goto('/main')
 
@@ -47,160 +49,127 @@ test.describe('Playlist Operations', () => {
         await page.getByTestId('playlist-input').fill(uniqueName)
         await page.getByTestId('playlist-submit').click()
 
-        await page.pause()
         createdPlaylistName = uniqueName
+
+        const playlistElement = page.getByRole('link', { name: createdPlaylistName })
+        await playlistElement.waitFor({ state: 'visible' })
+
+        // Verify clicking the playlist navigates to its page
+        await playlistElement.click()
+
+        // Verify the URL contains the playlist ID
+        await page.waitForURL((url) => url.toString().includes('/main/') && !url.toString().includes('/main/library'))
     })
 
-    // test('should list all playlists using server action', async ({ page }) => {
-    //     // Visit the page to get a session
-    //     await page.goto('/main')
+    test('should add track to playlist and delete track from playlist', async ({ page }) => {
+        // Skip if no playlist was created
+        test.skip(!createdPlaylistName, 'No playlist created to test with')
 
-    //     // Wait for page to be loaded
-    //     await page.waitForSelector('body')
+        // Navigate to main page
+        await page.goto('/main')
+        await page.waitForSelector('body')
 
-    //     // Use evaluate to call the server action
-    //     const result = await page.evaluate(async () => {
-    //         const res = await fetch('/main/actions', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'X-Action': 'getPlaylists',
-    //             },
-    //         })
+        // Create a track using the utility function
+        await createTrack(page)
 
-    //         return await res.json()
-    //     })
+        // Wait for any track item to appear
+        await page.waitForSelector('[data-testid^="track-item-"]')
 
-    //     console.log('List playlists response:', result)
+        // Get the first track element
+        const trackElement = page.locator('[data-testid^="track-item-"]').first()
 
-    //     // Verify playlists are returned as an array
-    //     expect(Array.isArray(result)).toBeTruthy()
+        // Extract the track ID from the data-trackid attribute
+        createdTrackId = (await trackElement.getAttribute('data-trackid')) as string
 
-    //     // Verify the playlist we created is in the list
-    //     if (createdPlaylistName) {
-    //         expect(result.some((playlist: Playlist) => playlist.id === createdPlaylistName)).toBeTruthy()
-    //     }
-    // })
+        // Open track options menu - use the correct selector based on TrackList.tsx
+        await trackElement.locator(`[data-testid="dropdown-trigger-${createdTrackId}"]`).click()
 
-    // test('should add track to playlist', async ({ page }) => {
-    //     // Skip if playlist creation failed
-    //     test.skip(!createdPlaylistName, 'No playlist created to test with')
+        // Hover "Add to Playlist" option
+        await page.getByText('Add to Playlist').hover()
 
-    //     // First create a track for the test
-    //     await page.goto('/main')
-    //     await page.waitForSelector('body')
+        // Select our created playlist
+        await page.locator('role=menu').getByText(createdPlaylistName).click()
 
-    //     const uniqueFileName = `test-track-playlist-${uuidv4()}.mp3`
+        // Navigate to the playlist
+        const playlistElement = page.getByRole('link', { name: createdPlaylistName })
+        await page.waitForTimeout(2000)
+        await playlistElement.click()
 
-    //     // Create a track first
-    //     const trackResult = await page.evaluate(async (fileName) => {
-    //         const formData = new FormData()
-    //         formData.append('fileName', fileName)
+        // Wait for the playlist page to load
+        await page.waitForURL((url) => url.toString().includes('/main/') && !url.toString().includes('/main/library'))
 
-    //         const res = await fetch('/main/actions', {
-    //             method: 'POST',
-    //             body: formData,
-    //             headers: {
-    //                 'X-Action': 'uploadTrack',
-    //             },
-    //         })
+        // Verify the track appears in the playlist
+        const _createdTrackId = (await page.locator('#track-list > *').first().getAttribute('data-trackid')) as string
+        expect(_createdTrackId).toBe(createdTrackId)
 
-    //         return await res.json()
-    //     }, uniqueFileName)
+        // Now delete the track from the playlist
+        // Open dropdown menu for the track in the playlist
 
-    //     createdTrackId = trackResult.id
+        // 더 간단한 접근법으로 변경
+        await page.locator('[data-testid^="track-item-"]').first().locator('svg').last().click()
 
-    //     // Now add the track to the playlist using server action
-    //     const result = await page.evaluate(
-    //         async (playlistId: string, trackId: string) => {
-    //             const res = await fetch('/main/actions', {
-    //                 method: 'POST',
-    //                 body: JSON.stringify({ playlistId, trackId }),
-    //                 headers: {
-    //                     'Content-Type': 'application/json',
-    //                     'X-Action': 'addTrackToPlaylist',
-    //                 },
-    //             })
+        // Click "Delete Track from Playlist" option
+        await page.getByText('Delete Track from Playlist').click()
 
-    //             return await res.json()
-    //         },
-    //         createdPlaylistName,
-    //         createdTrackId,
-    //     )
+        // Verify the track is removed from the playlist
+        await page.waitForTimeout(1000) // Wait for UI update
+        const trackCount = await page.locator('#track-list > *').count()
+        expect(trackCount).toBe(0)
+    })
 
-    //     console.log('Add track to playlist response:', result)
+    test('should rename anddelete a playlist using server action', async ({ page }) => {
+        // Skip if no playlist was created
+        test.skip(!createdPlaylistName, 'No playlist created to test with')
 
-    //     // Verify success
-    //     expect(result.success).toBeTruthy()
+        // Navigate to main page
+        await page.goto('/main')
+        await page.waitForSelector('body')
 
-    //     // Verify track is in the playlist
-    //     const playlist = await page.evaluate(async (playlistId) => {
-    //         const res = await fetch('/main/actions', {
-    //             method: 'POST',
-    //             body: JSON.stringify({ playlistId }),
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'X-Action': 'getPlaylistById',
-    //             },
-    //         })
+        // Verify the created playlist is visible in the sidebar
+        const playlistElement = page.getByRole('link', { name: createdPlaylistName })
+        await playlistElement.waitFor({ state: 'visible' })
 
-    //         return await res.json()
-    //     }, createdPlaylistName)
+        // Find the dropdown trigger for the playlist
+        // First locate the playlist's parent container
+        const playlistContainer = playlistElement.locator('xpath=./ancestor::li')
 
-    //     expect(playlist.tracks).toBeDefined()
-    //     expect(playlist.tracks.some((track: Track) => track.id === createdTrackId)).toBeTruthy()
+        // Click the dropdown menu button (the MoreHorizontal icon)
+        // The previous selector was incorrect, use a more reliable one
+        await playlistContainer.getByRole('button').last().click()
 
-    //     // Clean up the created track
-    //     await page.evaluate(async (trackId) => {
-    //         await fetch('/main/actions', {
-    //             method: 'POST',
-    //             body: JSON.stringify({ trackId }),
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'X-Action': 'deleteTrack',
-    //             },
-    //         })
-    //     }, createdTrackId)
-    // })
+        // Click "Rename Playlist" option
+        await page.getByText('Rename Playlist').click()
 
-    // test('should delete a playlist using server action', async ({ page }) => {
-    //     // Skip if no playlist was created
-    //     test.skip(!createdPlaylistName, 'No playlist created to test with')
+        // Wait for the rename form to appear and fill it with a new name
+        const updatedName = `Renamed ${createdPlaylistName}`
+        await page.getByTestId('playlist-input').last().fill(updatedName)
+        await page.getByTestId('playlist-submit').last().click()
 
-    //     // Visit the page to get a session
-    //     await page.goto('/main')
-    //     await page.waitForSelector('body')
+        // Wait for the rename to complete
+        await page.waitForTimeout(1000)
 
-    //     // Delete the playlist
-    //     const result = await page.evaluate(async (playlistId) => {
-    //         const res = await fetch('/main/actions', {
-    //             method: 'POST',
-    //             body: JSON.stringify({ playlistId }),
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 'X-Action': 'deletePlaylist',
-    //             },
-    //         })
+        // Verify the playlist was renamed
+        const renamedPlaylistElement = page.getByRole('link', { name: updatedName })
+        await renamedPlaylistElement.waitFor({ state: 'visible' })
 
-    //         return await res.json()
-    //     }, createdPlaylistName)
+        // Now delete the renamed playlist
+        // First locate the playlist's parent container
+        const renamedPlaylistContainer = renamedPlaylistElement.locator('xpath=./ancestor::li')
 
-    //     console.log('Delete playlist response:', result)
+        // Click the dropdown menu button again
+        await renamedPlaylistContainer.getByRole('button').last().click()
 
-    //     // Verify deletion was successful
-    //     expect(result.success).toBeTruthy()
+        // Click "Delete Playlist" option
+        await page.getByText('Delete Playlist').click()
 
-    //     // Verify playlist is no longer in the list
-    //     const playlists = await page.evaluate(async () => {
-    //         const res = await fetch('/main/actions', {
-    //             method: 'POST',
-    //             headers: {
-    //                 'X-Action': 'getPlaylists',
-    //             },
-    //         })
+        // Wait for deletion to complete
+        await page.waitForTimeout(1000)
 
-    //         return await res.json()
-    //     })
+        // Verify we're redirected to the library page
+        await page.waitForURL((url) => url.toString().includes(`/main/${PLAYLIST_DEFAULT_ID}`))
 
-    //     expect(playlists.every((playlist: Playlist) => playlist.id !== createdPlaylistName)).toBeTruthy()
-    // })
+        // Verify the playlist no longer appears in the sidebar
+        const playlistExists = (await page.getByRole('link', { name: updatedName }).count()) > 0
+        expect(playlistExists).toBe(false)
+    })
 })

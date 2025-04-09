@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test'
-import { memberLogin } from './util'
+import { createTrack, memberLogin } from './util'
 import path from 'path'
 import fs from 'fs'
 
@@ -21,27 +21,12 @@ test.describe('Track Operations', () => {
 
         await memberLogin(page)
 
-        const fixturesDir = path.join(__dirname, 'fixtures')
-        if (!fs.existsSync(fixturesDir)) {
-            fs.mkdirSync(fixturesDir, { recursive: true })
-        }
+        await createTrack(page)
 
-        const filePath = path.join(fixturesDir, 'test-audio.mp3')
-        if (!fs.existsSync(filePath)) {
-            // 간단한 바이너리 파일 생성
-            const buffer = Buffer.alloc(4096)
-            buffer.write('ID3', 0) // MP3 시그니처
-            fs.writeFileSync(filePath, buffer)
-            console.log(`Created test MP3 file at ${filePath}`)
-        }
-
-        // 실제로 input에 파일 넣기
-        const fileInput = await page.$('input[type="file"]#file-uploader')
-        await fileInput?.setInputFiles(filePath)
-
-        await page.waitForTimeout(2000)
-
-        createdTrackId = (await page.locator('#track-list > *').first().getAttribute('data-trackid')) as string
+        createdTrackId = (await page
+            .locator(`[data-testid="track-item-${createdTrackId}"]`)
+            .first()
+            .getAttribute('data-trackid')) as string
 
         expect(!!createdTrackId).toBe(true)
     })

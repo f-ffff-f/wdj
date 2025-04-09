@@ -107,7 +107,7 @@ const Item: React.FC<ITrackListItemProps> = ({
     children,
 }) => {
     return (
-        <div className="flex" data-trackid={trackId}>
+        <div className="flex" data-testid={`track-item-${trackId}`} data-trackid={trackId}>
             <Card
                 className={cn(
                     'w-full relative flex items-center justify-between p-4 pr-6 shadow-none',
@@ -221,11 +221,11 @@ const PlaylistDropdownMenu = ({ trackId }: { trackId: string }) => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-1">
-                <SidebarMenuAction>
+                <SidebarMenuAction data-testid={`dropdown-trigger-${trackId}`}>
                     <MoreVertical />
                 </SidebarMenuAction>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="center">
+            <DropdownMenuContent side="right" align="center" data-testid={`dropdown-content-${trackId}`}>
                 <DropdownMenuItem
                     onClick={() =>
                         disconnectTrackFromPlaylistMutation.mutate({
