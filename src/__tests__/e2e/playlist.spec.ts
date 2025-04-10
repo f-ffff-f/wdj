@@ -88,6 +88,7 @@ test.describe('Playlist Operations', () => {
         await page.getByText('Add to Playlist').hover()
 
         // Select our created playlist
+        await page.waitForTimeout(2000)
         await page.locator('role=menu').getByText(createdPlaylistName).click()
 
         // Navigate to the playlist

@@ -36,6 +36,7 @@ test.describe('Track Operations', () => {
         await memberLogin(page)
 
         // Verify the track we created is in the list
+        await page.waitForTimeout(2000)
         const _createdTrackId = (await page.locator('#track-list > *').first().getAttribute('data-trackid')) as string
         expect(_createdTrackId).toBe(createdTrackId)
     })
