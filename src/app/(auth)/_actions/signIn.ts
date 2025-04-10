@@ -32,7 +32,9 @@ const verifyTurnstile = async (formData: FormData) => {
     }
 }
 
-// Auth.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 사용처에서 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다. 예외적으로 error 객체를 throw 하는 패턴 사용하지 않고 리턴합니다.
+/**
+ * @description Auth.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 사용처가 catch 하게되면 Next.js가 리다이렉트를 제대로 수행하지 못합니다. 따라서 이 action은 예외적으로 'handleServerError' 사용하지 않고 에러 응답을 리턴합니다.
+ */
 export const signInAction = async (formData: FormData): Promise<AppResponse<void>> => {
     try {
         await verifyTurnstile(formData)
