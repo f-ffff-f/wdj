@@ -47,6 +47,7 @@ test.describe('Track Operations', () => {
         // Visit the page to get a session
         await page.goto('/main')
 
+        await page.waitForTimeout(2000)
         await page.getByTestId(`dropdown-trigger-${createdTrackId}`).click()
 
         await expect(page.getByTestId(`dropdown-content-${createdTrackId}`)).toBeVisible()
