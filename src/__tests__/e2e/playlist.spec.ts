@@ -23,7 +23,6 @@ interface Playlist {
  * These tests now use server actions instead of API endpoints
  */
 test.describe('Playlist Operations', () => {
-    test.slow()
     let createdPlaylistName: string
     let createdTrackId: string
 
@@ -100,6 +99,7 @@ test.describe('Playlist Operations', () => {
         await page.waitForURL((url) => url.toString().includes('/main/') && !url.toString().includes('/main/library'))
 
         // Verify the track appears in the playlist
+        await page.waitForTimeout(2000)
         const _createdTrackId = (await page.locator('#track-list > *').first().getAttribute('data-trackid')) as string
         expect(_createdTrackId).toBe(createdTrackId)
 
