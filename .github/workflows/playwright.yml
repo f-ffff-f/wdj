@@ -15,7 +15,7 @@ jobs:
             - name: Install dependencies
               run: npm install && npx playwright install --with-deps
             - name: Start server and run tests
-              run: npx playwright test
+              run: npx playwright test --reporter=html
               env:
                   BASE_URL: 'http://localhost:3000'
             - name: Upload Playwright report

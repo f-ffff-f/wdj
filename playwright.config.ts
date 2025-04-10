@@ -4,6 +4,7 @@ import { defineConfig } from '@playwright/test'
 dotenv.config()
 
 export default defineConfig({
+    reporter: [['html', { outputFolder: 'playwright-report', open: 'never' }]],
     testDir: './src/__tests__/e2e',
     webServer: {
         command: 'npm run build && npm run start',
