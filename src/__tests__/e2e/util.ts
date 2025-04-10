@@ -54,4 +54,6 @@ export async function createTrack(page: Page) {
     // 실제로 input에 파일 넣기
     const fileInput = await page.$('input[type="file"]#file-uploader')
     await fileInput?.setInputFiles(filePath)
+
+    await page.waitForTimeout(1000 * 10)
 }

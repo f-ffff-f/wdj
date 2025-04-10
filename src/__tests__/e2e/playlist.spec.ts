@@ -70,7 +70,6 @@ test.describe('Playlist Operations', () => {
         // Create a track using the utility function
         await createTrack(page)
 
-        await page.waitForTimeout(1000 * 10)
         // Extract the track ID from the data-trackid attribute
         const createdTrackId = (await page
             .locator(`[data-testid^="track-item-"]`)
@@ -92,15 +91,10 @@ test.describe('Playlist Operations', () => {
         await page.waitForTimeout(2000)
         await playlistElement.click()
 
-        // Wait for the playlist page to load
-        await page.waitForURL((url) => url.toString().includes('/main/') && !url.toString().includes('/main/library'))
-
         // Now delete the track from the playlist
         // Open dropdown menu for the track in the playlist
-        await page.waitForTimeout(2000)
+        await page.waitForTimeout(1000 * 10)
         await page.getByTestId(`dropdown-trigger-${createdTrackId}`).click()
-        // // 더 간단한 접근법으로 변경
-        // await page.locator('[data-testid^="track-item-"]').first().locator('svg').last().click()
 
         // Click "Delete Track from Playlist" option
         await page.getByText('Delete Track from Playlist').click()
