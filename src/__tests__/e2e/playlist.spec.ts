@@ -67,22 +67,18 @@ test.describe('Playlist Operations', () => {
 
         // Navigate to main page
         await page.goto('/main')
-        await page.waitForSelector('body')
 
         // Create a track using the utility function
         await createTrack(page)
 
-        // Wait for any track item to appear
-        await page.waitForSelector('[data-testid^="track-item-"]')
-
-        // Get the first track element
-        const trackElement = page.locator('[data-testid^="track-item-"]').first()
-
         // Extract the track ID from the data-trackid attribute
-        createdTrackId = (await trackElement.getAttribute('data-trackid')) as string
+        createdTrackId = (await page
+            .locator(`[data-testid^="track-item-"]`)
+            .first()
+            .getAttribute('data-trackid')) as string
 
         // Open track options menu - use the correct selector based on TrackList.tsx
-        await trackElement.locator(`[data-testid="dropdown-trigger-${createdTrackId}"]`).click()
+        await page.getByTestId(`dropdown-trigger-${createdTrackId}`).click()
 
         // Hover "Add to Playlist" option
         await page.getByText('Add to Playlist').hover()
