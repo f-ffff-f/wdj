@@ -55,5 +55,5 @@ export async function createTrack(page: Page) {
     const fileInput = await page.$('input[type="file"]#file-uploader')
     await fileInput?.setInputFiles(filePath)
 
-    await page.waitForTimeout(2000)
+    await page.waitForTimeout(1000 * 10)
 }
