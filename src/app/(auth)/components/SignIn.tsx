@@ -76,10 +76,10 @@ const SignIn = () => {
         formData.append(submitType, 'true')
 
         // Call the server action
-        const { success, message } = await signInAction({ success: false, message: '' }, formData)
+        const { success, error } = await signInAction(formData)
 
         if (!success) {
-            alert(message)
+            alert(error)
         }
 
         // Reset the Turnstile widget after submission

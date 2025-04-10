@@ -5,6 +5,7 @@ import { GuestSigninSchema, MemberSignSchema } from '@/lib/shared/validations/us
 import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
 import { Role } from '@prisma/client'
 import { AppError } from '@/lib/server/error/AppError'
+import { AppResponse } from '@/lib/shared/types'
 
 const verifyTurnstile = async (formData: FormData) => {
     // Skip verification in test environment
@@ -31,14 +32,14 @@ const verifyTurnstile = async (formData: FormData) => {
     }
 }
 
-// Auth.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다. 예외적으로 error 객체를 throw 하는 패턴 사용하지 않습니다.
-export const signInAction = async (_: { success: boolean; message: string }, formData: FormData) => {
+// Auth.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 사용처에서 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다. 예외적으로 error 객체를 throw 하는 패턴 사용하지 않고 리턴합니다.
+export const signInAction = async (formData: FormData): Promise<AppResponse<void>> => {
     try {
         await verifyTurnstile(formData)
     } catch (error) {
         return {
             success: false,
-            message: ErrorMessage.TURNSTILE_VERIFICATION_FAILED,
+            error: ErrorMessage.TURNSTILE_VERIFICATION_FAILED,
         }
     }
 
@@ -51,7 +52,7 @@ export const signInAction = async (_: { success: boolean; message: string }, for
         if (!result.success) {
             return {
                 success: false,
-                message: ErrorMessage.INVALID_INPUT,
+                error: ErrorMessage.INVALID_INPUT,
             }
         }
 
@@ -65,7 +66,7 @@ export const signInAction = async (_: { success: boolean; message: string }, for
                 password,
             })
 
-            return { success: true, message: 'login successful' }
+            return { success: true }
         } catch (error: unknown) {
             if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
                 throw error
@@ -73,7 +74,7 @@ export const signInAction = async (_: { success: boolean; message: string }, for
 
             return {
                 success: false,
-                message: ErrorMessage.INVALID_CREDENTIALS,
+                error: ErrorMessage.INVALID_CREDENTIALS,
             }
         }
     } else {
@@ -91,7 +92,7 @@ export const signInAction = async (_: { success: boolean; message: string }, for
             if (!result.success) {
                 return {
                     success: false,
-                    message: ErrorMessage.INVALID_INPUT,
+                    error: ErrorMessage.INVALID_INPUT,
                 }
             }
 
@@ -99,7 +100,7 @@ export const signInAction = async (_: { success: boolean; message: string }, for
                 guestUserId: guestUser.id,
             })
 
-            return { success: true, message: 'login successful' }
+            return { success: true }
         } catch (error: unknown) {
             if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
                 throw error
@@ -108,7 +109,7 @@ export const signInAction = async (_: { success: boolean; message: string }, for
             // unknown error
             return {
                 success: false,
-                message: ErrorMessage.UNKNOWN_ERROR,
+                error: ErrorMessage.UNKNOWN_ERROR,
             }
         }
     }
