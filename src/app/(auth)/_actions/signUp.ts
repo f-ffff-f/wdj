@@ -1,6 +1,6 @@
 'use server'
 
-import { prisma } from '@/lib/shared/prisma'
+import { prisma } from '@/lib/server/prisma'
 import { MemberSignSchema } from '@/lib/shared/validations/userSchemas'
 import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
 import { Role, User } from '@prisma/client'
