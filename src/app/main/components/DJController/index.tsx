@@ -11,57 +11,102 @@ import { DECK_IDS } from '@/lib/client/constants'
 import { TDeckId } from '@/lib/client/types'
 import { cn, formatPlaybackTimeUI } from '@/lib/client/utils'
 import { deckoSingleton } from '@ghr95223/decko'
-import React, { useCallback, useEffect, useReducer, useTransition } from 'react'
+import React, { useCallback, useEffect, useReducer, useState, useTransition } from 'react'
 
-const Volume = React.memo(({ value, deckId }: { value: number; deckId: TDeckId }) => {
-    const onChange = useCallback((numbers: number[]) => deckoSingleton.setVolume(deckId, numbers[0]), [deckId])
+// Memoized deck component with individual props instead of a deck object
+const DeckControl = React.memo(
+    ({
+        id,
+        volume,
+        speed,
+        playbackTime,
+        audioBufferDuration,
+        isPlaying,
+    }: {
+        id: TDeckId
+        volume: number
+        speed: number
+        playbackTime: number
+        audioBufferDuration: number
+        isPlaying: boolean
+    }) => {
+        const handleVolumeChange = useCallback((numbers: number[]) => deckoSingleton.setVolume(id, numbers[0]), [id])
+        const handleSpeedChange = useCallback((numbers: number[]) => deckoSingleton.setSpeed(id, numbers[0]), [id])
+        const handlePlayPause = useCallback(() => deckoSingleton.playPauseDeck(id), [id])
 
-    return (
-        <div className="flex flex-col items-center gap-2">
-            <SliderVolume
-                id={`volume-${deckId}`}
-                min={0}
-                max={1}
-                step={0.01}
-                value={[value]}
-                onValueChange={onChange}
-            />
-            <Label>Volume</Label>
-        </div>
-    )
-})
+        return (
+            <div className="flex flex-col gap-4 flex-1">
+                <div
+                    className={cn(
+                        'max-md:flex-wrap',
+                        'flex items-baseline gap-1',
+                        id === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row',
+                    )}
+                >
+                    <Volume value={volume} id={id} onChange={handleVolumeChange} />
+                    <Speed value={speed} id={id} onChange={handleSpeedChange} />
+                    <WaveformVisualizer deckId={id} />
+                </div>
+                <div className={cn('flex items-center gap-4', id === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row')}>
+                    <PlayPause value={isPlaying} id={id} onChange={handlePlayPause} />
+                    <PlayBackTime playbackTime={playbackTime} audioBufferDuration={audioBufferDuration} />
+                </div>
+            </div>
+        )
+    },
+)
+
+DeckControl.displayName = 'DeckControl'
+
+const Volume = React.memo(
+    ({ value, id, onChange }: { value: number; id: TDeckId; onChange: (numbers: number[]) => void }) => {
+        return (
+            <div className="flex flex-col items-center gap-2">
+                <SliderVolume
+                    id={`volume-${id}`}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    value={[value]}
+                    onValueChange={onChange}
+                />
+                <Label>Volume</Label>
+            </div>
+        )
+    },
+)
 
 Volume.displayName = 'Volume'
 
-const Speed = React.memo(({ value, deckId }: { value: number; deckId: TDeckId }) => {
-    const onChange = useCallback((numbers: number[]) => deckoSingleton.setSpeed(deckId, numbers[0]), [deckId])
-
-    return (
-        <div className="flex flex-col items-center gap-2">
-            <SliderSpeed
-                id={`speed-${deckId}`}
-                min={0.5}
-                max={1.5}
-                step={0.01}
-                value={[value]}
-                onValueChange={onChange}
-            />
-            <Label>Speed</Label>
-        </div>
-    )
-})
+const Speed = React.memo(
+    ({ value, id, onChange }: { value: number; id: TDeckId; onChange: (numbers: number[]) => void }) => {
+        return (
+            <div className="flex flex-col items-center gap-2">
+                <SliderSpeed
+                    id={`speed-${id}`}
+                    min={0.5}
+                    max={1.5}
+                    step={0.01}
+                    value={[value]}
+                    onValueChange={onChange}
+                />
+                <Label>Speed</Label>
+            </div>
+        )
+    },
+)
 
 Speed.displayName = 'Speed'
 
-const PlayPause = React.memo(({ value, deckId }: { value: boolean; deckId: TDeckId }) => {
-    const onChange = useCallback(() => deckoSingleton.playPauseDeck(deckId), [deckId])
-
-    return (
-        <Button onClick={onChange} id={`play-pause-${deckId}`} className="min-w-[80px] text-center">
-            {value ? 'pause' : 'play'}
-        </Button>
-    )
-})
+const PlayPause = React.memo(
+    ({ value, id, onChange }: { value: boolean; id: TDeckId; onChange: (id: number) => void }) => {
+        return (
+            <Button onClick={() => onChange(id)} id={`play-pause-${id}`} className="min-w-[80px] text-center">
+                {value ? 'pause' : 'play'}
+            </Button>
+        )
+    },
+)
 
 PlayPause.displayName = 'PlayPause'
 
@@ -197,31 +242,15 @@ const DJController = ({ children: TrackListComponent }: { children: React.ReactN
         <div className="flex flex-col gap-8">
             <div className="flex gap-4">
                 {Object.values(DECK_IDS).map((deckId) => (
-                    <div className="flex flex-col gap-4 flex-1" key={`deck-${deckId}`}>
-                        <div
-                            className={cn(
-                                'max-md:flex-wrap',
-                                'flex items-baseline gap-1',
-                                deckId === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row',
-                            )}
-                        >
-                            <Volume value={state.decks[deckId].volume} deckId={deckId} />
-                            <Speed value={state.decks[deckId].speed} deckId={deckId} />
-                            <WaveformVisualizer deckId={deckId} />
-                        </div>
-                        <div
-                            className={cn(
-                                'flex items-center gap-4',
-                                deckId === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row',
-                            )}
-                        >
-                            <PlayPause value={state.decks[deckId].isPlaying} deckId={deckId} />
-                            <PlayBackTime
-                                playbackTime={state.decks[deckId].playbackTime}
-                                audioBufferDuration={state.decks[deckId].audioDuration}
-                            />
-                        </div>
-                    </div>
+                    <DeckControl
+                        key={deckId}
+                        id={deckId}
+                        volume={state.decks[deckId].volume}
+                        speed={state.decks[deckId].speed}
+                        playbackTime={state.decks[deckId].playbackTime}
+                        audioBufferDuration={state.decks[deckId].audioDuration}
+                        isPlaying={state.decks[deckId].isPlaying}
+                    />
                 ))}
             </div>
             <Crossfader value={state.crossFade} />
@@ -233,4 +262,4 @@ const DJController = ({ children: TrackListComponent }: { children: React.ReactN
     )
 }
 
-export default React.memo(DJController)
+export default DJController

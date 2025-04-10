@@ -115,12 +115,13 @@ const Item: React.FC<ITrackListItemProps> = ({
                 )}
                 onClick={() => handleClick(trackId)}
             >
-                {Object.values(DECK_IDS).map((deckId) => (
-                    <Button key={`load-to-deck-${deckId}`} onClick={() => handleLoadToDeck(deckId, trackId)}>
-                        <ArrowUpCircle />
-                    </Button>
-                ))}
+                <Button onClick={() => handleLoadToDeck(DECK_IDS.ID_1, trackId)}>
+                    <ArrowUpCircle />
+                </Button>
                 <MarqueeText text={fileName} />
+                <Button onClick={() => handleLoadToDeck(DECK_IDS.ID_2, trackId)}>
+                    <ArrowUpCircle />
+                </Button>
                 {children}
             </Card>
         </div>
