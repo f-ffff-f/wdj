@@ -1,5 +1,4 @@
 import { OmitPasswordUser, signUp } from '@/app/(auth)/_actions/signUp'
-import { TServerActionResponse } from '@/lib/shared/types'
 import { useMutation } from '@tanstack/react-query'
 
 type SignupRequest = {
@@ -7,13 +6,13 @@ type SignupRequest = {
     password: string
 }
 
-export const useSignupMutation = (handleSuccess?: (data: TServerActionResponse<OmitPasswordUser>) => void) => {
+export const useSignupMutation = (handleSuccess?: () => void) => {
     return useMutation({
         mutationFn: async ({ email, password }: SignupRequest) => {
             return signUp({ email, password })
         },
-        onSuccess: (data) => {
-            if (handleSuccess) handleSuccess(data)
+        onSuccess: () => {
+            if (handleSuccess) handleSuccess()
         },
         onError: (error) => {
             alert(error.message)

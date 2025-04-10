@@ -1,5 +1,7 @@
-export type TServerActionResponse<T> = {
+import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
+
+export type AppResponse<T> = {
     success: boolean
     data?: T
-    message?: string
+    error?: ErrorMessage
 }

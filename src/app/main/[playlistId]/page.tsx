@@ -19,16 +19,19 @@ const PlaylistPage = async ({ params }: Props) => {
 
     const queryClient = new QueryClient()
 
-    const isValidPlaylist = await getIsValidPlaylist(playlistId)
+    const [isValidPlaylist] = await Promise.all([
+        (() => {
+            return getIsValidPlaylist(playlistId)
+        })(),
+        queryClient.prefetchQuery({
+            queryKey: ['tracks', playlistId],
+            queryFn: () => getTracks(playlistId),
+        }),
+    ])
 
     if (!isValidPlaylist) {
         notFound()
     }
-
-    await queryClient.prefetchQuery({
-        queryKey: ['tracks', playlistId],
-        queryFn: () => getTracks(playlistId),
-    })
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>

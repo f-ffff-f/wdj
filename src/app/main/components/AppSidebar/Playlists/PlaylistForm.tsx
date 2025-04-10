@@ -1,3 +1,5 @@
+'use client'
+
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -52,6 +54,7 @@ const PlaylistForm: FC<Props> = ({ onSubmit, isSubmitting, initialValue = '', on
                     {...register('name')}
                     className="h-8"
                     disabled={isSubmitting}
+                    data-testid="playlist-input"
                 />
                 {onCancel && (
                     <Button
@@ -73,6 +76,7 @@ const PlaylistForm: FC<Props> = ({ onSubmit, isSubmitting, initialValue = '', on
                     className="h-8 w-8"
                     title={isEditing ? 'Update Playlist' : 'Add Playlist'}
                     disabled={isSubmitting}
+                    data-testid="playlist-submit"
                 >
                     {isEditing ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
                     <span className="sr-only">{isEditing ? 'Update Playlist' : 'Add Playlist'}</span>

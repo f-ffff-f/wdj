@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/shared/prisma'
+import { prisma } from '@/lib/server/prisma'
 import { SigninSchema } from '@/lib/shared/validations/userSchemas'
 import { Role } from '@prisma/client'
 import bcryptjs from 'bcryptjs'

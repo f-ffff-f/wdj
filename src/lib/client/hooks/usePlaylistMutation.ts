@@ -1,5 +1,5 @@
 import { createPlaylist, deletePlaylist, updatePlaylist } from '@/app/main/_actions/playlist'
-import { TServerActionResponse } from '@/lib/shared/types'
+import { AppResponse } from '@/lib/shared/types'
 import { Playlist } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -17,7 +17,7 @@ export const usePlaylistMutation = () => {
         onMutate: async (name) => {
             await queryClient.cancelQueries({ queryKey: ['playlists'] })
 
-            const previousPlaylists = queryClient.getQueryData<TServerActionResponse<Playlist[]>>(['playlists'])
+            const previousPlaylists = queryClient.getQueryData<AppResponse<Playlist[]>>(['playlists'])
 
             const tempId = `temp-${Date.now()}`
 
@@ -30,9 +30,9 @@ export const usePlaylistMutation = () => {
                     userId: '', // 실제 값은 서버에서 설정됨
                 }
 
-                queryClient.setQueryData<TServerActionResponse<Playlist[]>>(['playlists'], {
-                    data: [newPlaylist, ...(previousPlaylists.data ?? [])],
-                    success: true,
+                queryClient.setQueryData<AppResponse<Playlist[]>>(['playlists'], {
+                    ...previousPlaylists,
+                    data: [newPlaylist, ...(previousPlaylists.data || [])],
                 })
             }
 
@@ -56,16 +56,16 @@ export const usePlaylistMutation = () => {
         mutationFn: async (params: { id: string; name: string }) => updatePlaylist(params.id, params.name),
         onMutate: async (params) => {
             await queryClient.cancelQueries({ queryKey: ['playlists'] })
-            const previousPlaylists = queryClient.getQueryData<TServerActionResponse<Playlist[]>>(['playlists'])
+            const previousPlaylists = queryClient.getQueryData<AppResponse<Playlist[]>>(['playlists'])
 
-            if (previousPlaylists) {
-                queryClient.setQueryData<TServerActionResponse<Playlist[]>>(['playlists'], {
-                    data: previousPlaylists.data?.map((playlist) =>
+            if (previousPlaylists?.data) {
+                queryClient.setQueryData<AppResponse<Playlist[]>>(['playlists'], {
+                    ...previousPlaylists,
+                    data: previousPlaylists.data.map((playlist) =>
                         playlist.id === params.id
                             ? { ...playlist, name: params.name, updatedAt: new Date() }
                             : playlist,
                     ),
-                    success: true,
                 })
             }
 
@@ -89,12 +89,12 @@ export const usePlaylistMutation = () => {
         mutationFn: async (id: string) => deletePlaylist(id),
         onMutate: async (id) => {
             await queryClient.cancelQueries({ queryKey: ['playlists'] })
-            const previousPlaylists = queryClient.getQueryData<TServerActionResponse<Playlist[]>>(['playlists'])
+            const previousPlaylists = queryClient.getQueryData<AppResponse<Playlist[]>>(['playlists'])
 
-            if (previousPlaylists) {
-                queryClient.setQueryData<TServerActionResponse<Playlist[]>>(['playlists'], {
-                    data: previousPlaylists.data?.filter((playlist) => playlist.id !== id) ?? [],
-                    success: true,
+            if (previousPlaylists?.data) {
+                queryClient.setQueryData<AppResponse<Playlist[]>>(['playlists'], {
+                    ...previousPlaylists,
+                    data: previousPlaylists.data.filter((playlist) => playlist.id !== id),
                 })
             }
 
@@ -102,7 +102,7 @@ export const usePlaylistMutation = () => {
         },
         onError: (error, _, context) => {
             if (context?.previousPlaylists) {
-                queryClient.setQueryData(['playlists'], context.previousPlaylists)
+                queryClient.setQueryData<AppResponse<Playlist[]>>(['playlists'], context.previousPlaylists)
             }
             alert(error)
         },

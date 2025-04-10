@@ -1,70 +1,132 @@
 'use client'
 
+import { signInAction } from '@/app/(auth)/_actions/signIn'
 import { Button } from '@/lib/client/components/ui/button'
 import { Input } from '@/lib/client/components/ui/input'
 import { Label } from '@/lib/client/components/ui/label'
 import TurnstileWidget from '@/lib/client/components/utils/TurnstileWidget'
 import Link from 'next/link'
-import { useActionState, useState } from 'react'
-import { signInAction } from '@/app/(auth)/_actions/signIn'
+import { useReducer } from 'react'
+
+type formState = {
+    email: string
+    password: string
+    turnstileToken: string
+    resetTrigger: number
+    isTurnstilePending: boolean
+}
+
+type Action =
+    | {
+          type: 'SET_EMAIL'
+          payload: string
+      }
+    | {
+          type: 'SET_PASSWORD'
+          payload: string
+      }
+    | {
+          type: 'SET_TURNSTILE_TOKEN'
+          payload: string
+      }
+    | {
+          type: 'SET_RESET_TRIGGER'
+          payload: number
+      }
+    | {
+          type: 'SET_IS_TURNSTILE_PENDING'
+          payload: boolean
+      }
+
+const reducer = (state: formState, action: Action) => {
+    switch (action.type) {
+        case 'SET_EMAIL':
+            return { ...state, email: action.payload }
+        case 'SET_PASSWORD':
+            return { ...state, password: action.payload }
+        case 'SET_TURNSTILE_TOKEN':
+            return { ...state, turnstileToken: action.payload }
+        case 'SET_RESET_TRIGGER':
+            return { ...state, resetTrigger: action.payload }
+        case 'SET_IS_TURNSTILE_PENDING':
+            return { ...state, isTurnstilePending: action.payload }
+    }
+}
 
 const SignIn = () => {
-    const [turnstileToken, setTurnstileToken] = useState<string>('')
-    const [resetTrigger, setResetTrigger] = useState<number>(0)
-    const [isTurnstilePending, setIsTurnstilePending] = useState(true)
+    const [state, dispatch] = useReducer(reducer, {
+        email: 'test@user.com',
+        password: 'test1234',
+        turnstileToken: '',
+        resetTrigger: 0,
+        isTurnstilePending: true,
+    })
 
     const handleTokenChange = (token: string) => {
-        setTurnstileToken(token)
-        setIsTurnstilePending(false)
+        dispatch({ type: 'SET_TURNSTILE_TOKEN', payload: token })
+        dispatch({ type: 'SET_IS_TURNSTILE_PENDING', payload: false })
     }
 
-    const handleAction = async (prevState: { success: boolean; message: string }, formData: FormData) => {
-        // Add the turnstile token to the form data
-        formData.append('turnstileToken', turnstileToken)
-
-        // Determine which button was clicked
-        const submitButton = document.activeElement as HTMLButtonElement
-        if (submitButton?.name) {
-            formData.append(submitButton.name, submitButton.value)
-        }
+    const handleSubmit = async (submitType: 'userSignin' | 'guestSignin') => {
+        // Create a FormData object manually
+        const formData = new FormData()
+        formData.append('email', state.email)
+        formData.append('password', state.password)
+        formData.append('turnstileToken', state.turnstileToken)
+        formData.append(submitType, 'true')
 
         // Call the server action
-        const { success, message } = await signInAction(prevState, formData)
+        const { success, error } = await signInAction(formData)
 
         if (!success) {
-            alert(message)
+            alert(error)
         }
 
         // Reset the Turnstile widget after submission
-        setResetTrigger((prev) => prev + 1)
-        setIsTurnstilePending(true)
-        return { success, message: message ?? '' }
+        dispatch({ type: 'SET_RESET_TRIGGER', payload: state.resetTrigger + 1 })
+        dispatch({ type: 'SET_IS_TURNSTILE_PENDING', payload: true })
     }
-
-    const [, formAction, isPending] = useActionState(handleAction, {
-        success: false,
-        message: '',
-    })
 
     return (
         <div className="max-w-md m-auto p-4">
-            <form action={formAction}>
-                <fieldset disabled={process.env.NEXT_PUBLIC_IS_CI ? false : isPending || isTurnstilePending}>
+            <div>
+                <fieldset disabled={process.env.NEXT_PUBLIC_IS_CI ? false : state.isTurnstilePending}>
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input type="email" name="email" defaultValue={'test@user.com'} />
+                        <Input
+                            type="email"
+                            id="email"
+                            value={state.email}
+                            onChange={(e) => dispatch({ type: 'SET_EMAIL', payload: e.target.value })}
+                            data-testid="email-input"
+                        />
 
                         <Label htmlFor="password">Password</Label>
-                        <Input type="password" name="password" defaultValue={'test1234'} />
+                        <Input
+                            type="password"
+                            id="password"
+                            value={state.password}
+                            onChange={(e) => dispatch({ type: 'SET_PASSWORD', payload: e.target.value })}
+                            data-testid="password-input"
+                        />
 
-                        <input type="hidden" name="turnstileToken" value={turnstileToken} />
+                        <input type="hidden" value={state.turnstileToken} />
 
-                        <Button type="submit" name="userSignin" value="true" className="w-full">
+                        <Button
+                            onClick={() => handleSubmit('userSignin')}
+                            className="w-full"
+                            data-testid="signin-button"
+                        >
                             Sign In
                         </Button>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                        <Button type="submit" name="guestSignin" value="true" variant="link" size="sm">
+                        <Button
+                            onClick={() => handleSubmit('guestSignin')}
+                            variant="link"
+                            size="sm"
+                            data-testid="guest-signin-button"
+                        >
                             Continue as Guest
                         </Button>
                         <Button variant="link" size="sm">
@@ -73,8 +135,8 @@ const SignIn = () => {
                     </div>
                 </fieldset>
 
-                <TurnstileWidget onTokenChange={handleTokenChange} resetTrigger={resetTrigger} />
-            </form>
+                <TurnstileWidget onTokenChange={handleTokenChange} resetTrigger={state.resetTrigger} />
+            </div>
         </div>
     )
 }

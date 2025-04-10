@@ -9,12 +9,21 @@ jobs:
     run-e2es:
         runs-on: ubuntu-latest
         steps:
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 20.18
             - uses: actions/checkout@v2
             - name: Create .env file
               run: echo "${{ secrets.TEST_ENV_FILE }}" > .env
             - name: Install dependencies
               run: npm install && npx playwright install --with-deps
             - name: Start server and run tests
-              run: npx playwright test
+              run: npx playwright test --reporter=html --workers=1
               env:
                   BASE_URL: 'http://localhost:3000'
+            - name: Upload Playwright report
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report
+                  path: playwright-report

@@ -21,14 +21,14 @@ test.describe('NextAuth Authentication Tests', () => {
         await memberLogin(page)
 
         // Click logout
-        await page.getByRole('button', { name: 'Sign Out' }).click()
+        await page.getByTestId('signout-button').click()
 
         // Wait for the session to be cleared
         await page.waitForURL('/signin')
 
         // Verify we're logged out (login form should be visible)
-        await expect(page.locator('input[name="email"]')).toBeVisible()
-        await expect(page.locator('input[name="password"]')).toBeVisible()
+        await expect(page.getByTestId('email-input')).toBeVisible()
+        await expect(page.getByTestId('password-input')).toBeVisible()
     })
 
     test('4. Protected routes', async ({ page }) => {
@@ -36,8 +36,8 @@ test.describe('NextAuth Authentication Tests', () => {
         await page.goto('/main')
         await page.waitForURL('/signin')
         // 로그인 폼이 보이는지 확인
-        await expect(page.locator('input[name="email"]')).toBeVisible()
-        await expect(page.locator('input[name="password"]')).toBeVisible()
+        await expect(page.getByTestId('email-input')).toBeVisible()
+        await expect(page.getByTestId('password-input')).toBeVisible()
 
         // Scenario 2: 인증된 유저가 '/'에 접근 시 '/main'으로 리다이렉트되어야 함
         await memberLogin(page)

@@ -13,7 +13,7 @@ import {
 } from '@/app/main/_actions/track'
 import { useParams } from 'next/navigation'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
-import { TServerActionResponse } from '@/lib/shared/types'
+import { AppResponse } from '@/lib/shared/types'
 
 /**
  * 트랙 서버 액션을 사용하는 뮤테이션 훅
@@ -37,17 +37,17 @@ export const useTrackMutation = () => {
             }
 
             // 1. 서버 액션으로 트랙 생성
-            const { success, data: track } = await uploadTrack(formData)
+            const response = await uploadTrack(formData)
 
-            if (!track || !success) {
+            if (!response?.success || !response.data) {
                 throw new Error('Failed to create track')
             }
 
             // 2. IndexedDB에 파일 저장
-            await setTrackToIndexedDB(track.id, file)
+            await setTrackToIndexedDB(response.data.id, file)
 
             // 3. UI 상태 업데이트
-            state.UI.focusedTrackId = track.id
+            state.UI.focusedTrackId = response.data.id
 
             // 4. 캐시 업데이트 - 트랙 리스트 및 현재 플레이리스트
             // TrackList.tsx에서 사용하는 쿼리 키 형식 ['tracks']
@@ -57,14 +57,14 @@ export const useTrackMutation = () => {
             if (isMember) {
                 try {
                     // 프리사인드 URL 요청
-                    const { data: presignedUrlData } = await getTrackPresignedUrl(track.id, track.fileName, file.type)
+                    const { data } = await getTrackPresignedUrl(response.data.id, response.data.fileName, file.type)
 
-                    if (!presignedUrlData) {
+                    if (!data?.presignedUrl) {
                         throw new Error('Failed to get presigned url')
                     }
 
                     // S3에 파일 업로드
-                    const uploadResponse = await fetch(presignedUrlData.url, {
+                    const uploadResponse = await fetch(data?.presignedUrl, {
                         method: 'PUT',
                         body: file,
                         headers: {
@@ -76,14 +76,13 @@ export const useTrackMutation = () => {
                         throw new Error('Failed to upload track to S3')
                     }
                 } catch (error) {
-                    throw new Error('Background S3 upload failed')
+                    throw error
                 }
             }
 
-            return track
+            return response.data
         },
         onError: (error) => {
-            console.error('Track creation error:', error)
             alert(error.message || 'Failed to create track')
         },
     })
@@ -102,14 +101,14 @@ export const useTrackMutation = () => {
             await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
 
             // 이전 데이터 저장
-            const previousTracks = queryClient.getQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId])
+            const previousTracks = queryClient.getQueryData<AppResponse<Track[]>>(['tracks', playlistId])
 
             // 캐시 업데이트
-            queryClient.setQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId], (old) => {
-                if (!old) return { data: [], success: true }
+            queryClient.setQueryData<AppResponse<Track[]>>(['tracks', playlistId], (old) => {
+                if (!old) return old
                 return {
-                    data: old.data?.filter((track) => track.id !== id) ?? [],
-                    success: true,
+                    ...old,
+                    data: old.data?.filter((track) => track.id !== id),
                 }
             })
 
@@ -138,13 +137,10 @@ export const useTrackMutation = () => {
             await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
 
             // 이전 데이터 저장
-            const previousTracks = queryClient.getQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId])
+            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', playlistId])
 
             // 낙관적으로 캐시 비우기
-            queryClient.setQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId], {
-                data: [],
-                success: true,
-            })
+            queryClient.setQueryData<Track[]>(['tracks', playlistId], [])
 
             return { previousTracks }
         },
@@ -179,9 +175,9 @@ export const useTrackMutation = () => {
 
     // 트랙에서 플레이리스트 연결 해제 뮤테이션
     const disconnectTrackFromPlaylistMutation = useMutation({
-        mutationFn: async ({ trackId, playlistId: targetPlaylistId }: { trackId: string; playlistId: string }) => {
+        mutationFn: async ({ trackId, playlistId }: { trackId: string; playlistId: string }) => {
             // 서버 액션으로 트랙에서 플레이리스트 연결 해제
-            return disconnectTrackFromPlaylist(trackId, targetPlaylistId)
+            return disconnectTrackFromPlaylist(trackId, playlistId)
         },
         onMutate: async ({ trackId }) => {
             // 낙관적 업데이트 - 현재 플레이리스트에서만 작동
@@ -189,22 +185,21 @@ export const useTrackMutation = () => {
                 await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
 
                 // 이전 데이터 저장
-                const previousTracks = queryClient.getQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId])
+                const previousTracks = queryClient.getQueryData(['tracks', playlistId])
 
                 // 캐시 업데이트 - 현재 플레이리스트에서 트랙 제거
-                queryClient.setQueryData<TServerActionResponse<Track[]>>(['tracks', playlistId], (old) => {
-                    if (!old) return { data: [], success: true }
+                queryClient.setQueryData(['tracks', playlistId], (old: { success: boolean; data: Track[] }) => {
+                    if (!old || !old.success || !old.data) return old
                     return {
-                        data: old.data?.filter((track) => track.id !== trackId) ?? [],
-                        success: true,
+                        ...old,
+                        data: old.data.filter((track: Track) => track.id !== trackId),
                     }
                 })
 
                 return { previousTracks }
             }
-            return {}
         },
-        onError: (error, variables, context) => {
+        onError: (error, _, context) => {
             // 에러 발생 시 원래 데이터로 복원
             if (playlistId !== PLAYLIST_DEFAULT_ID && context?.previousTracks) {
                 queryClient.setQueryData(['tracks', playlistId], context.previousTracks)

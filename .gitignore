@@ -19,6 +19,7 @@ prisma/dev.db-journal
 /coverage
 test-results
 fixtures/
+playwright-report/
 
 # next.js
 /.next/

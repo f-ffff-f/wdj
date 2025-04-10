@@ -22,12 +22,13 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import PlaylistForm from './PlaylistForm'
+import { Label } from '@/lib/client/components/ui/label'
 
 const Playlists = () => {
     const router = useRouter()
     const { playlistId } = useParams<{ playlistId?: string }>()
 
-    const { data: playlists } = useQuery({
+    const { data: playlists, error } = useQuery({
         queryKey: ['playlists'],
         queryFn: getPlaylists,
     })
@@ -54,6 +55,10 @@ const Playlists = () => {
         }
     }
 
+    if (playlists && !playlists.success) {
+        return <Label>{playlists.error}</Label>
+    }
+
     return (
         <div>
             <SidebarGroupLabel>Playlists</SidebarGroupLabel>
@@ -73,7 +78,6 @@ const Playlists = () => {
                             <Link href={`/main/${PLAYLIST_DEFAULT_ID}`}>Library</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
-                    {playlists?.message && <div>{playlists?.message}</div>}
                     {playlists?.data?.map((playlist) => {
                         return editingPlaylistId !== playlist.id ? (
                             <SidebarMenuItem key={playlist.id}>

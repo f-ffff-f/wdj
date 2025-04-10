@@ -1,9 +1,11 @@
 'use server'
 import { signIn } from '@/auth'
-import { prisma } from '@/lib/shared/prisma'
-import { TServerActionResponse } from '@/lib/shared/types'
-import { GuestSigninSchema, MemberSigninSchema } from '@/lib/shared/validations/userSchemas'
+import { prisma } from '@/lib/server/prisma'
+import { GuestSigninSchema, MemberSignSchema } from '@/lib/shared/validations/userSchemas'
+import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
 import { Role } from '@prisma/client'
+import { AppError } from '@/lib/server/error/AppError'
+import { AppResponse } from '@/lib/shared/types'
 
 const verifyTurnstile = async (formData: FormData) => {
     // Skip verification in test environment
@@ -26,26 +28,25 @@ const verifyTurnstile = async (formData: FormData) => {
     const data = await response.json()
 
     if (!data.success) {
-        throw new Error('Turnstile verification failed')
+        throw new AppError(ErrorMessage.TURNSTILE_VERIFICATION_FAILED)
     }
 }
 
-// Next.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 catch하면 Next.js가 리다이렉트를 제대로 수행하지 못합니다.
-export const signInAction = async (
-    _: { success: boolean; message: string },
-    formData: FormData,
-): Promise<TServerActionResponse<never>> => {
+/**
+ * @description Auth.js에서는 리다이렉트 함수(예: redirect() 또는 signIn 내부에서 발생하는 리다이렉트 로직)가 의도적으로 예외(즉, NEXT_REDIRECT)를 던지는데, 이 예외를 사용처가 catch 하게되면 Next.js가 리다이렉트를 제대로 수행하지 못합니다. 따라서 이 action은 예외적으로 'handleServerError' 사용하지 않고 에러 응답을 리턴합니다.
+ */
+export const signInAction = async (formData: FormData): Promise<AppResponse<void>> => {
     try {
         await verifyTurnstile(formData)
     } catch (error) {
         return {
             success: false,
-            message: 'Turnstile verification failed',
+            error: ErrorMessage.TURNSTILE_VERIFICATION_FAILED,
         }
     }
 
     if (formData.get('userSignin')) {
-        const result = MemberSigninSchema.safeParse({
+        const result = MemberSignSchema.safeParse({
             email: formData.get('email'),
             password: formData.get('password'),
         })
@@ -53,7 +54,7 @@ export const signInAction = async (
         if (!result.success) {
             return {
                 success: false,
-                message: 'Invalid input',
+                error: ErrorMessage.INVALID_INPUT,
             }
         }
 
@@ -67,7 +68,7 @@ export const signInAction = async (
                 password,
             })
 
-            return { success: true, message: 'login successful' }
+            return { success: true }
         } catch (error: unknown) {
             if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
                 throw error
@@ -75,7 +76,7 @@ export const signInAction = async (
 
             return {
                 success: false,
-                message: 'Invalid credentials',
+                error: ErrorMessage.INVALID_CREDENTIALS,
             }
         }
     } else {
@@ -93,7 +94,7 @@ export const signInAction = async (
             if (!result.success) {
                 return {
                     success: false,
-                    message: 'Invalid input',
+                    error: ErrorMessage.INVALID_INPUT,
                 }
             }
 
@@ -101,7 +102,7 @@ export const signInAction = async (
                 guestUserId: guestUser.id,
             })
 
-            return { success: true, message: 'login successful' }
+            return { success: true }
         } catch (error: unknown) {
             if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
                 throw error
@@ -110,7 +111,7 @@ export const signInAction = async (
             // unknown error
             return {
                 success: false,
-                message: 'unknown error',
+                error: ErrorMessage.UNKNOWN_ERROR,
             }
         }
     }

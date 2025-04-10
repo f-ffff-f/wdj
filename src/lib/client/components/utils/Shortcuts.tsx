@@ -208,10 +208,10 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                 }
             },
             [EShortcut.ArrowDown]: () => {
-                if (state.UI.focusedTrackId && tracks?.data) {
+                if (state.UI.focusedTrackId && tracks) {
                     const index = findIndex(tracks?.data, state.UI.focusedTrackId)
-                    if (index < tracks?.data.length - 1) {
-                        state.UI.focusedTrackId = tracks?.data[index + 1].id
+                    if (index < (tracks?.data?.length ?? 0) - 1) {
+                        state.UI.focusedTrackId = (tracks?.data ?? [])[index + 1].id
                     }
                 }
             },
@@ -221,7 +221,9 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                         const index = findIndex(tracks?.data, state.UI.focusedTrackId)
                         if (index >= 0) {
                             const url = await getTrackBlobUrl(tracks?.data[index].id)
-                            deckoSingleton.loadTrack(DECK_IDS.ID_1, url)
+                            if (url) {
+                                deckoSingleton.loadTrack(DECK_IDS.ID_1, url)
+                            }
                         }
                     }
                 }
@@ -232,7 +234,9 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                         const index = findIndex(tracks?.data, state.UI.focusedTrackId)
                         if (index <= tracks?.data.length - 1) {
                             const url = await getTrackBlobUrl(tracks?.data[index].id)
-                            deckoSingleton.loadTrack(DECK_IDS.ID_2, url)
+                            if (url) {
+                                deckoSingleton.loadTrack(DECK_IDS.ID_2, url)
+                            }
                         }
                     }
                 }
@@ -251,7 +255,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         return () => {
             element?.removeEventListener('keydown', handleKeyDown)
         }
-    }, [tracks?.data, getTrackBlobUrl, playlistIdParam])
+    }, [tracks, getTrackBlobUrl, playlistIdParam])
 
     return (
         <div
