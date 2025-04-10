@@ -8,6 +8,7 @@ import { detectMobileDevice } from '@/lib/server/detectMobileDevice'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 import { notFound } from 'next/navigation'
+import React, { Suspense } from 'react'
 
 type Props = {
     params: Promise<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>
@@ -34,20 +35,42 @@ const PlaylistPage = async ({ params }: Props) => {
     }
 
     return (
-        <HydrationBoundary state={dehydrate(queryClient)}>
+        // <HydrationBoundary state={dehydrate(queryClient)}>
+        //     {isMobileDevice ? (
+        //         <DJController>
+        //             <TrackList />
+        //         </DJController>
+        //     ) : (
+        //         <Shortcuts>
+        //             <DJController>
+        //                 <TrackList />
+        //             </DJController>
+        //             {process.env.NODE_ENV === 'development' && <Debugger />}
+        //         </Shortcuts>
+        //     )}
+        // </HydrationBoundary>
+        <React.Fragment>
             {isMobileDevice ? (
                 <DJController>
-                    <TrackList />
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <HydrationBoundary state={dehydrate(queryClient)}>
+                            <TrackList />
+                        </HydrationBoundary>
+                    </Suspense>
                 </DJController>
             ) : (
                 <Shortcuts>
                     <DJController>
-                        <TrackList />
+                        <Suspense fallback={<div>Loading...</div>}>
+                            <HydrationBoundary state={dehydrate(queryClient)}>
+                                <TrackList />
+                            </HydrationBoundary>
+                        </Suspense>
                     </DJController>
                     {process.env.NODE_ENV === 'development' && <Debugger />}
                 </Shortcuts>
             )}
-        </HydrationBoundary>
+        </React.Fragment>
     )
 }
 
