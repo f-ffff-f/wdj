@@ -1,9 +1,10 @@
 'use client'
 
 import { state } from '@/lib/client/state'
-import { deckoSingleton } from '@ghr95223/decko'
 import React, { useDeferredValue, useEffect, useState } from 'react'
 import { useSnapshot } from 'valtio'
+
+const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
 
 const Debugger: React.FC = () => {
     const [audioManagerState, setAudioManagerState] = useState<string>('')

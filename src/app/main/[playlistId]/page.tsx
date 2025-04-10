@@ -8,6 +8,7 @@ import { detectMobileDevice } from '@/lib/server/detectMobileDevice'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 import { notFound } from 'next/navigation'
+import React from 'react'
 
 type Props = {
     params: Promise<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>
@@ -34,20 +35,24 @@ const PlaylistPage = async ({ params }: Props) => {
     }
 
     return (
-        <HydrationBoundary state={dehydrate(queryClient)}>
+        <React.Fragment>
             {isMobileDevice ? (
                 <DJController>
-                    <TrackList />
+                    <HydrationBoundary state={dehydrate(queryClient)}>
+                        <TrackList />
+                    </HydrationBoundary>
                 </DJController>
             ) : (
                 <Shortcuts>
                     <DJController>
-                        <TrackList />
+                        <HydrationBoundary state={dehydrate(queryClient)}>
+                            <TrackList />
+                        </HydrationBoundary>
                     </DJController>
                     {process.env.NODE_ENV === 'development' && <Debugger />}
                 </Shortcuts>
             )}
-        </HydrationBoundary>
+        </React.Fragment>
     )
 }
 

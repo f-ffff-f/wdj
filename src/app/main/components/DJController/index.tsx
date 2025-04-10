@@ -10,8 +10,9 @@ import { SliderVolume } from '@/lib/client/components/ui/sliderVolume'
 import { DECK_IDS } from '@/lib/client/constants'
 import { TDeckId } from '@/lib/client/types'
 import { cn, formatPlaybackTimeUI } from '@/lib/client/utils'
-import { deckoSingleton } from '@ghr95223/decko'
-import React, { useCallback, useEffect, useReducer, useState, useTransition } from 'react'
+import React, { useCallback, useEffect, useReducer, useTransition } from 'react'
+
+const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
 
 // Memoized deck component with individual props instead of a deck object
 const DeckControl = React.memo(
@@ -183,7 +184,7 @@ const DJController = ({ children: TrackListComponent }: { children: React.ReactN
             Object.values(DECK_IDS).map((deckId) => [
                 deckId,
                 {
-                    volume: deckoSingleton.getDeck(deckId)?.gainNode.gain.value ?? 0,
+                    volume: deckoSingleton.getDeck(deckId)?.gainNode?.gain.value ?? 0,
                     speed: deckoSingleton.getDeck(deckId)?.speed ?? 1,
                     playbackTime: deckoSingleton.getPlaybackTime(deckId) ?? 0,
                     audioDuration: deckoSingleton.getAudioBufferDuration(deckId) ?? 0,

@@ -5,11 +5,12 @@ import { Button } from '@/lib/client/components/ui/button'
 import { DECK_IDS } from '@/lib/client/constants'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { state } from '@/lib/client/state'
-import { deckoSingleton } from '@ghr95223/decko'
 import { useQuery } from '@tanstack/react-query'
 import { KeyboardIcon, XIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
+
+const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
 
 enum EShortcut {
     KeyQ = 'KeyQ',
