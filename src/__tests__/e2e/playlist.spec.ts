@@ -105,8 +105,7 @@ test.describe('Playlist Operations', () => {
         // Now delete the track from the playlist
         // Open dropdown menu for the track in the playlist
 
-        // 더 간단한 접근법으로 변경
-        await page.locator('[data-testid^="track-item-"]').first().locator('svg').last().click()
+        await page.getByTestId(`dropdown-trigger-${createdTrackId}`).click()
 
         // Click "Delete Track from Playlist" option
         await page.getByText('Delete Track from Playlist').click()

@@ -24,7 +24,7 @@ test.describe('Track Operations', () => {
         await createTrack(page)
 
         createdTrackId = (await page
-            .locator(`[data-testid="track-item-${createdTrackId}"]`)
+            .locator(`[data-testid^="track-item-"]`)
             .first()
             .getAttribute('data-trackid')) as string
 
@@ -46,7 +46,6 @@ test.describe('Track Operations', () => {
         // Visit the page to get a session
         await page.goto('/main')
 
-        console.log(createdTrackId)
         await page.getByTestId(`dropdown-trigger-${createdTrackId}`).click()
 
         await expect(page.getByTestId(`dropdown-content-${createdTrackId}`)).toBeVisible()
