@@ -8,8 +8,9 @@ import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { prisma } from '@/lib/shared/prisma'
 import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
 import { Playlist } from '@prisma/client'
+import { AppResponse } from '@/lib/shared/types'
 
-export const getPlaylists = async (): Promise<Playlist[]> => {
+export const getPlaylists = async (): Promise<AppResponse<Playlist[]>> => {
     const userId = await getUserIdFromSession()
 
     try {
@@ -18,15 +19,20 @@ export const getPlaylists = async (): Promise<Playlist[]> => {
             orderBy: { createdAt: 'desc' },
         })
 
-        return playlists
+        return {
+            success: true,
+            data: playlists,
+        }
     } catch (error) {
         return handleServerError(error)
     }
 }
 
-export const getIsValidPlaylist = async (playlistId: string): Promise<boolean> => {
+export const getIsValidPlaylist = async (playlistId: string): Promise<AppResponse<void>> => {
     if (playlistId === PLAYLIST_DEFAULT_ID) {
-        return true
+        return {
+            success: true,
+        }
     }
 
     const userId = await getUserIdFromSession()
@@ -40,13 +46,15 @@ export const getIsValidPlaylist = async (playlistId: string): Promise<boolean> =
             throw new AppError(ErrorMessage.PLAYLIST_NOT_FOUND)
         }
 
-        return true
+        return {
+            success: true,
+        }
     } catch (error) {
         return handleServerError(error)
     }
 }
 
-export const createPlaylist = async (name: string): Promise<Playlist> => {
+export const createPlaylist = async (name: string): Promise<AppResponse<Playlist>> => {
     let userId: string | undefined
 
     try {
@@ -73,13 +81,16 @@ export const createPlaylist = async (name: string): Promise<Playlist> => {
             },
         })
 
-        return playlist
+        return {
+            success: true,
+            data: playlist,
+        }
     } catch (error) {
         return handleServerError(error)
     }
 }
 
-export const updatePlaylist = async (id: string, name: string) => {
+export const updatePlaylist = async (id: string, name: string): Promise<AppResponse<Playlist>> => {
     let userId: string | undefined
 
     try {
@@ -103,16 +114,21 @@ export const updatePlaylist = async (id: string, name: string) => {
                 id: true,
                 name: true,
                 createdAt: true,
+                updatedAt: true,
+                userId: true,
             },
         })
 
-        return playlist
+        return {
+            success: true,
+            data: playlist,
+        }
     } catch (error) {
         return handleServerError(error)
     }
 }
 
-export const deletePlaylist = async (id: string): Promise<void> => {
+export const deletePlaylist = async (id: string): Promise<AppResponse<void>> => {
     let userId: string | undefined
 
     try {
@@ -124,6 +140,10 @@ export const deletePlaylist = async (id: string): Promise<void> => {
                 userId: userId,
             },
         })
+
+        return {
+            success: true,
+        }
     } catch (error) {
         return handleServerError(error)
     }

@@ -1,5 +1,7 @@
+import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
+
 export class AppError extends Error {
-    constructor(message: string) {
+    constructor(message: ErrorMessage) {
         super(message)
     }
 }

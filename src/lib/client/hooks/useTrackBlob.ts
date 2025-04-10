@@ -14,7 +14,7 @@ export const useTrackBlob = () => {
                     return blob
                 } else {
                     if (isMember) {
-                        const { presignedUrl } = await getTrackDownloadUrl(id)
+                        const { data: presignedUrl } = await getTrackDownloadUrl(id)
 
                         if (!presignedUrl) {
                             throw new Error('Failed to fetch track presigned URL')

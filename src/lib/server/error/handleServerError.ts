@@ -1,13 +1,19 @@
 import { AppError } from '@/lib/server/error/AppError'
 import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
+import { AppResponse } from '@/lib/shared/types'
 
-/** @important 최종 소비자는 try catch 문 안에서 사용해야 한다. */
-export const handleServerError = (error: unknown): never => {
+export const handleServerError = (error: unknown): Promise<AppResponse<never>> => {
     console.error(error)
 
     if (error instanceof AppError) {
-        throw error
+        return Promise.reject({
+            success: false,
+            error: error.message as ErrorMessage,
+        })
     } else {
-        throw new Error(ErrorMessage.UNKNOWN_ERROR)
+        return Promise.reject({
+            success: false,
+            error: ErrorMessage.UNKNOWN_ERROR,
+        })
     }
 }

@@ -11,6 +11,7 @@ import { CreateTrackSchema, UploadUrlRequestSchema } from '@/lib/shared/validati
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { Track } from '@prisma/client'
+import { AppResponse } from '@/lib/shared/types'
 
 // S3 클라이언트 생성
 const s3 = new S3Client({
@@ -21,7 +22,7 @@ const s3 = new S3Client({
     },
 })
 
-export const getTracks = async (playlistId: string | typeof PLAYLIST_DEFAULT_ID): Promise<Track[]> => {
+export const getTracks = async (playlistId: string | typeof PLAYLIST_DEFAULT_ID): Promise<AppResponse<Track[]>> => {
     const userId = await getUserIdFromSession()
 
     try {
@@ -31,7 +32,10 @@ export const getTracks = async (playlistId: string | typeof PLAYLIST_DEFAULT_ID)
                 orderBy: { createdAt: 'desc' },
             })
 
-            return allTracks
+            return {
+                success: true,
+                data: allTracks,
+            }
         } else {
             // 특정 플레이리스트의 트랙만 가져옴
             const playlist = await prisma.playlist.findUnique({
@@ -40,11 +44,16 @@ export const getTracks = async (playlistId: string | typeof PLAYLIST_DEFAULT_ID)
                     userId,
                 },
                 include: {
-                    tracks: true,
+                    tracks: {
+                        orderBy: { createdAt: 'desc' },
+                    },
                 },
             })
 
-            return playlist?.tracks ?? []
+            return {
+                success: true,
+                data: playlist?.tracks ?? [],
+            }
         }
     } catch (error) {
         return handleServerError(error)
@@ -56,7 +65,7 @@ export const getTracks = async (playlistId: string | typeof PLAYLIST_DEFAULT_ID)
  * 클라이언트에서 업로드할 트랙의 파일명과 연결할 플레이리스트 ID를 받아
  * 데이터베이스에 트랙 정보를 생성한다
  */
-export async function uploadTrack(formData: FormData): Promise<Track> {
+export async function uploadTrack(formData: FormData): Promise<AppResponse<Track>> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -105,7 +114,10 @@ export async function uploadTrack(formData: FormData): Promise<Track> {
             },
         })
 
-        return newTrack
+        return {
+            success: true,
+            data: newTrack,
+        }
     } catch (error) {
         return handleServerError(error)
     }
@@ -118,7 +130,7 @@ export async function getTrackPresignedUrl(
     id: string,
     fileName: string,
     fileType: string,
-): Promise<{ url: string; key: string }> {
+): Promise<AppResponse<{ presignedUrl: string; fileKey: string }>> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -149,8 +161,11 @@ export async function getTrackPresignedUrl(
         })
 
         return {
-            url: presignedUrl,
-            key: fileKey,
+            success: true,
+            data: {
+                presignedUrl,
+                fileKey,
+            },
         }
     } catch (error) {
         return handleServerError(error)
@@ -160,7 +175,7 @@ export async function getTrackPresignedUrl(
 /**
  * 트랙 다운로드를 위한 presigned URL 생성 서버 액션
  */
-export async function getTrackDownloadUrl(trackId: string): Promise<{ presignedUrl: string }> {
+export async function getTrackDownloadUrl(trackId: string): Promise<AppResponse<string>> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -192,7 +207,8 @@ export async function getTrackDownloadUrl(trackId: string): Promise<{ presignedU
         }
 
         return {
-            presignedUrl,
+            success: true,
+            data: presignedUrl,
         }
     } catch (error) {
         return handleServerError(error)
@@ -203,7 +219,7 @@ export async function getTrackDownloadUrl(trackId: string): Promise<{ presignedU
  * 트랙 삭제 서버 액션
  * 데이터베이스에서 트랙을 삭제하고, 멤버인 경우 S3에서도 파일 삭제
  */
-export async function deleteTrack(trackId: string): Promise<{ id: string }> {
+export async function deleteTrack(trackId: string): Promise<AppResponse<{ id: string }>> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -249,7 +265,10 @@ export async function deleteTrack(trackId: string): Promise<{ id: string }> {
         })
 
         return {
-            id: trackId,
+            success: true,
+            data: {
+                id: trackId,
+            },
         }
     } catch (error) {
         return handleServerError(error)
@@ -260,13 +279,17 @@ export async function deleteTrack(trackId: string): Promise<{ id: string }> {
  * 모든 트랙 삭제 서버 액션
  * 데이터베이스에서만 모든 트랙 삭제
  */
-export async function deleteAllTracksDB(): Promise<void> {
+export async function deleteAllTracksDB(): Promise<AppResponse<void>> {
     const userId = await getUserIdFromSession()
 
     try {
         await prisma.track.deleteMany({
             where: { userId },
         })
+
+        return {
+            success: true,
+        }
     } catch (error) {
         return handleServerError(error)
     }
@@ -276,7 +299,7 @@ export async function deleteAllTracksDB(): Promise<void> {
  * 트랙에 플레이리스트 연결 서버 액션
  */
 
-export async function connectTrackToPlaylist(trackId: string, playlistId: string): Promise<Track> {
+export async function connectTrackToPlaylist(trackId: string, playlistId: string): Promise<AppResponse<Track>> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -326,7 +349,10 @@ export async function connectTrackToPlaylist(trackId: string, playlistId: string
             },
         })
 
-        return updatedTrack
+        return {
+            success: true,
+            data: updatedTrack,
+        }
     } catch (error) {
         return handleServerError(error)
     }
@@ -336,7 +362,7 @@ export async function connectTrackToPlaylist(trackId: string, playlistId: string
  * 트랙에서 플레이리스트 연결 해제 서버 액션
  */
 
-export async function disconnectTrackFromPlaylist(trackId: string, playlistId: string): Promise<Track> {
+export async function disconnectTrackFromPlaylist(trackId: string, playlistId: string): Promise<AppResponse<Track>> {
     const userId = await getUserIdFromSession()
 
     try {
@@ -386,7 +412,10 @@ export async function disconnectTrackFromPlaylist(trackId: string, playlistId: s
             },
         })
 
-        return updatedTrack
+        return {
+            success: true,
+            data: updatedTrack,
+        }
     } catch (error) {
         return handleServerError(error)
     }

@@ -55,8 +55,8 @@ const Playlists = () => {
         }
     }
 
-    if (error) {
-        return <Label>{error.message}</Label>
+    if (playlists && !playlists.success) {
+        return <Label>{playlists.error}</Label>
     }
 
     return (
@@ -78,7 +78,7 @@ const Playlists = () => {
                             <Link href={`/main/${PLAYLIST_DEFAULT_ID}`}>Library</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
-                    {playlists?.map((playlist) => {
+                    {playlists?.data?.map((playlist) => {
                         return editingPlaylistId !== playlist.id ? (
                             <SidebarMenuItem key={playlist.id}>
                                 <SidebarMenuButton

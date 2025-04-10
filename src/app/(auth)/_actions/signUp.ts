@@ -7,10 +7,13 @@ import { Role, User } from '@prisma/client'
 import bcryptjs from 'bcryptjs'
 import { handleServerError } from '@/lib/server/error/handleServerError'
 import { AppError } from '@/lib/server/error/AppError'
+import { AppResponse } from '@/lib/shared/types'
 
 export type OmitPasswordUser = Omit<User, 'password'>
 
-export const signUp = async (formData: FormData | { email: string; password: string }): Promise<OmitPasswordUser> => {
+export const signUp = async (
+    formData: FormData | { email: string; password: string },
+): Promise<AppResponse<OmitPasswordUser>> => {
     try {
         // Handle both FormData and direct object input
         const rawData =
@@ -49,7 +52,10 @@ export const signUp = async (formData: FormData | { email: string; password: str
 
         // Return user without password
         const { password: _, ...userWithoutPassword } = user
-        return userWithoutPassword
+        return {
+            success: true,
+            data: userWithoutPassword,
+        }
     } catch (error) {
         return handleServerError(error)
     }

@@ -6,13 +6,13 @@ type SignupRequest = {
     password: string
 }
 
-export const useSignupMutation = (handleSuccess?: (data: OmitPasswordUser) => void) => {
+export const useSignupMutation = (handleSuccess?: () => void) => {
     return useMutation({
         mutationFn: async ({ email, password }: SignupRequest) => {
             return signUp({ email, password })
         },
-        onSuccess: (data) => {
-            if (handleSuccess) handleSuccess(data)
+        onSuccess: () => {
+            if (handleSuccess) handleSuccess()
         },
         onError: (error) => {
             alert(error.message)
