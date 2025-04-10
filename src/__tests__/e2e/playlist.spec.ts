@@ -101,7 +101,7 @@ test.describe('Playlist Operations', () => {
 
         // Now delete the track from the playlist
         // Open dropdown menu for the track in the playlist
-
+        await page.waitForTimeout(2000)
         await page.getByTestId(`dropdown-trigger-${createdTrackId}`).click()
 
         // Click "Delete Track from Playlist" option
