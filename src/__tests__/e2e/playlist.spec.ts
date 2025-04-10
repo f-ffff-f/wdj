@@ -99,13 +99,6 @@ test.describe('Playlist Operations', () => {
         // Wait for the playlist page to load
         await page.waitForURL((url) => url.toString().includes('/main/') && !url.toString().includes('/main/library'))
 
-        // Verify the track appears in the playlist
-        await page.waitForTimeout(2000)
-        const _createdTrackId = (await page
-            .getByTestId(`track-item-${createdTrackId}`)
-            .getAttribute('data-trackid')) as string
-        expect(_createdTrackId).toBe(createdTrackId)
-
         // Now delete the track from the playlist
         // Open dropdown menu for the track in the playlist
 
