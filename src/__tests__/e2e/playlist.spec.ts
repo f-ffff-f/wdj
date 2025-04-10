@@ -101,7 +101,9 @@ test.describe('Playlist Operations', () => {
 
         // Verify the track appears in the playlist
         await page.waitForTimeout(2000)
-        const _createdTrackId = (await page.locator('#track-list > *').first().getAttribute('data-trackid')) as string
+        const _createdTrackId = (await page
+            .getByTestId(`track-item-${createdTrackId}`)
+            .getAttribute('data-trackid')) as string
         expect(_createdTrackId).toBe(createdTrackId)
 
         // Now delete the track from the playlist
