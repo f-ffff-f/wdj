@@ -9,6 +9,9 @@ jobs:
     run-e2es:
         runs-on: ubuntu-latest
         steps:
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: lts/*
             - uses: actions/checkout@v2
             - name: Create .env file
               run: echo "${{ secrets.TEST_ENV_FILE }}" > .env
