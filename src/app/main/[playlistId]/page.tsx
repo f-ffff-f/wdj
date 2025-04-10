@@ -52,7 +52,7 @@ const PlaylistPage = async ({ params }: Props) => {
                     {process.env.NODE_ENV === 'development' && <Debugger />}
                 </Shortcuts>
             )}
-        </HydrationBoundary>
+        </React.Fragment>
     )
 }
 
