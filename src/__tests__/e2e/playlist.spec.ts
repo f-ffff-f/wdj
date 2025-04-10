@@ -70,6 +70,7 @@ test.describe('Playlist Operations', () => {
         // Create a track using the utility function
         await createTrack(page)
 
+        await page.waitForTimeout(1000 * 10)
         // Extract the track ID from the data-trackid attribute
         const createdTrackId = (await page
             .locator(`[data-testid^="track-item-"]`)
