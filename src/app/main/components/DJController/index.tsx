@@ -11,102 +11,57 @@ import { DECK_IDS } from '@/lib/client/constants'
 import { TDeckId } from '@/lib/client/types'
 import { cn, formatPlaybackTimeUI } from '@/lib/client/utils'
 import { deckoSingleton } from '@ghr95223/decko'
-import React, { useCallback, useEffect, useState, useTransition } from 'react'
+import React, { useCallback, useEffect, useReducer, useTransition } from 'react'
 
-// Memoized deck component with individual props instead of a deck object
-const DeckControl = React.memo(
-    ({
-        id,
-        volume,
-        speed,
-        playbackTime,
-        audioBufferDuration,
-        isPlaying,
-    }: {
-        id: TDeckId
-        volume: number
-        speed: number
-        playbackTime: number
-        audioBufferDuration: number
-        isPlaying: boolean
-    }) => {
-        const handleVolumeChange = useCallback((numbers: number[]) => deckoSingleton.setVolume(id, numbers[0]), [id])
-        const handleSpeedChange = useCallback((numbers: number[]) => deckoSingleton.setSpeed(id, numbers[0]), [id])
-        const handlePlayPause = useCallback(() => deckoSingleton.playPauseDeck(id), [id])
+const Volume = React.memo(({ value, deckId }: { value: number; deckId: TDeckId }) => {
+    const onChange = useCallback((numbers: number[]) => deckoSingleton.setVolume(deckId, numbers[0]), [deckId])
 
-        return (
-            <div className="flex flex-col gap-4 flex-1">
-                <div
-                    className={cn(
-                        'max-md:flex-wrap',
-                        'flex items-baseline gap-1',
-                        id === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row',
-                    )}
-                >
-                    <Volume value={volume} id={id} onChange={handleVolumeChange} />
-                    <Speed value={speed} id={id} onChange={handleSpeedChange} />
-                    <WaveformVisualizer deckId={id} />
-                </div>
-                <div className={cn('flex items-center gap-4', id === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row')}>
-                    <PlayPause value={isPlaying} id={id} onChange={handlePlayPause} />
-                    <PlayBackTime playbackTime={playbackTime} audioBufferDuration={audioBufferDuration} />
-                </div>
-            </div>
-        )
-    },
-)
-
-DeckControl.displayName = 'DeckControl'
-
-const Volume = React.memo(
-    ({ value, id, onChange }: { value: number; id: TDeckId; onChange: (numbers: number[]) => void }) => {
-        return (
-            <div className="flex flex-col items-center gap-2">
-                <SliderVolume
-                    id={`volume-${id}`}
-                    min={0}
-                    max={1}
-                    step={0.01}
-                    value={[value]}
-                    onValueChange={onChange}
-                />
-                <Label>Volume</Label>
-            </div>
-        )
-    },
-)
+    return (
+        <div className="flex flex-col items-center gap-2">
+            <SliderVolume
+                id={`volume-${deckId}`}
+                min={0}
+                max={1}
+                step={0.01}
+                value={[value]}
+                onValueChange={onChange}
+            />
+            <Label>Volume</Label>
+        </div>
+    )
+})
 
 Volume.displayName = 'Volume'
 
-const Speed = React.memo(
-    ({ value, id, onChange }: { value: number; id: TDeckId; onChange: (numbers: number[]) => void }) => {
-        return (
-            <div className="flex flex-col items-center gap-2">
-                <SliderSpeed
-                    id={`speed-${id}`}
-                    min={0.5}
-                    max={1.5}
-                    step={0.01}
-                    value={[value]}
-                    onValueChange={onChange}
-                />
-                <Label>Speed</Label>
-            </div>
-        )
-    },
-)
+const Speed = React.memo(({ value, deckId }: { value: number; deckId: TDeckId }) => {
+    const onChange = useCallback((numbers: number[]) => deckoSingleton.setSpeed(deckId, numbers[0]), [deckId])
+
+    return (
+        <div className="flex flex-col items-center gap-2">
+            <SliderSpeed
+                id={`speed-${deckId}`}
+                min={0.5}
+                max={1.5}
+                step={0.01}
+                value={[value]}
+                onValueChange={onChange}
+            />
+            <Label>Speed</Label>
+        </div>
+    )
+})
 
 Speed.displayName = 'Speed'
 
-const PlayPause = React.memo(
-    ({ value, id, onChange }: { value: boolean; id: TDeckId; onChange: (id: number) => void }) => {
-        return (
-            <Button onClick={() => onChange(id)} id={`play-pause-${id}`} className="min-w-[80px] text-center">
-                {value ? 'pause' : 'play'}
-            </Button>
-        )
-    },
-)
+const PlayPause = React.memo(({ value, deckId }: { value: boolean; deckId: TDeckId }) => {
+    const onChange = useCallback(() => deckoSingleton.playPauseDeck(deckId), [deckId])
+
+    return (
+        <Button onClick={onChange} id={`play-pause-${deckId}`} className="min-w-[80px] text-center">
+            {value ? 'pause' : 'play'}
+        </Button>
+    )
+})
 
 PlayPause.displayName = 'PlayPause'
 
@@ -135,25 +90,68 @@ const Crossfader = React.memo(({ value }: { value: number }) => {
 
 Crossfader.displayName = 'Crossfader'
 
-export const DJController = ({ children: TrackListComponent }: { children: React.ReactNode }) => {
-    // Deck 1 state
-    const [volume1, setVolume1] = useState(deckoSingleton.getDeck(DECK_IDS.ID_1)?.gainNode.gain.value ?? 0)
-    const [speed1, setSpeed1] = useState(deckoSingleton.getDeck(DECK_IDS.ID_1)?.speed ?? 1)
-    const [playbackTime1, setPlaybackTime1] = useState(deckoSingleton.getPlaybackTime(DECK_IDS.ID_1) ?? 0)
-    const [audioDuration1, setAudioDuration1] = useState(deckoSingleton.getAudioBufferDuration(DECK_IDS.ID_1) ?? 0)
-    const [isPlaying1, setIsPlaying1] = useState(deckoSingleton.getDeck(DECK_IDS.ID_1)?.isPlaying ?? false)
+// Define types for our state and actions
+type DJState = {
+    decks: {
+        [key in TDeckId]: {
+            volume: number
+            speed: number
+            playbackTime: number
+            audioDuration: number
+            isPlaying: boolean
+        }
+    }
+    crossFade: number
+}
 
-    // Deck 2 state
-    const [volume2, setVolume2] = useState(deckoSingleton.getDeck(DECK_IDS.ID_2)?.gainNode.gain.value ?? 0)
-    const [speed2, setSpeed2] = useState(deckoSingleton.getDeck(DECK_IDS.ID_2)?.speed ?? 1)
-    const [playbackTime2, setPlaybackTime2] = useState(deckoSingleton.getPlaybackTime(DECK_IDS.ID_2) ?? 0)
-    const [audioDuration2, setAudioDuration2] = useState(deckoSingleton.getAudioBufferDuration(DECK_IDS.ID_2) ?? 0)
-    const [isPlaying2, setIsPlaying2] = useState(deckoSingleton.getDeck(DECK_IDS.ID_2)?.isPlaying ?? false)
+type DJAction =
+    | { type: 'UPDATE_DECK'; deckId: TDeckId; payload: Partial<DJState['decks'][TDeckId]> }
+    | { type: 'UPDATE_CROSSFADE'; value: number }
 
-    // Crossfade state
-    const [crossFade, setCrossFade] = useState(deckoSingleton.getCrossFade())
+// Reducer function
+const djReducer = (state: DJState, action: DJAction): DJState => {
+    switch (action.type) {
+        case 'UPDATE_DECK':
+            return {
+                ...state,
+                decks: {
+                    ...state.decks,
+                    [action.deckId]: {
+                        ...state.decks[action.deckId],
+                        ...action.payload,
+                    },
+                },
+            }
+        case 'UPDATE_CROSSFADE':
+            return {
+                ...state,
+                crossFade: action.value,
+            }
+        default:
+            return state
+    }
+}
 
+const DJController = ({ children: TrackListComponent }: { children: React.ReactNode }) => {
+    const initialState: DJState = {
+        decks: Object.fromEntries(
+            Object.values(DECK_IDS).map((deckId) => [
+                deckId,
+                {
+                    volume: deckoSingleton.getDeck(deckId)?.gainNode.gain.value ?? 0,
+                    speed: deckoSingleton.getDeck(deckId)?.speed ?? 1,
+                    playbackTime: deckoSingleton.getPlaybackTime(deckId) ?? 0,
+                    audioDuration: deckoSingleton.getAudioBufferDuration(deckId) ?? 0,
+                    isPlaying: deckoSingleton.getDeck(deckId)?.isPlaying ?? false,
+                },
+            ]),
+        ) as DJState['decks'],
+        crossFade: deckoSingleton.getCrossFade(),
+    }
+
+    const [state, dispatch] = useReducer(djReducer, initialState)
     const [, startTransition] = useTransition()
+
     // Throttle UI updates to roughly 30fps
     useEffect(() => {
         let rafId: number
@@ -166,22 +164,24 @@ export const DJController = ({ children: TrackListComponent }: { children: React
                 lastUpdate = now
 
                 startTransition(() => {
-                    // Update deck 1 state
-                    setVolume1(deckoSingleton.getVolume(DECK_IDS.ID_1))
-                    setSpeed1(deckoSingleton.getSpeed(DECK_IDS.ID_1))
-                    setPlaybackTime1(deckoSingleton.getPlaybackTime(DECK_IDS.ID_1))
-                    setAudioDuration1(deckoSingleton.getAudioBufferDuration(DECK_IDS.ID_1))
-                    setIsPlaying1(deckoSingleton.isPlaying(DECK_IDS.ID_1))
+                    Object.values(DECK_IDS).forEach((deckId) => {
+                        dispatch({
+                            type: 'UPDATE_DECK',
+                            deckId,
+                            payload: {
+                                volume: deckoSingleton.getVolume(deckId),
+                                speed: deckoSingleton.getSpeed(deckId),
+                                playbackTime: deckoSingleton.getPlaybackTime(deckId),
+                                audioDuration: deckoSingleton.getAudioBufferDuration(deckId),
+                                isPlaying: deckoSingleton.isPlaying(deckId),
+                            },
+                        })
+                    })
 
-                    // Update deck 2 state
-                    setVolume2(deckoSingleton.getVolume(DECK_IDS.ID_2))
-                    setSpeed2(deckoSingleton.getSpeed(DECK_IDS.ID_2))
-                    setPlaybackTime2(deckoSingleton.getPlaybackTime(DECK_IDS.ID_2))
-                    setAudioDuration2(deckoSingleton.getAudioBufferDuration(DECK_IDS.ID_2))
-                    setIsPlaying2(deckoSingleton.isPlaying(DECK_IDS.ID_2))
-
-                    // Update crossfade
-                    setCrossFade(deckoSingleton.getCrossFade())
+                    dispatch({
+                        type: 'UPDATE_CROSSFADE',
+                        value: deckoSingleton.getCrossFade(),
+                    })
                 })
             }
             rafId = requestAnimationFrame(updateDecks)
@@ -196,24 +196,35 @@ export const DJController = ({ children: TrackListComponent }: { children: React
     return (
         <div className="flex flex-col gap-8">
             <div className="flex gap-4">
-                <DeckControl
-                    id={DECK_IDS.ID_1}
-                    volume={volume1}
-                    speed={speed1}
-                    playbackTime={playbackTime1}
-                    audioBufferDuration={audioDuration1}
-                    isPlaying={isPlaying1}
-                />
-                <DeckControl
-                    id={DECK_IDS.ID_2}
-                    volume={volume2}
-                    speed={speed2}
-                    playbackTime={playbackTime2}
-                    audioBufferDuration={audioDuration2}
-                    isPlaying={isPlaying2}
-                />
+                {Object.values(DECK_IDS).map((deckId) => (
+                    <div className="flex flex-col gap-4 flex-1" key={`deck-${deckId}`}>
+                        <div
+                            className={cn(
+                                'max-md:flex-wrap',
+                                'flex items-baseline gap-1',
+                                deckId === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row',
+                            )}
+                        >
+                            <Volume value={state.decks[deckId].volume} deckId={deckId} />
+                            <Speed value={state.decks[deckId].speed} deckId={deckId} />
+                            <WaveformVisualizer deckId={deckId} />
+                        </div>
+                        <div
+                            className={cn(
+                                'flex items-center gap-4',
+                                deckId === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row',
+                            )}
+                        >
+                            <PlayPause value={state.decks[deckId].isPlaying} deckId={deckId} />
+                            <PlayBackTime
+                                playbackTime={state.decks[deckId].playbackTime}
+                                audioBufferDuration={state.decks[deckId].audioDuration}
+                            />
+                        </div>
+                    </div>
+                ))}
             </div>
-            <Crossfader value={crossFade} />
+            <Crossfader value={state.crossFade} />
             <div className="flex flex-col items-center self-center gap-4">
                 <FileUploader />
                 {TrackListComponent}
