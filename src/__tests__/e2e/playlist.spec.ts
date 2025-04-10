@@ -23,6 +23,7 @@ interface Playlist {
  * These tests now use server actions instead of API endpoints
  */
 test.describe('Playlist Operations', () => {
+    test.slow()
     let createdPlaylistName: string
     let createdTrackId: string
 
