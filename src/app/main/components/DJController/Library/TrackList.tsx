@@ -22,13 +22,14 @@ import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
 import { state } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
-import { deckoSingleton } from '@ghr95223/decko'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowUpCircle, MoreVertical } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 import Marquee from 'react-fast-marquee'
 import { useSnapshot } from 'valtio'
+
+const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
 
 const TrackList = () => {
     const { playlistId: playlistIdParam } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
