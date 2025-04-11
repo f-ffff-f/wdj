@@ -4,6 +4,7 @@ import DJController from '@/app/main/components/DJController'
 import TrackList from '@/app/main/components/DJController/Library/TrackList'
 import Debugger from '@/lib/client/components/utils/Debugger'
 import Shortcuts from '@/lib/client/components/utils/Shortcuts'
+import WindowCheck from '@/lib/client/components/utils/WindowCheck'
 import { detectMobileDevice } from '@/lib/server/detectMobileDevice'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
@@ -37,20 +38,24 @@ const PlaylistPage = async ({ params }: Props) => {
     return (
         <React.Fragment>
             {isMobileDevice ? (
-                <DJController>
-                    <HydrationBoundary state={dehydrate(queryClient)}>
-                        <TrackList />
-                    </HydrationBoundary>
-                </DJController>
-            ) : (
-                <Shortcuts>
+                <WindowCheck>
                     <DJController>
                         <HydrationBoundary state={dehydrate(queryClient)}>
                             <TrackList />
                         </HydrationBoundary>
                     </DJController>
-                    {process.env.NODE_ENV === 'development' && <Debugger />}
-                </Shortcuts>
+                </WindowCheck>
+            ) : (
+                <WindowCheck>
+                    <Shortcuts>
+                        <DJController>
+                            <HydrationBoundary state={dehydrate(queryClient)}>
+                                <TrackList />
+                            </HydrationBoundary>
+                        </DJController>
+                        {process.env.NODE_ENV === 'development' && <Debugger />}
+                    </Shortcuts>
+                </WindowCheck>
             )}
         </React.Fragment>
     )
