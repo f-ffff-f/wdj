@@ -33,7 +33,7 @@ export default function RootLayout({
                 <SessionProvider>
                     <QueryProvider>
                         {children}
-                        <ReactQueryDevtools initialIsOpen={true} />
+                        <ReactQueryDevtools />
                         <DevEnvIndicator />
                         <Analytics />
                         <SpeedInsights />
