@@ -21,19 +21,17 @@ const PlaylistPage = async ({ params }: Props) => {
 
     const queryClient = new QueryClient()
 
-    const [isValidPlaylist] = await Promise.all([
+    await Promise.all([
         (() => {
             return getIsValidPlaylist(playlistId)
-        })(),
+        })().catch(() => {
+            notFound()
+        }),
         queryClient.prefetchQuery({
             queryKey: ['tracks', playlistId],
             queryFn: () => getTracks(playlistId),
         }),
     ])
-
-    if (!isValidPlaylist) {
-        notFound()
-    }
 
     return (
         <React.Fragment>
