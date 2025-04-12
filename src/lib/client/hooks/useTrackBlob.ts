@@ -1,10 +1,11 @@
 import { getTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/indexedDB'
-import { useIsMember } from '@/lib/client/hooks/useIsMember'
 import { useCallback } from 'react'
 import { getTrackDownloadUrl } from '@/app/main/_actions/track'
+import { useSession } from 'next-auth/react'
+import { Role } from '@prisma/client'
 
 export const useTrackBlob = () => {
-    const { isMember } = useIsMember()
+    const { data: session } = useSession()
 
     const getTrackBlobUrl = useCallback(
         async (id: string): Promise<Blob | void> => {
@@ -13,7 +14,7 @@ export const useTrackBlob = () => {
                 if (blob) {
                     return blob
                 } else {
-                    if (isMember) {
+                    if (session?.user?.role === Role.MEMBER) {
                         const { data: presignedUrl } = await getTrackDownloadUrl(id)
 
                         if (!presignedUrl) {
@@ -34,7 +35,7 @@ export const useTrackBlob = () => {
                 alert(error)
             }
         },
-        [isMember],
+        [session?.user?.role],
     )
     return { getTrackBlobUrl }
 }

@@ -21,43 +21,35 @@ const PlaylistPage = async ({ params }: Props) => {
 
     const queryClient = new QueryClient()
 
-    const [isValidPlaylist] = await Promise.all([
+    await Promise.all([
         (() => {
             return getIsValidPlaylist(playlistId)
-        })(),
+        })().catch(() => {
+            notFound()
+        }),
         queryClient.prefetchQuery({
             queryKey: ['tracks', playlistId],
             queryFn: () => getTracks(playlistId),
         }),
     ])
 
-    if (!isValidPlaylist) {
-        notFound()
-    }
-
     return (
-        <React.Fragment>
-            {isMobileDevice ? (
-                <WindowCheck>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <WindowCheck>
+                {isMobileDevice ? (
                     <DJController>
-                        <HydrationBoundary state={dehydrate(queryClient)}>
-                            <TrackList />
-                        </HydrationBoundary>
+                        <TrackList playlistId={playlistId} />
                     </DJController>
-                </WindowCheck>
-            ) : (
-                <WindowCheck>
-                    <Shortcuts>
+                ) : (
+                    <Shortcuts playlistId={playlistId}>
                         <DJController>
-                            <HydrationBoundary state={dehydrate(queryClient)}>
-                                <TrackList />
-                            </HydrationBoundary>
+                            <TrackList playlistId={playlistId} />
                         </DJController>
                         {process.env.NODE_ENV === 'development' && <Debugger />}
                     </Shortcuts>
-                </WindowCheck>
-            )}
-        </React.Fragment>
+                )}
+            </WindowCheck>
+        </HydrationBoundary>
     )
 }
 

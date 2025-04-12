@@ -31,16 +31,14 @@ import { useSnapshot } from 'valtio'
 
 const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
 
-const TrackList = () => {
-    const { playlistId: playlistIdParam } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
-
+const TrackList = ({ playlistId }: { playlistId: string }) => {
     const {
         data: tracks,
         isLoading,
         error,
     } = useQuery({
-        queryKey: ['tracks', playlistIdParam],
-        queryFn: () => getTracks(playlistIdParam),
+        queryKey: ['tracks', playlistId],
+        queryFn: () => getTracks(playlistId),
     })
 
     const focusedTrackId = useSnapshot(state).UI.focusedTrackId
@@ -79,7 +77,7 @@ const TrackList = () => {
                     handleLoadToDeck={handleLoadToDeck}
                     handleClick={handleClick}
                 >
-                    {playlistIdParam === PLAYLIST_DEFAULT_ID ? (
+                    {playlistId === PLAYLIST_DEFAULT_ID ? (
                         <LibraryDropdownMenu trackId={track.id} />
                     ) : (
                         <PlaylistDropdownMenu trackId={track.id} />
@@ -172,10 +170,6 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
         return <Label>{error.message}</Label>
     }
 
-    if (!playlists) {
-        return <Label>No playlists available</Label>
-    }
-
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-1">
@@ -189,19 +183,23 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
                         <span>Add to Playlist</span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
-                        {playlists.data?.map((playlist) => (
-                            <DropdownMenuItem
-                                key={playlist.id}
-                                onClick={() => {
-                                    connectTrackToPlaylistMutation.mutate({
-                                        playlistId: playlist.id,
-                                        trackId,
-                                    })
-                                }}
-                            >
-                                <span>{playlist.name}</span>
-                            </DropdownMenuItem>
-                        ))}
+                        {playlists?.data?.length ? (
+                            playlists.data?.map((playlist) => (
+                                <DropdownMenuItem
+                                    key={playlist.id}
+                                    onClick={() => {
+                                        connectTrackToPlaylistMutation.mutate({
+                                            playlistId: playlist.id,
+                                            trackId,
+                                        })
+                                    }}
+                                >
+                                    <span>{playlist.name}</span>
+                                </DropdownMenuItem>
+                            ))
+                        ) : (
+                            <Label>No playlists available</Label>
+                        )}
                     </DropdownMenuSubContent>
                 </DropdownMenuSub>
                 <DropdownMenuItem
