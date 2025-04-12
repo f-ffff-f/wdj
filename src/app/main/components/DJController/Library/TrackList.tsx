@@ -31,16 +31,14 @@ import { useSnapshot } from 'valtio'
 
 const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
 
-const TrackList = () => {
-    const { playlistId: playlistIdParam } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
-
+const TrackList = ({ playlistId }: { playlistId: string }) => {
     const {
         data: tracks,
         isLoading,
         error,
     } = useQuery({
-        queryKey: ['tracks', playlistIdParam],
-        queryFn: () => getTracks(playlistIdParam),
+        queryKey: ['tracks', playlistId],
+        queryFn: () => getTracks(playlistId),
     })
 
     const focusedTrackId = useSnapshot(state).UI.focusedTrackId
@@ -79,7 +77,7 @@ const TrackList = () => {
                     handleLoadToDeck={handleLoadToDeck}
                     handleClick={handleClick}
                 >
-                    {playlistIdParam === PLAYLIST_DEFAULT_ID ? (
+                    {playlistId === PLAYLIST_DEFAULT_ID ? (
                         <LibraryDropdownMenu trackId={track.id} />
                     ) : (
                         <PlaylistDropdownMenu trackId={track.id} />
