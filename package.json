@@ -57,6 +57,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.51.0",
+    "@tanstack/eslint-plugin-query": "^5.73.3",
     "@tanstack/react-query-devtools": "^5.67.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/cloudflare-turnstile": "^0.2.2",
