@@ -34,28 +34,22 @@ const PlaylistPage = async ({ params }: Props) => {
     ])
 
     return (
-        <React.Fragment>
-            {isMobileDevice ? (
-                <WindowCheck>
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <WindowCheck>
+                {isMobileDevice ? (
                     <DJController>
-                        <HydrationBoundary state={dehydrate(queryClient)}>
-                            <TrackList playlistId={playlistId} />
-                        </HydrationBoundary>
+                        <TrackList playlistId={playlistId} />
                     </DJController>
-                </WindowCheck>
-            ) : (
-                <WindowCheck>
+                ) : (
                     <Shortcuts playlistId={playlistId}>
                         <DJController>
-                            <HydrationBoundary state={dehydrate(queryClient)}>
-                                <TrackList playlistId={playlistId} />
-                            </HydrationBoundary>
+                            <TrackList playlistId={playlistId} />
                         </DJController>
                         {process.env.NODE_ENV === 'development' && <Debugger />}
                     </Shortcuts>
-                </WindowCheck>
-            )}
-        </React.Fragment>
+                )}
+            </WindowCheck>
+        </HydrationBoundary>
     )
 }
 
