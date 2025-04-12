@@ -1,25 +1,24 @@
-import { deleteTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/indexedDB'
-import { useIsMember } from '@/lib/client/hooks/useIsMember'
-import { state } from '@/lib/client/state'
-import { Track } from '@prisma/client'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
-    uploadTrack,
-    getTrackPresignedUrl,
-    deleteTrack,
-    deleteAllTracksDB,
     connectTrackToPlaylist,
+    deleteAllTracksDB,
+    deleteTrack,
     disconnectTrackFromPlaylist,
+    getTrackPresignedUrl,
+    uploadTrack,
 } from '@/app/main/_actions/track'
-import { useParams } from 'next/navigation'
+import { deleteTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/indexedDB'
+import { state } from '@/lib/client/state'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { AppResponse } from '@/lib/shared/types'
-
+import { Role, Track } from '@prisma/client'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useSession } from 'next-auth/react'
+import { useParams } from 'next/navigation'
 /**
  * 트랙 서버 액션을 사용하는 뮤테이션 훅
  */
 export const useTrackMutation = () => {
-    const { isMember } = useIsMember()
+    const { data: session } = useSession()
     const { playlistId } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
     const queryClient = useQueryClient()
 
@@ -54,7 +53,7 @@ export const useTrackMutation = () => {
             queryClient.invalidateQueries({ queryKey: ['tracks', playlistId] })
 
             // 5. 멤버인 경우 S3 업로드 진행
-            if (isMember) {
+            if (session?.user?.role === Role.MEMBER) {
                 try {
                     // 프리사인드 URL 요청
                     const { data } = await getTrackPresignedUrl(response.data.id, response.data.fileName, file.type)
