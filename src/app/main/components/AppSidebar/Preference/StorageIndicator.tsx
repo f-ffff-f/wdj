@@ -3,20 +3,21 @@
 import { Button } from '@/lib/client/components/ui/button'
 import { DialogDescription } from '@/lib/client/components/ui/dialog'
 import { clearAllTracksFromIndexedDB } from '@/lib/client/indexedDB'
-import { useIsMember } from '@/lib/client/hooks/useIsMember'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
 import { state, updateStorageEstimate } from '@/lib/client/state'
 import { Trash } from 'lucide-react'
 import { useEffect } from 'react'
 import { useSnapshot } from 'valtio'
+import { useSession } from 'next-auth/react'
+import { Role } from '@prisma/client'
 
 const StorageIndicator = () => {
     const storageEstimate = useSnapshot(state).UI.storageEstimate
-    const { isMember } = useIsMember()
     const { deleteAllTracksDBMutation } = useTrackMutation()
+    const { data: session } = useSession()
 
     const handleClearAllTracksFromIndexedDB = async () => {
-        if (isMember) {
+        if (session?.user?.role === Role.MEMBER) {
             await clearAllTracksFromIndexedDB()
         } else {
             if (
