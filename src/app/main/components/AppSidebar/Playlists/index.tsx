@@ -74,7 +74,11 @@ const Playlists = () => {
             <SidebarGroupContent>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton className="cursor-pointer" isActive={!playlistId} asChild>
+                        <SidebarMenuButton
+                            className="cursor-pointer"
+                            isActive={playlistId === PLAYLIST_DEFAULT_ID}
+                            asChild
+                        >
                             <Link href={`/main/${PLAYLIST_DEFAULT_ID}`}>Library</Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

@@ -170,10 +170,6 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
         return <Label>{error.message}</Label>
     }
 
-    if (!playlists) {
-        return <Label>No playlists available</Label>
-    }
-
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-1">
@@ -187,19 +183,23 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
                         <span>Add to Playlist</span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
-                        {playlists.data?.map((playlist) => (
-                            <DropdownMenuItem
-                                key={playlist.id}
-                                onClick={() => {
-                                    connectTrackToPlaylistMutation.mutate({
-                                        playlistId: playlist.id,
-                                        trackId,
-                                    })
-                                }}
-                            >
-                                <span>{playlist.name}</span>
-                            </DropdownMenuItem>
-                        ))}
+                        {playlists?.data?.length ? (
+                            playlists.data?.map((playlist) => (
+                                <DropdownMenuItem
+                                    key={playlist.id}
+                                    onClick={() => {
+                                        connectTrackToPlaylistMutation.mutate({
+                                            playlistId: playlist.id,
+                                            trackId,
+                                        })
+                                    }}
+                                >
+                                    <span>{playlist.name}</span>
+                                </DropdownMenuItem>
+                            ))
+                        ) : (
+                            <Label>No playlists available</Label>
+                        )}
                     </DropdownMenuSubContent>
                 </DropdownMenuSub>
                 <DropdownMenuItem
