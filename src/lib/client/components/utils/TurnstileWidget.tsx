@@ -1,5 +1,6 @@
 'use client'
 
+import { useTheme } from '@/app/ThemeProvider'
 import { useEffect, useState } from 'react'
 
 // Declare global types for Turnstile
@@ -27,6 +28,7 @@ interface TurnstileWidgetProps {
 }
 
 const TurnstileWidget = ({ onTokenChange, resetTrigger }: TurnstileWidgetProps) => {
+    const { theme } = useTheme()
     const [widgetId, setWidgetId] = useState<string | null>(null)
 
     useEffect(() => {
@@ -45,7 +47,6 @@ const TurnstileWidget = ({ onTokenChange, resetTrigger }: TurnstileWidgetProps) 
                     callback: (turnstileToken: string) => {
                         onTokenChange(turnstileToken)
                     },
-                    theme: 'dark',
                 })
                 setWidgetId(newWidgetId)
             }
@@ -57,7 +58,7 @@ const TurnstileWidget = ({ onTokenChange, resetTrigger }: TurnstileWidgetProps) 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [resetTrigger])
 
-    return <div key={resetTrigger} className="cf-turnstile mt-4" />
+    return <div key={resetTrigger} className="cf-turnstile mt-4" data-theme={theme} />
 }
 
 export default TurnstileWidget
