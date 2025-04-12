@@ -39,16 +39,16 @@ const PlaylistPage = async ({ params }: Props) => {
                 <WindowCheck>
                     <DJController>
                         <HydrationBoundary state={dehydrate(queryClient)}>
-                            <TrackList />
+                            <TrackList playlistId={playlistId} />
                         </HydrationBoundary>
                     </DJController>
                 </WindowCheck>
             ) : (
                 <WindowCheck>
-                    <Shortcuts>
+                    <Shortcuts playlistId={playlistId}>
                         <DJController>
                             <HydrationBoundary state={dehydrate(queryClient)}>
-                                <TrackList />
+                                <TrackList playlistId={playlistId} />
                             </HydrationBoundary>
                         </DJController>
                         {process.env.NODE_ENV === 'development' && <Debugger />}
