@@ -357,16 +357,16 @@ export class DeckoManager {
     }
 
     // 디버그 정보 (필요 시 사용)
-    debugManager() {
-        return `
-        Valtio State: ${JSON.stringify(state)}
-        Internal Buffers: ${JSON.stringify(this.audioBuffers)}
-        Internal Source Nodes: ${JSON.stringify(this.bufferSourceNodes)}
-        AudioContext Time: ${this.audioContext?.currentTime}
-        Deck 1 Playback Time: ${this.getPlaybackTime(1)}
-        Deck 2 Playback Time: ${this.getPlaybackTime(2)}
-        `
-    }
+    // debugManager() {
+    //     return `
+    //     Valtio State: ${JSON.stringify(state)}
+    //     Internal Buffers: ${JSON.stringify(this.audioBuffers)}
+    //     Internal Source Nodes: ${JSON.stringify(this.bufferSourceNodes)}
+    //     AudioContext Time: ${this.audioContext?.currentTime}
+    //     Deck 1 Playback Time: ${this.getPlaybackTime(1)}
+    //     Deck 2 Playback Time: ${this.getPlaybackTime(2)}
+    //     `
+    // }
 }
 
 // 싱글톤 인스턴스 생성 및 내보내기

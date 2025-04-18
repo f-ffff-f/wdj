@@ -14,11 +14,7 @@ const PlaylistPage = async ({ params }: Props) => {
     if (!isValidPlaylist) {
         notFound()
     }
-    return (
-        <div>
-            <TrackList playlistId={playlistId} />
-        </div>
-    )
+    return <TrackList playlistId={playlistId} />
 }
 
 export default PlaylistPage
