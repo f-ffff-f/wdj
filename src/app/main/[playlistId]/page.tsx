@@ -17,7 +17,6 @@ type Props = {
 
 const PlaylistPage = async ({ params }: Props) => {
     const { playlistId } = await params
-    const { isMobileDevice } = await detectMobileDevice()
 
     const queryClient = new QueryClient()
 
@@ -31,24 +30,13 @@ const PlaylistPage = async ({ params }: Props) => {
             queryKey: ['tracks', playlistId],
             queryFn: () => getTracks(playlistId),
         }),
-    ])
+    ]).then(() => {
+        console.log('prefetch done')
+    })
 
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
-            <WindowCheck>
-                {isMobileDevice ? (
-                    <DJController>
-                        <TrackList playlistId={playlistId} />
-                    </DJController>
-                ) : (
-                    <Shortcuts playlistId={playlistId}>
-                        <DJController>
-                            <TrackList playlistId={playlistId} />
-                        </DJController>
-                        {process.env.NODE_ENV === 'development' && <Debugger />}
-                    </Shortcuts>
-                )}
-            </WindowCheck>
+            <TrackList playlistId={playlistId} />
         </HydrationBoundary>
     )
 }

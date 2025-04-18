@@ -7,9 +7,11 @@ import { Label } from '@/lib/client/components/ui/label'
 import { SliderCrossfade } from '@/lib/client/components/ui/sliderCrossfade'
 import { SliderSpeed } from '@/lib/client/components/ui/sliderSpeed'
 import { SliderVolume } from '@/lib/client/components/ui/sliderVolume'
+import Shortcuts from '@/lib/client/components/utils/Shortcuts'
 import { DECK_IDS } from '@/lib/client/constants'
 import { TDeckId } from '@/lib/client/types'
 import { cn, formatPlaybackTimeUI } from '@/lib/client/utils'
+import { useParams } from 'next/navigation'
 import React, { useCallback, useEffect, useReducer, useTransition } from 'react'
 
 const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
@@ -199,67 +201,69 @@ const DJController = ({ children: TrackListComponent }: { children: React.ReactN
     const [, startTransition] = useTransition()
 
     // Throttle UI updates to roughly 30fps
-    useEffect(() => {
-        let rafId: number
-        let lastUpdate = performance.now()
-        const throttleInterval = 33 // roughly 30fps
+    // useEffect(() => {
+    //     let rafId: number
+    //     let lastUpdate = performance.now()
+    //     const throttleInterval = 33 // roughly 30fps
 
-        const updateDecks = () => {
-            const now = performance.now()
-            if (now - lastUpdate >= throttleInterval) {
-                lastUpdate = now
+    //     const updateDecks = () => {
+    //         const now = performance.now()
+    //         if (now - lastUpdate >= throttleInterval) {
+    //             lastUpdate = now
 
-                startTransition(() => {
-                    Object.values(DECK_IDS).forEach((deckId) => {
-                        dispatch({
-                            type: 'UPDATE_DECK',
-                            deckId,
-                            payload: {
-                                volume: deckoSingleton.getVolume(deckId),
-                                speed: deckoSingleton.getSpeed(deckId),
-                                playbackTime: deckoSingleton.getPlaybackTime(deckId),
-                                audioDuration: deckoSingleton.getAudioBufferDuration(deckId),
-                                isPlaying: deckoSingleton.isPlaying(deckId),
-                            },
-                        })
-                    })
+    //             startTransition(() => {
+    //                 Object.values(DECK_IDS).forEach((deckId) => {
+    //                     dispatch({
+    //                         type: 'UPDATE_DECK',
+    //                         deckId,
+    //                         payload: {
+    //                             volume: deckoSingleton.getVolume(deckId),
+    //                             speed: deckoSingleton.getSpeed(deckId),
+    //                             playbackTime: deckoSingleton.getPlaybackTime(deckId),
+    //                             audioDuration: deckoSingleton.getAudioBufferDuration(deckId),
+    //                             isPlaying: deckoSingleton.isPlaying(deckId),
+    //                         },
+    //                     })
+    //                 })
 
-                    dispatch({
-                        type: 'UPDATE_CROSSFADE',
-                        value: deckoSingleton.getCrossFade(),
-                    })
-                })
-            }
-            rafId = requestAnimationFrame(updateDecks)
-        }
+    //                 dispatch({
+    //                     type: 'UPDATE_CROSSFADE',
+    //                     value: deckoSingleton.getCrossFade(),
+    //                 })
+    //             })
+    //         }
+    //         rafId = requestAnimationFrame(updateDecks)
+    //     }
 
-        updateDecks()
-        return () => {
-            cancelAnimationFrame(rafId)
-        }
-    }, [])
+    //     updateDecks()
+    //     return () => {
+    //         cancelAnimationFrame(rafId)
+    //     }
+    // }, [])
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex gap-4">
-                {Object.values(DECK_IDS).map((deckId) => (
-                    <DeckControl
-                        key={deckId}
-                        id={deckId}
-                        volume={state.decks[deckId].volume}
-                        speed={state.decks[deckId].speed}
-                        playbackTime={state.decks[deckId].playbackTime}
-                        audioBufferDuration={state.decks[deckId].audioDuration}
-                        isPlaying={state.decks[deckId].isPlaying}
-                    />
-                ))}
+        <Shortcuts>
+            <div className="flex flex-col gap-8">
+                <div className="flex gap-4">
+                    {Object.values(DECK_IDS).map((deckId) => (
+                        <DeckControl
+                            key={deckId}
+                            id={deckId}
+                            volume={state.decks[deckId].volume}
+                            speed={state.decks[deckId].speed}
+                            playbackTime={state.decks[deckId].playbackTime}
+                            audioBufferDuration={state.decks[deckId].audioDuration}
+                            isPlaying={state.decks[deckId].isPlaying}
+                        />
+                    ))}
+                </div>
+                <Crossfader value={state.crossFade} />
+                <div className="flex flex-col items-center self-center gap-4">
+                    <FileUploader />
+                    {TrackListComponent}
+                </div>
             </div>
-            <Crossfader value={state.crossFade} />
-            <div className="flex flex-col items-center self-center gap-4">
-                <FileUploader />
-                {TrackListComponent}
-            </div>
-        </div>
+        </Shortcuts>
     )
 }
 

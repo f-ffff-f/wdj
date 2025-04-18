@@ -7,6 +7,7 @@ import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { state } from '@/lib/client/state'
 import { useQuery } from '@tanstack/react-query'
 import { KeyboardIcon, XIcon } from 'lucide-react'
+import { useParams } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 
 const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
@@ -133,13 +134,15 @@ const OverlayGuide: React.FC<OverlayGuideProps> = ({ visible }) => {
     )
 }
 
-const Shortcuts = ({ playlistId, children }: { playlistId: string; children: React.ReactNode }) => {
+const Shortcuts = ({ children }: { children: React.ReactNode }) => {
+    const { playlistId } = useParams()
+
     const ref = useRef<HTMLDivElement>(null)
     const [showHelp, setShowHelp] = useState(false)
 
     const { data: tracks } = useQuery({
         queryKey: ['tracks', playlistId],
-        queryFn: () => getTracks(playlistId),
+        queryFn: () => getTracks(playlistId as string),
     })
 
     const { getTrackBlobUrl } = useTrackBlob()
