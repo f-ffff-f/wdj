@@ -19,7 +19,7 @@ import { DECK_IDS } from '@/lib/client/constants'
 import { TDeckId } from '@/lib/client/types'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
-import { state } from '@/lib/client/state'
+import { state, TDeckIds } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { useQuery } from '@tanstack/react-query'
@@ -29,7 +29,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import Marquee from 'react-fast-marquee'
 import { useSnapshot } from 'valtio'
 
-const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
+import { myDeckoManager } from '@/lib/client/myDeckoManager'
 
 const TrackList = ({ playlistId }: { playlistId: string }) => {
     const {
@@ -47,7 +47,7 @@ const TrackList = ({ playlistId }: { playlistId: string }) => {
     const handleLoadToDeck = async (deckId: TDeckId, id: string) => {
         const url = await getTrackBlobUrl(id)
         if (url) {
-            deckoSingleton.loadTrack(deckId, url)
+            myDeckoManager.loadTrack(deckId, url)
         }
     }
     const handleClick = (id: string) => {

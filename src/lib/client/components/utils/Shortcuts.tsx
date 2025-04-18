@@ -4,12 +4,12 @@ import { getTracks } from '@/app/main/_actions/track'
 import { Button } from '@/lib/client/components/ui/button'
 import { DECK_IDS } from '@/lib/client/constants'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
+import { myDeckoManager } from '@/lib/client/myDeckoManager'
 import { state } from '@/lib/client/state'
 import { useQuery } from '@tanstack/react-query'
 import { KeyboardIcon, XIcon } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
-
-const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
+import { useSnapshot } from 'valtio'
 
 enum EShortcut {
     KeyQ = 'KeyQ',
@@ -170,25 +170,25 @@ const Shortcuts = ({ playlistId, children }: { playlistId: string; children: Rea
 
         const shortcutHandlers: Record<EShortcut, () => void> = {
             [EShortcut.KeyQ]: () =>
-                deckoSingleton.setSpeed(DECK_IDS.ID_1, deckoSingleton.getSpeed(DECK_IDS.ID_1) + 0.05),
+                myDeckoManager.setSpeed(DECK_IDS.ID_1, myDeckoManager.getSpeed(DECK_IDS.ID_1) + 0.05),
             [EShortcut.KeyA]: () =>
-                deckoSingleton.setSpeed(DECK_IDS.ID_1, deckoSingleton.getSpeed(DECK_IDS.ID_1) - 0.05),
+                myDeckoManager.setSpeed(DECK_IDS.ID_1, myDeckoManager.getSpeed(DECK_IDS.ID_1) - 0.05),
             [EShortcut.BracketRight]: () =>
-                deckoSingleton.setSpeed(DECK_IDS.ID_2, deckoSingleton.getSpeed(DECK_IDS.ID_2) + 0.05),
+                myDeckoManager.setSpeed(DECK_IDS.ID_2, myDeckoManager.getSpeed(DECK_IDS.ID_2) + 0.05),
             [EShortcut.Quote]: () =>
-                deckoSingleton.setSpeed(DECK_IDS.ID_2, deckoSingleton.getSpeed(DECK_IDS.ID_2) - 0.05),
+                myDeckoManager.setSpeed(DECK_IDS.ID_2, myDeckoManager.getSpeed(DECK_IDS.ID_2) - 0.05),
             [EShortcut.KeyW]: () =>
-                deckoSingleton.setVolume(DECK_IDS.ID_1, deckoSingleton.getVolume(DECK_IDS.ID_1) + 0.05),
+                myDeckoManager.setVolume(DECK_IDS.ID_1, myDeckoManager.getVolume(DECK_IDS.ID_1) + 0.05),
             [EShortcut.KeyS]: () =>
-                deckoSingleton.setVolume(DECK_IDS.ID_1, deckoSingleton.getVolume(DECK_IDS.ID_1) - 0.05),
+                myDeckoManager.setVolume(DECK_IDS.ID_1, myDeckoManager.getVolume(DECK_IDS.ID_1) - 0.05),
             [EShortcut.BracketLeft]: () =>
-                deckoSingleton.setVolume(DECK_IDS.ID_2, deckoSingleton.getVolume(DECK_IDS.ID_2) + 0.05),
+                myDeckoManager.setVolume(DECK_IDS.ID_2, myDeckoManager.getVolume(DECK_IDS.ID_2) + 0.05),
             [EShortcut.Semicolon]: () =>
-                deckoSingleton.setVolume(DECK_IDS.ID_2, deckoSingleton.getVolume(DECK_IDS.ID_2) - 0.05),
-            [EShortcut.KeyZ]: () => deckoSingleton.setCrossFade(deckoSingleton.getCrossFade() - 0.05),
-            [EShortcut.Slash]: () => deckoSingleton.setCrossFade(deckoSingleton.getCrossFade() + 0.05),
-            [EShortcut.ShiftLeft]: () => deckoSingleton.playPauseDeck(DECK_IDS.ID_1),
-            [EShortcut.ShiftRight]: () => deckoSingleton.playPauseDeck(DECK_IDS.ID_2),
+                myDeckoManager.setVolume(DECK_IDS.ID_2, myDeckoManager.getVolume(DECK_IDS.ID_2) - 0.05),
+            [EShortcut.KeyZ]: () => myDeckoManager.setCrossFade(myDeckoManager.getCrossFade() - 0.05),
+            [EShortcut.Slash]: () => myDeckoManager.setCrossFade(myDeckoManager.getCrossFade() + 0.05),
+            [EShortcut.ShiftLeft]: () => myDeckoManager.playPauseDeck(DECK_IDS.ID_1),
+            [EShortcut.ShiftRight]: () => myDeckoManager.playPauseDeck(DECK_IDS.ID_2),
             [EShortcut.Enter]: () => {
                 const fileInput = document.getElementById('file-uploader')
                 if (fileInput) fileInput.click()
@@ -221,7 +221,7 @@ const Shortcuts = ({ playlistId, children }: { playlistId: string; children: Rea
                         if (index >= 0) {
                             const url = await getTrackBlobUrl(tracks?.data[index].id)
                             if (url) {
-                                deckoSingleton.loadTrack(DECK_IDS.ID_1, url)
+                                myDeckoManager.loadTrack(DECK_IDS.ID_1, url)
                             }
                         }
                     }
@@ -234,7 +234,7 @@ const Shortcuts = ({ playlistId, children }: { playlistId: string; children: Rea
                         if (index <= tracks?.data.length - 1) {
                             const url = await getTrackBlobUrl(tracks?.data[index].id)
                             if (url) {
-                                deckoSingleton.loadTrack(DECK_IDS.ID_2, url)
+                                myDeckoManager.loadTrack(DECK_IDS.ID_2, url)
                             }
                         }
                     }

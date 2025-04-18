@@ -4,14 +4,16 @@ import WaveformSkeleton from '@/app/main/components/DJController/Waveform/Wavefo
 import { TDeckId } from '@/lib/client/types'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
 
-const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
+import { myDeckoManager } from '@/lib/client/myDeckoManager'
+import { useSnapshot } from 'valtio'
+import { state } from '@/lib/client/state'
 
 const Waveform = ({ deckId }: { deckId: TDeckId }) => {
     const containerRef = useRef<HTMLDivElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
-    const audioBuffer = deckoSingleton.getAudioBuffer(deckId)
-    const playbackTime = deckoSingleton.getPlaybackTime(deckId)
-    const isTrackLoading = deckoSingleton.isTrackLoading(deckId)
+    const audioBuffer = myDeckoManager.audioBuffers.get(deckId)
+    const playbackTime = myDeckoManager.getPlaybackTime(deckId)
+    const { isTrackLoading } = useSnapshot(state.decks[deckId]!)
 
     const [isDragging, setIsDragging] = useState(false)
     const [dragX, setDragX] = useState<number | null>(null)
@@ -108,7 +110,7 @@ const Waveform = ({ deckId }: { deckId: TDeckId }) => {
         const time = (x / rect.width) * duration
 
         setDragX(x)
-        deckoSingleton.seekDeck(deckId, time)
+        myDeckoManager.seekDeck(deckId, time)
     }
 
     const handleMouseUp = () => {
@@ -122,7 +124,7 @@ const Waveform = ({ deckId }: { deckId: TDeckId }) => {
 
         setIsDragging(false)
         setDragX(null)
-        deckoSingleton.seekDeck(deckId, time)
+        myDeckoManager.seekDeck(deckId, time)
     }
 
     return (

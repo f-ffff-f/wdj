@@ -36,18 +36,18 @@ const PlaylistPage = async ({ params }: Props) => {
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <WindowCheck>
-                {isMobileDevice ? (
+                {/* {isMobileDevice ? (
                     <DJController>
                         <TrackList playlistId={playlistId} />
                     </DJController>
-                ) : (
-                    <Shortcuts playlistId={playlistId}>
-                        <DJController>
-                            <TrackList playlistId={playlistId} />
-                        </DJController>
-                        {process.env.NODE_ENV === 'development' && <Debugger />}
-                    </Shortcuts>
-                )}
+                ) : ( */}
+                <Shortcuts playlistId={playlistId}>
+                    <DJController>
+                        <TrackList playlistId={playlistId} />
+                    </DJController>
+                    {/* {process.env.NODE_ENV === 'development' && <Debugger />} */}
+                </Shortcuts>
+                {/* )} */}
             </WindowCheck>
         </HydrationBoundary>
     )

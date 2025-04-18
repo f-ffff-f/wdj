@@ -4,7 +4,7 @@ import { state } from '@/lib/client/state'
 import React, { useDeferredValue, useEffect, useState } from 'react'
 import { useSnapshot } from 'valtio'
 
-const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
+import { myDeckoManager } from '@/lib/client/myDeckoManager'
 
 const Debugger: React.FC = () => {
     const [audioManagerState, setAudioManagerState] = useState<string>('')
@@ -13,7 +13,7 @@ const Debugger: React.FC = () => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setAudioManagerState(deckoSingleton.debugManager())
+            setAudioManagerState(myDeckoManager.debugManager())
         }, 1000)
 
         return () => clearInterval(interval)
