@@ -5,12 +5,10 @@ import { Button } from '@/lib/client/components/ui/button'
 import { DECK_IDS } from '@/lib/client/constants'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { state } from '@/lib/client/state'
+import { ContextUseDeckoContext } from '@ghr95223/decko'
 import { useQuery } from '@tanstack/react-query'
 import { KeyboardIcon, XIcon } from 'lucide-react'
-import { useParams } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
-
-const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
 
 enum EShortcut {
     KeyQ = 'KeyQ',
@@ -134,9 +132,8 @@ const OverlayGuide: React.FC<OverlayGuideProps> = ({ visible }) => {
     )
 }
 
-const Shortcuts = ({ children }: { children: React.ReactNode }) => {
-    const { playlistId } = useParams()
-
+const Shortcuts = ({ playlistId, children }: { playlistId: string; children: React.ReactNode }) => {
+    const decko = ContextUseDeckoContext()
     const ref = useRef<HTMLDivElement>(null)
     const [showHelp, setShowHelp] = useState(false)
 
@@ -172,26 +169,18 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         }
 
         const shortcutHandlers: Record<EShortcut, () => void> = {
-            [EShortcut.KeyQ]: () =>
-                deckoSingleton.setSpeed(DECK_IDS.ID_1, deckoSingleton.getSpeed(DECK_IDS.ID_1) + 0.05),
-            [EShortcut.KeyA]: () =>
-                deckoSingleton.setSpeed(DECK_IDS.ID_1, deckoSingleton.getSpeed(DECK_IDS.ID_1) - 0.05),
-            [EShortcut.BracketRight]: () =>
-                deckoSingleton.setSpeed(DECK_IDS.ID_2, deckoSingleton.getSpeed(DECK_IDS.ID_2) + 0.05),
-            [EShortcut.Quote]: () =>
-                deckoSingleton.setSpeed(DECK_IDS.ID_2, deckoSingleton.getSpeed(DECK_IDS.ID_2) - 0.05),
-            [EShortcut.KeyW]: () =>
-                deckoSingleton.setVolume(DECK_IDS.ID_1, deckoSingleton.getVolume(DECK_IDS.ID_1) + 0.05),
-            [EShortcut.KeyS]: () =>
-                deckoSingleton.setVolume(DECK_IDS.ID_1, deckoSingleton.getVolume(DECK_IDS.ID_1) - 0.05),
-            [EShortcut.BracketLeft]: () =>
-                deckoSingleton.setVolume(DECK_IDS.ID_2, deckoSingleton.getVolume(DECK_IDS.ID_2) + 0.05),
-            [EShortcut.Semicolon]: () =>
-                deckoSingleton.setVolume(DECK_IDS.ID_2, deckoSingleton.getVolume(DECK_IDS.ID_2) - 0.05),
-            [EShortcut.KeyZ]: () => deckoSingleton.setCrossFade(deckoSingleton.getCrossFade() - 0.05),
-            [EShortcut.Slash]: () => deckoSingleton.setCrossFade(deckoSingleton.getCrossFade() + 0.05),
-            [EShortcut.ShiftLeft]: () => deckoSingleton.playPauseDeck(DECK_IDS.ID_1),
-            [EShortcut.ShiftRight]: () => deckoSingleton.playPauseDeck(DECK_IDS.ID_2),
+            [EShortcut.KeyQ]: () => decko.setSpeed(DECK_IDS.ID_1, decko.getSpeed(DECK_IDS.ID_1) + 0.05),
+            [EShortcut.KeyA]: () => decko.setSpeed(DECK_IDS.ID_1, decko.getSpeed(DECK_IDS.ID_1) - 0.05),
+            [EShortcut.BracketRight]: () => decko.setSpeed(DECK_IDS.ID_2, decko.getSpeed(DECK_IDS.ID_2) + 0.05),
+            [EShortcut.Quote]: () => decko.setSpeed(DECK_IDS.ID_2, decko.getSpeed(DECK_IDS.ID_2) - 0.05),
+            [EShortcut.KeyW]: () => decko.setVolume(DECK_IDS.ID_1, decko.getVolume(DECK_IDS.ID_1) + 0.05),
+            [EShortcut.KeyS]: () => decko.setVolume(DECK_IDS.ID_1, decko.getVolume(DECK_IDS.ID_1) - 0.05),
+            [EShortcut.BracketLeft]: () => decko.setVolume(DECK_IDS.ID_2, decko.getVolume(DECK_IDS.ID_2) + 0.05),
+            [EShortcut.Semicolon]: () => decko.setVolume(DECK_IDS.ID_2, decko.getVolume(DECK_IDS.ID_2) - 0.05),
+            [EShortcut.KeyZ]: () => decko.setCrossFade(decko.getCrossFade() - 0.05),
+            [EShortcut.Slash]: () => decko.setCrossFade(decko.getCrossFade() + 0.05),
+            [EShortcut.ShiftLeft]: () => decko.playPauseDeck(DECK_IDS.ID_1),
+            [EShortcut.ShiftRight]: () => decko.playPauseDeck(DECK_IDS.ID_2),
             [EShortcut.Enter]: () => {
                 const fileInput = document.getElementById('file-uploader')
                 if (fileInput) fileInput.click()
@@ -224,7 +213,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                         if (index >= 0) {
                             const url = await getTrackBlobUrl(tracks?.data[index].id)
                             if (url) {
-                                deckoSingleton.loadTrack(DECK_IDS.ID_1, url)
+                                decko.loadTrack(DECK_IDS.ID_1, url)
                             }
                         }
                     }
@@ -237,7 +226,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
                         if (index <= tracks?.data.length - 1) {
                             const url = await getTrackBlobUrl(tracks?.data[index].id)
                             if (url) {
-                                deckoSingleton.loadTrack(DECK_IDS.ID_2, url)
+                                decko.loadTrack(DECK_IDS.ID_2, url)
                             }
                         }
                     }
@@ -257,7 +246,7 @@ const Shortcuts = ({ children }: { children: React.ReactNode }) => {
         return () => {
             element?.removeEventListener('keydown', handleKeyDown)
         }
-    }, [tracks, getTrackBlobUrl, playlistId])
+    }, [tracks, getTrackBlobUrl, playlistId, decko])
 
     return (
         <div

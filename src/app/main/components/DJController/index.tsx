@@ -11,10 +11,9 @@ import Shortcuts from '@/lib/client/components/utils/Shortcuts'
 import { DECK_IDS } from '@/lib/client/constants'
 import { TDeckId } from '@/lib/client/types'
 import { cn, formatPlaybackTimeUI } from '@/lib/client/utils'
+import { ContextUseDeckoContext } from '@ghr95223/decko'
 import { useParams } from 'next/navigation'
 import React, { useCallback, useEffect, useReducer, useTransition } from 'react'
-
-const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
 
 // Memoized deck component with individual props instead of a deck object
 const DeckControl = React.memo(
@@ -33,9 +32,10 @@ const DeckControl = React.memo(
         audioBufferDuration: number
         isPlaying: boolean
     }) => {
-        const handleVolumeChange = useCallback((numbers: number[]) => deckoSingleton.setVolume(id, numbers[0]), [id])
-        const handleSpeedChange = useCallback((numbers: number[]) => deckoSingleton.setSpeed(id, numbers[0]), [id])
-        const handlePlayPause = useCallback(() => deckoSingleton.playPauseDeck(id), [id])
+        const decko = ContextUseDeckoContext()
+        const handleVolumeChange = useCallback((numbers: number[]) => decko.setVolume(id, numbers[0]), [id])
+        const handleSpeedChange = useCallback((numbers: number[]) => decko.setSpeed(id, numbers[0]), [id])
+        const handlePlayPause = useCallback(() => decko.playPauseDeck(id), [id, decko])
 
         return (
             <div className="flex flex-col gap-4 flex-1">
@@ -127,7 +127,8 @@ const PlayBackTime = React.memo(
 PlayBackTime.displayName = 'PlayBackTime'
 
 const Crossfader = React.memo(({ value }: { value: number }) => {
-    const onChange = useCallback((numbers: number[]) => deckoSingleton.setCrossFade(numbers[0]), [])
+    const decko = ContextUseDeckoContext()
+    const onChange = useCallback((numbers: number[]) => decko.setCrossFade(numbers[0]), [decko])
     return (
         <div className="w-1/2 self-center flex flex-col gap-2">
             <SliderCrossfade id="crossfader" min={0} max={1} step={0.01} value={[value]} onValueChange={onChange} />
@@ -181,20 +182,21 @@ const djReducer = (state: DJState, action: DJAction): DJState => {
 }
 
 const DJController = ({ children: TrackListComponent }: { children: React.ReactNode }) => {
+    const decko = ContextUseDeckoContext()
     const initialState: DJState = {
         decks: Object.fromEntries(
             Object.values(DECK_IDS).map((deckId) => [
                 deckId,
                 {
-                    volume: deckoSingleton.getDeck(deckId)?.gainNode?.gain.value ?? 0,
-                    speed: deckoSingleton.getDeck(deckId)?.speed ?? 1,
-                    playbackTime: deckoSingleton.getPlaybackTime(deckId) ?? 0,
-                    audioDuration: deckoSingleton.getAudioBufferDuration(deckId) ?? 0,
-                    isPlaying: deckoSingleton.getDeck(deckId)?.isPlaying ?? false,
+                    volume: decko.getDeck(deckId)?.gainNode?.gain.value ?? 0,
+                    speed: decko.getDeck(deckId)?.speed ?? 1,
+                    playbackTime: decko.getPlaybackTime(deckId) ?? 0,
+                    audioDuration: decko.getAudioBufferDuration(deckId) ?? 0,
+                    isPlaying: decko.getDeck(deckId)?.isPlaying ?? false,
                 },
             ]),
         ) as DJState['decks'],
-        crossFade: deckoSingleton.getCrossFade(),
+        crossFade: decko.getCrossFade(),
     }
 
     const [state, dispatch] = useReducer(djReducer, initialState)
@@ -242,28 +244,26 @@ const DJController = ({ children: TrackListComponent }: { children: React.ReactN
     // }, [])
 
     return (
-        <Shortcuts>
-            <div className="flex flex-col gap-8">
-                <div className="flex gap-4">
-                    {Object.values(DECK_IDS).map((deckId) => (
-                        <DeckControl
-                            key={deckId}
-                            id={deckId}
-                            volume={state.decks[deckId].volume}
-                            speed={state.decks[deckId].speed}
-                            playbackTime={state.decks[deckId].playbackTime}
-                            audioBufferDuration={state.decks[deckId].audioDuration}
-                            isPlaying={state.decks[deckId].isPlaying}
-                        />
-                    ))}
-                </div>
-                <Crossfader value={state.crossFade} />
-                <div className="flex flex-col items-center self-center gap-4">
-                    <FileUploader />
-                    {TrackListComponent}
-                </div>
+        <div className="flex flex-col gap-8">
+            <div className="flex gap-4">
+                {Object.values(DECK_IDS).map((deckId) => (
+                    <DeckControl
+                        key={deckId}
+                        id={deckId}
+                        volume={state.decks[deckId].volume}
+                        speed={state.decks[deckId].speed}
+                        playbackTime={state.decks[deckId].playbackTime}
+                        audioBufferDuration={state.decks[deckId].audioDuration}
+                        isPlaying={state.decks[deckId].isPlaying}
+                    />
+                ))}
             </div>
-        </Shortcuts>
+            <Crossfader value={state.crossFade} />
+            <div className="flex flex-col items-center self-center gap-4">
+                <FileUploader />
+                {TrackListComponent}
+            </div>
+        </div>
     )
 }
 
