@@ -1,3 +1,4 @@
+/** @TODO 서버액션과 prisma 구현을 사용해서 통합테스트로 변경하기 */
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { NextRequest, NextResponse } from 'next/server'
 import { v4 as uuidv4 } from 'uuid'
