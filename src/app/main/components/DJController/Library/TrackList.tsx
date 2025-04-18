@@ -15,9 +15,11 @@ import {
 } from '@/lib/client/components/ui/dropdown-menu'
 import { Label } from '@/lib/client/components/ui/label'
 import { SidebarMenuAction } from '@/lib/client/components/ui/sidebar'
+import MyLoader from '@/lib/client/components/utils/MyLoader'
 import { DECK_IDS } from '@/lib/client/constants'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
+import { myDeckoManager } from '@/lib/client/myDeckoManager'
 import { state } from '@/lib/client/state'
 import { TDeckId } from '@/lib/client/types'
 import { cn } from '@/lib/client/utils'
@@ -28,8 +30,6 @@ import { useParams } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 import Marquee from 'react-fast-marquee'
 import { useSnapshot } from 'valtio'
-
-import { myDeckoManager } from '@/lib/client/myDeckoManager'
 
 const TrackList = ({ playlistId }: { playlistId: string }) => {
     const {
@@ -54,15 +54,15 @@ const TrackList = ({ playlistId }: { playlistId: string }) => {
         state.UI.focusedTrackId = id
     }
 
-    if (isLoading) {
-        return <Label>Loading tracks...</Label>
-    }
-
     if (error) {
         return <Label>Error: {error.message}</Label>
     }
 
-    if (!tracks?.data) {
+    if (isLoading) {
+        return <MyLoader />
+    }
+
+    if (!tracks?.data?.length) {
         return <Label>No tracks available</Label>
     }
 
