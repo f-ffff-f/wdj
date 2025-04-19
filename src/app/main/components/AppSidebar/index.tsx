@@ -1,3 +1,4 @@
+// src/app/main/components/AppSidebar/index.tsx
 import Playlist from '@/app/main/components/AppSidebar/Playlists'
 import Preference from '@/app/main/components/AppSidebar/Preference'
 import User from '@/app/main/components/AppSidebar/User'
