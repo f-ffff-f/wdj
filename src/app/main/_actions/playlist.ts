@@ -10,24 +10,6 @@ import { PlaylistSchema } from '@/lib/shared/validations/playlistSchema'
 import { Playlist } from '@prisma/client'
 import { AppResponse } from '@/lib/shared/types'
 
-export const getPlaylists = async (): Promise<AppResponse<Playlist[]>> => {
-    const userId = await getUserIdFromSession()
-
-    try {
-        const playlists = await prisma.playlist.findMany({
-            where: { userId: userId },
-            orderBy: { createdAt: 'desc' },
-        })
-
-        return {
-            success: true,
-            data: playlists,
-        }
-    } catch (error) {
-        return handleServerError(error)
-    }
-}
-
 export const getIsValidPlaylist = async (playlistId: string): Promise<AppResponse<void>> => {
     if (playlistId === PLAYLIST_DEFAULT_ID) {
         return {
