@@ -1,4 +1,3 @@
-import { getBaseUrl } from '@/lib/client/utils'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import type { AppResponse } from '@/lib/shared/types'
 import { Track } from '@prisma/client'

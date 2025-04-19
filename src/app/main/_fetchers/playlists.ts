@@ -1,4 +1,3 @@
-import { getBaseUrl } from '@/lib/client/utils'
 import type { AppResponse } from '@/lib/shared/types'
 import { Playlist } from '@prisma/client'
 
