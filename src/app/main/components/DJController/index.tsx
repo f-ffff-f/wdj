@@ -44,6 +44,7 @@ const DeckControl = React.memo(({ id }: { id: TDeckId }) => {
         return () => {
             cancelAnimationFrame(rafId)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     return (

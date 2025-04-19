@@ -8,9 +8,9 @@ import type { Track } from '@prisma/client'
 import { NextResponse } from 'next/server'
 
 type Params = {
-    params: {
+    params: Promise<{
         playlistId: string | typeof PLAYLIST_DEFAULT_ID
-    }
+    }>
 }
 
 // GET /api/playlists/[playlistId]/tracks
@@ -25,7 +25,7 @@ export async function GET(request: Request, { params }: Params) {
             )
         }
 
-        const { playlistId } = params
+        const { playlistId } = await params
         let tracks: Track[] = []
 
         if (playlistId === PLAYLIST_DEFAULT_ID) {
