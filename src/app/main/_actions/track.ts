@@ -2,16 +2,15 @@
 
 import { AppError } from '@/lib/server/error/AppError'
 import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
-import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { handleServerError } from '@/lib/server/error/handleServerError'
-import { generateS3FilePath, getEnv } from '@/lib/server/utils'
-import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
+import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { prisma } from '@/lib/server/prisma'
+import { generateS3FilePath, getEnv } from '@/lib/server/utils'
+import { AppResponse } from '@/lib/shared/types'
 import { CreateTrackSchema, UploadUrlRequestSchema } from '@/lib/shared/validations/trackSchema'
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { Track } from '@prisma/client'
-import { AppResponse } from '@/lib/shared/types'
 
 // S3 클라이언트 생성
 const s3 = new S3Client({
@@ -21,44 +20,6 @@ const s3 = new S3Client({
         secretAccessKey: getEnv('AWS_SECRET_ACCESS_KEY'),
     },
 })
-
-export const getTracks = async (playlistId: string | typeof PLAYLIST_DEFAULT_ID): Promise<AppResponse<Track[]>> => {
-    const userId = await getUserIdFromSession()
-
-    try {
-        if (playlistId === PLAYLIST_DEFAULT_ID) {
-            const allTracks = await prisma.track.findMany({
-                where: { userId },
-                orderBy: { createdAt: 'desc' },
-            })
-
-            return {
-                success: true,
-                data: allTracks,
-            }
-        } else {
-            // 특정 플레이리스트의 트랙만 가져옴
-            const playlist = await prisma.playlist.findUnique({
-                where: {
-                    id: playlistId,
-                    userId,
-                },
-                include: {
-                    tracks: {
-                        orderBy: { createdAt: 'desc' },
-                    },
-                },
-            })
-
-            return {
-                success: true,
-                data: playlist?.tracks ?? [],
-            }
-        }
-    } catch (error) {
-        return handleServerError(error)
-    }
-}
 
 /**
  * 트랙 생성 서버 액션

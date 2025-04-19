@@ -4,4 +4,5 @@ export type AppResponse<T> = {
     success: boolean
     data?: T
     error?: ErrorMessage
+    statusCode?: number
 }
