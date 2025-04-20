@@ -1,7 +1,6 @@
 // Decko.ts
-import { state, TDeckIds } from './state' // valtio 상태 가져오기
-import { ref } from 'valtio' // ref 사용
-
+import { state } from './state' // valtio 상태 가져오기
+import { DECK_IDS, MASTER_VOLUME, TDeckId } from './constants'
 // Decko 클래스: 오디오 로직 컨트롤러
 export class DeckoManager {
     // AudioContext는 valtio 상태에서 가져오거나 여기서 생성 (valtio 상태에서 관리 권장)
@@ -10,17 +9,17 @@ export class DeckoManager {
 
     // 비직렬화 객체 (AudioNode, AudioBuffer)는 valtio 상태 외부에 저장
     // Map을 사용하여 Deck ID로 관리
-    private gainNodes = new Map<TDeckIds, GainNode>()
-    private crossFadeNodes = new Map<TDeckIds, GainNode>()
-    private bufferSourceNodes = new Map<TDeckIds, AudioBufferSourceNode | null>()
-    audioBuffers = new Map<TDeckIds, AudioBuffer | null>() // AudioBuffer 저장
+    private gainNodes = new Map<TDeckId, GainNode>()
+    private crossFadeNodes = new Map<TDeckId, GainNode>()
+    private bufferSourceNodes = new Map<TDeckId, AudioBufferSourceNode | null>()
+    audioBuffers = new Map<TDeckId, AudioBuffer | null>() // AudioBuffer 저장
 
     constructor() {
         let audioContext: AudioContext | null = null
         // valtio 상태의 AudioContext 사용
         // 서버 사이드 렌더링 등 window 객체가 없는 환경 고려
         if (typeof window !== 'undefined') {
-            audioContext = ref(new AudioContext()) // ref로 감싸서 프록시 해제
+            audioContext = new AudioContext()
         } else {
             console.warn('AudioContext cannot be created outside of a browser environment.')
             // AudioContext가 필요한 기능은 클라이언트 측에서만 실행되도록 방어 코드 필요
@@ -40,19 +39,20 @@ export class DeckoManager {
 
         this.masterGainNode = this.audioContext.createGain()
         // 마스터 볼륨 조절 (예: 0.5)
-        this.masterGainNode.gain.value = 0.5
+        this.masterGainNode.gain.value = MASTER_VOLUME
         this.masterGainNode.connect(this.audioContext.destination)
 
         // valtio 상태에 정의된 Deck들을 기반으로 노드 생성 및 연결
-        this.setupDeck(1, this.masterGainNode)
-        this.setupDeck(2, this.masterGainNode)
+        Object.values(DECK_IDS).forEach((deckId) => {
+            this.setupDeck(deckId, this.masterGainNode!)
+        })
 
         // 초기 크로스페이드 값 적용
         this.applyCrossFade(state.crossFade)
     }
 
     // Deck 설정 (ID 기반)
-    private setupDeck(deckId: TDeckIds, masterGainNode: GainNode) {
+    private setupDeck(deckId: TDeckId, masterGainNode: GainNode) {
         if (!this.audioContext || !state.decks[deckId]) return // 방어 코드
 
         const deckState = state.decks[deckId]! // Non-null assertion (상태가 있다고 가정)
@@ -76,7 +76,7 @@ export class DeckoManager {
     }
 
     // 특정 데크에 파일 로드
-    async loadTrack(deckId: TDeckIds, blob: Blob) {
+    async loadTrack(deckId: TDeckId, blob: Blob) {
         const deckState = state.decks[deckId]
         if (!deckState || !this.audioContext) return
 
@@ -118,7 +118,7 @@ export class DeckoManager {
     }
 
     // 재생/일시정지 토글
-    async playPauseDeck(deckId: TDeckIds) {
+    async playPauseDeck(deckId: TDeckId) {
         const deckState = state.decks[deckId]
         const audioBuffer = this.audioBuffers.get(deckId)
 
@@ -155,7 +155,7 @@ export class DeckoManager {
     }
 
     // 데크 탐색 (Seeking)
-    seekDeck(deckId: TDeckIds, seekTime: number) {
+    seekDeck(deckId: TDeckId, seekTime: number) {
         const deckState = state.decks[deckId]
         const audioBuffer = this.audioBuffers.get(deckId)
 
@@ -181,7 +181,7 @@ export class DeckoManager {
     }
 
     // 개별 볼륨 조절
-    setVolume(deckId: TDeckIds, volume: number) {
+    setVolume(deckId: TDeckId, volume: number) {
         const deckState = state.decks[deckId]
         const gainNode = this.gainNodes.get(deckId)
 
@@ -193,7 +193,7 @@ export class DeckoManager {
     }
 
     // 개별 속도 조절
-    setSpeed(deckId: TDeckIds, speed: number) {
+    setSpeed(deckId: TDeckId, speed: number) {
         const deckState = state.decks[deckId]
         const bufferSourceNode = this.bufferSourceNodes.get(deckId)
 
@@ -226,7 +226,7 @@ export class DeckoManager {
     // --- 내부 헬퍼 함수 ---
 
     // Deck 정지 로직 (내부 사용)
-    private stopDeckInternal(deckId: TDeckIds, nextStartTime: number) {
+    private stopDeckInternal(deckId: TDeckId, nextStartTime: number) {
         const deckState = state.decks[deckId]
         if (!deckState) return
 
@@ -260,7 +260,7 @@ export class DeckoManager {
     }
 
     // 새 AudioBufferSourceNode 생성 및 연결
-    private createSourceNode(deckId: TDeckIds, audioBuffer: AudioBuffer): AudioBufferSourceNode | null {
+    private createSourceNode(deckId: TDeckId, audioBuffer: AudioBuffer): AudioBufferSourceNode | null {
         if (!this.audioContext) return null
         const gainNode = this.gainNodes.get(deckId)
         const deckState = state.decks[deckId]
@@ -286,7 +286,7 @@ export class DeckoManager {
     }
 
     // BufferSourceNode 해제
-    private releaseBufferSourceNode(deckId: TDeckIds) {
+    private releaseBufferSourceNode(deckId: TDeckId) {
         const sourceNode = this.bufferSourceNodes.get(deckId)
         if (sourceNode) {
             try {
@@ -305,7 +305,7 @@ export class DeckoManager {
 
     // 현재 재생 시간 계산 (UI 업데이트용)
     // 주의: 이 함수는 자주 호출될 수 있으므로 계산 비용 최소화
-    getPlaybackTime(deckId: TDeckIds): number {
+    getPlaybackTime(deckId: TDeckId): number {
         const deckState = state.decks[deckId]
         if (!deckState || !this.audioContext) return 0
 
@@ -322,17 +322,17 @@ export class DeckoManager {
     }
 
     // 오디오 버퍼 총 길이 (valtio에서 직접 읽음)
-    getAudioBufferDuration(deckId: TDeckIds): number {
+    getAudioBufferDuration(deckId: TDeckId): number {
         return state.decks[deckId]?.duration ?? 0
     }
 
     // 개별 볼륨 (valtio에서 직접 읽음)
-    getVolume(deckId: TDeckIds): number {
+    getVolume(deckId: TDeckId): number {
         return state.decks[deckId]?.volume ?? 0
     }
 
     // 개별 속도 (valtio에서 직접 읽음)
-    getSpeed(deckId: TDeckIds): number {
+    getSpeed(deckId: TDeckId): number {
         return state.decks[deckId]?.speed ?? 1
     }
 
@@ -342,31 +342,19 @@ export class DeckoManager {
     }
 
     // 재생 여부 (valtio에서 직접 읽음)
-    isPlaying(deckId: TDeckIds): boolean {
+    isPlaying(deckId: TDeckId): boolean {
         return state.decks[deckId]?.isPlaying ?? false
     }
 
     // 로딩 상태 확인 (valtio에서 직접 읽음)
-    isTrackLoading(deckId: TDeckIds): boolean {
+    isTrackLoading(deckId: TDeckId): boolean {
         return state.decks[deckId]?.isTrackLoading ?? false
     }
 
     // 오디오 버퍼 로드 여부 확인 (valtio에서 직접 읽음)
-    isAudioBufferLoaded(deckId: TDeckIds): boolean {
+    isAudioBufferLoaded(deckId: TDeckId): boolean {
         return state.decks[deckId]?.audioBufferLoaded ?? false
     }
-
-    // 디버그 정보 (필요 시 사용)
-    // debugManager() {
-    //     return `
-    //     Valtio State: ${JSON.stringify(state)}
-    //     Internal Buffers: ${JSON.stringify(this.audioBuffers)}
-    //     Internal Source Nodes: ${JSON.stringify(this.bufferSourceNodes)}
-    //     AudioContext Time: ${this.audioContext?.currentTime}
-    //     Deck 1 Playback Time: ${this.getPlaybackTime(1)}
-    //     Deck 2 Playback Time: ${this.getPlaybackTime(2)}
-    //     `
-    // }
 }
 
 // 싱글톤 인스턴스 생성 및 내보내기

@@ -1,13 +1,11 @@
 // state.ts
+import { DECK_IDS, TDeckId } from '@/lib/client/constants'
 import { proxy } from 'valtio' // ref 추가
 import { devtools } from 'valtio/utils'
 
-// Deck ID 타입 정의
-export type TDeckIds = 1 | 2
-
 // 각 Deck의 상태 인터페이스
 interface IDeckState {
-    id: TDeckIds
+    id: TDeckId
     audioBufferLoaded: boolean // AudioBuffer 직접 저장 대신 로드 여부 저장
     duration: number // 오디오 길이 저장
     speed: number
@@ -28,13 +26,13 @@ interface IState {
     }
     // Deck 상태를 저장할 객체 (ID를 키로 사용)
     decks: {
-        [key in TDeckIds]?: IDeckState // 각 Deck ID에 대한 상태
+        [key in TDeckId]?: IDeckState // 각 Deck ID에 대한 상태
     }
     crossFade: number // 크로스페이드 값 추가
 }
 
 // 초기 상태 정의
-const initialDeckState = (id: TDeckIds): IDeckState => ({
+const initialDeckState = (id: TDeckId): IDeckState => ({
     id: id,
     audioBufferLoaded: false,
     duration: 0,
@@ -50,8 +48,8 @@ const initialDeckState = (id: TDeckIds): IDeckState => ({
 export const state = proxy<IState>({
     UI: { focusedTrackId: null, storageEstimate: null },
     decks: {
-        1: initialDeckState(1),
-        2: initialDeckState(2),
+        [DECK_IDS.ID_1]: initialDeckState(DECK_IDS.ID_1),
+        [DECK_IDS.ID_2]: initialDeckState(DECK_IDS.ID_2),
     },
     crossFade: 0.5, // 초기 크로스페이드 값
 })
