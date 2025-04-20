@@ -12,8 +12,7 @@ const Waveform = ({ deckId }: { deckId: TDeckId }) => {
     const containerRef = useRef<HTMLDivElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const audioBuffer = myDeckoManager.audioBuffers.get(deckId)
-    const playbackTime = myDeckoManager.getPlaybackTime(deckId)
-    const { isTrackLoading } = useSnapshot(state.decks[deckId]!)
+    const { isTrackLoading, uiPlaybackTime, duration } = useSnapshot(state.decks[deckId]!)
 
     const [isDragging, setIsDragging] = useState(false)
     const [dragX, setDragX] = useState<number | null>(null)
@@ -72,10 +71,9 @@ const Waveform = ({ deckId }: { deckId: TDeckId }) => {
         if (!ctx) return
 
         const { width, height } = canvas
-        const duration = audioBuffer.duration
 
         // x 좌표 계산 (currentTime 기반 또는 드래그 중이면 dragX 사용)
-        const x = isDragging && dragX !== null ? dragX : (playbackTime / duration) * width
+        const x = isDragging && dragX !== null ? dragX : (uiPlaybackTime / duration) * width
 
         // 플레이 헤드 그리기
         ctx.beginPath()
@@ -84,7 +82,7 @@ const Waveform = ({ deckId }: { deckId: TDeckId }) => {
         ctx.strokeStyle = 'white'
         ctx.lineWidth = 2
         ctx.stroke()
-    }, [audioBuffer, playbackTime, isDragging, dragX])
+    }, [audioBuffer, uiPlaybackTime, duration, isDragging, dragX])
 
     useEffect(() => {
         drawWaveform()

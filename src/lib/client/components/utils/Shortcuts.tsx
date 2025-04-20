@@ -9,6 +9,7 @@ import { state } from '@/lib/client/state'
 import { useQuery } from '@tanstack/react-query'
 import { KeyboardIcon, XIcon } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
+import { useSnapshot } from 'valtio'
 
 enum EShortcut {
     KeyQ = 'KeyQ',
@@ -133,6 +134,9 @@ const OverlayGuide: React.FC<OverlayGuideProps> = ({ visible }) => {
 }
 
 const Shortcuts = ({ playlistId, children }: { playlistId: string; children: React.ReactNode }) => {
+    const { crossFade } = useSnapshot(state)
+    const { speed: speed1, volume: volume1 } = useSnapshot(state.decks[DECK_IDS.ID_1]!)
+    const { speed: speed2, volume: volume2 } = useSnapshot(state.decks[DECK_IDS.ID_2]!)
     const ref = useRef<HTMLDivElement>(null)
     const [showHelp, setShowHelp] = useState(false)
 
@@ -168,24 +172,16 @@ const Shortcuts = ({ playlistId, children }: { playlistId: string; children: Rea
         }
 
         const shortcutHandlers: Record<EShortcut, () => void> = {
-            [EShortcut.KeyQ]: () =>
-                myDeckoManager.setSpeed(DECK_IDS.ID_1, myDeckoManager.getSpeed(DECK_IDS.ID_1) + 0.05),
-            [EShortcut.KeyA]: () =>
-                myDeckoManager.setSpeed(DECK_IDS.ID_1, myDeckoManager.getSpeed(DECK_IDS.ID_1) - 0.05),
-            [EShortcut.BracketRight]: () =>
-                myDeckoManager.setSpeed(DECK_IDS.ID_2, myDeckoManager.getSpeed(DECK_IDS.ID_2) + 0.05),
-            [EShortcut.Quote]: () =>
-                myDeckoManager.setSpeed(DECK_IDS.ID_2, myDeckoManager.getSpeed(DECK_IDS.ID_2) - 0.05),
-            [EShortcut.KeyW]: () =>
-                myDeckoManager.setVolume(DECK_IDS.ID_1, myDeckoManager.getVolume(DECK_IDS.ID_1) + 0.05),
-            [EShortcut.KeyS]: () =>
-                myDeckoManager.setVolume(DECK_IDS.ID_1, myDeckoManager.getVolume(DECK_IDS.ID_1) - 0.05),
-            [EShortcut.BracketLeft]: () =>
-                myDeckoManager.setVolume(DECK_IDS.ID_2, myDeckoManager.getVolume(DECK_IDS.ID_2) + 0.05),
-            [EShortcut.Semicolon]: () =>
-                myDeckoManager.setVolume(DECK_IDS.ID_2, myDeckoManager.getVolume(DECK_IDS.ID_2) - 0.05),
-            [EShortcut.KeyZ]: () => myDeckoManager.setCrossFade(myDeckoManager.getCrossFade() - 0.05),
-            [EShortcut.Slash]: () => myDeckoManager.setCrossFade(myDeckoManager.getCrossFade() + 0.05),
+            [EShortcut.KeyQ]: () => myDeckoManager.setSpeed(DECK_IDS.ID_1, speed1 + 0.05),
+            [EShortcut.KeyA]: () => myDeckoManager.setSpeed(DECK_IDS.ID_1, speed1 - 0.05),
+            [EShortcut.BracketRight]: () => myDeckoManager.setSpeed(DECK_IDS.ID_2, speed2 + 0.05),
+            [EShortcut.Quote]: () => myDeckoManager.setSpeed(DECK_IDS.ID_2, speed2 - 0.05),
+            [EShortcut.KeyW]: () => myDeckoManager.setVolume(DECK_IDS.ID_1, volume1 + 0.05),
+            [EShortcut.KeyS]: () => myDeckoManager.setVolume(DECK_IDS.ID_1, volume1 - 0.05),
+            [EShortcut.BracketLeft]: () => myDeckoManager.setVolume(DECK_IDS.ID_2, volume2 + 0.05),
+            [EShortcut.Semicolon]: () => myDeckoManager.setVolume(DECK_IDS.ID_2, volume2 - 0.05),
+            [EShortcut.KeyZ]: () => myDeckoManager.setCrossFade(crossFade - 0.05),
+            [EShortcut.Slash]: () => myDeckoManager.setCrossFade(crossFade + 0.05),
             [EShortcut.ShiftLeft]: () => myDeckoManager.playPauseDeck(DECK_IDS.ID_1),
             [EShortcut.ShiftRight]: () => myDeckoManager.playPauseDeck(DECK_IDS.ID_2),
             [EShortcut.Enter]: () => {
