@@ -7,9 +7,6 @@ import { Label } from '@/lib/client/components/ui/label'
 import { SliderCrossfade } from '@/lib/client/components/ui/sliderCrossfade'
 import { SliderSpeed } from '@/lib/client/components/ui/sliderSpeed'
 import { SliderVolume } from '@/lib/client/components/ui/sliderVolume'
-import { DECK_IDS, TDeckId } from '@/lib/client/constants'
-import { myDeckoManager } from '@/lib/client/myDeckoManager'
-import { state } from '@/lib/client/state'
 import { cn, formatPlaybackTimeUI } from '@/lib/client/utils'
 import React, { useCallback } from 'react' // useState, useEffect, useTransition 제거
 import { useSnapshot } from 'valtio'
@@ -97,7 +94,6 @@ const PlayPause = React.memo(
 
 PlayPause.displayName = 'PlayPause'
 
-// PlayBackTime 컴포넌트 수정: deckId prop을 받고 valtio 상태에서 uiPlaybackTime을 가져와 사용
 const PlayBackTime = React.memo(({ deckId }: { deckId: TDeckId }) => {
     // valtio 상태에서 해당 덱의 uiPlaybackTime과 duration만 snapshot으로 가져옵니다.
     // 이렇게 하면 uiPlaybackTime이나 duration이 변경될 때만 이 컴포넌트가 리렌더링됩니다.

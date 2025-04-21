@@ -1,12 +1,7 @@
 'use client'
 
 import WaveformSkeleton from '@/app/main/components/DJController/Waveform/WaveformSkeleton'
-import { TDeckId } from '@/lib/client/constants'
 import React, { useRef, useEffect, useState, useCallback } from 'react'
-
-import { myDeckoManager } from '@/lib/client/myDeckoManager'
-import { useSnapshot } from 'valtio'
-import { state } from '@/lib/client/state'
 
 const Waveform = ({ deckId }: { deckId: TDeckId }) => {
     const containerRef = useRef<HTMLDivElement>(null)
