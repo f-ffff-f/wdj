@@ -185,12 +185,9 @@ export const useTrackMutation = () => {
                 const previousTracks = queryClient.getQueryData(['tracks', playlistId])
 
                 // 캐시 업데이트 - 현재 플레이리스트에서 트랙 제거
-                queryClient.setQueryData(['tracks', playlistId], (old: { success: boolean; data: Track[] }) => {
-                    if (!old || !old.success || !old.data) return old
-                    return {
-                        ...old,
-                        data: old.data.filter((track: Track) => track.id !== trackId),
-                    }
+                queryClient.setQueryData(['tracks', playlistId], (old: Track[]) => {
+                    if (!old) return old
+                    return old.filter((track: Track) => track.id !== trackId)
                 })
 
                 return { previousTracks }
