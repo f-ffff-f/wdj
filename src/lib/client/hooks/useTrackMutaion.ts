@@ -9,7 +9,6 @@ import {
 import { deleteTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/indexedDB'
 import { uiState } from '@/lib/client/state'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
-import { AppResponse } from '@/lib/shared/types'
 import { Role, Track } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
@@ -96,24 +95,23 @@ export const useTrackMutation = () => {
             return deleteTrack(id)
         },
         onMutate: async (id) => {
+            console.log('onMutate')
             // 낙관적 업데이트 시작 - TrackList.tsx의 쿼리 키 형식 사용
             await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
 
             // 이전 데이터 저장
-            const previousTracks = queryClient.getQueryData<AppResponse<Track[]>>(['tracks', playlistId])
+            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', playlistId])
 
             // 캐시 업데이트
-            queryClient.setQueryData<AppResponse<Track[]>>(['tracks', playlistId], (old) => {
+            queryClient.setQueryData<Track[]>(['tracks', playlistId], (old) => {
                 if (!old) return old
-                return {
-                    ...old,
-                    data: old.data?.filter((track) => track.id !== id),
-                }
+                return old.filter((track) => track.id !== id)
             })
 
             return { previousTracks }
         },
         onError: (error, id, context) => {
+            console.log('onError')
             // 에러 발생 시 원래 데이터로 복원
             queryClient.setQueryData(['tracks', playlistId], context?.previousTracks)
             console.error('Track deletion error:', error)
