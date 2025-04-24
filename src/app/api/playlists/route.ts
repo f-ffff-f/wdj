@@ -25,6 +25,6 @@ export async function GET() {
 
         return NextResponse.json<AppResponse<Playlist[]>>({ success: true, data: playlists })
     } catch (error) {
-        return handleApiError(error) // 에러 핸들러 사용
+        return handleApiError(error)
     }
 }

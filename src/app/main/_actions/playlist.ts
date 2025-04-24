@@ -32,7 +32,7 @@ export const getIsValidPlaylist = async (playlistId: string): Promise<AppRespons
             success: true,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -68,7 +68,7 @@ export const createPlaylist = async (name: string): Promise<AppResponse<Playlist
             data: playlist,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -106,7 +106,7 @@ export const updatePlaylist = async (id: string, name: string): Promise<AppRespo
             data: playlist,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -127,6 +127,6 @@ export const deletePlaylist = async (id: string): Promise<AppResponse<void>> => 
             success: true,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }

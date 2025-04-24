@@ -111,11 +111,10 @@ export const useTrackMutation = () => {
             return { previousTracks }
         },
         onError: (error, id, context) => {
-            console.log('onError')
             // 에러 발생 시 원래 데이터로 복원
             queryClient.setQueryData(['tracks', playlistId], context?.previousTracks)
             console.error('Track deletion error:', error)
-            alert('Failed to delete track')
+            alert(error.message || 'Failed to delete track')
         },
         onSettled: () => {
             // 작업 완료 후 캐시 무효화하여 최신 데이터 요청
@@ -145,7 +144,7 @@ export const useTrackMutation = () => {
             // 에러 발생 시 원래 데이터로 복원
             queryClient.setQueryData(['tracks', playlistId], context?.previousTracks)
             console.error('All tracks deletion error:', error)
-            alert('Failed to delete all tracks')
+            alert(error.message || 'Failed to delete all tracks')
         },
         onSettled: () => {
             // 작업 완료 후 캐시 무효화하여 최신 데이터 요청
@@ -166,7 +165,7 @@ export const useTrackMutation = () => {
         },
         onError: (error) => {
             console.error('Connect track to playlist error:', error)
-            alert('Failed to add track to playlist')
+            alert(error.message || 'Failed to connect track to playlist')
         },
     })
 
@@ -199,7 +198,7 @@ export const useTrackMutation = () => {
                 queryClient.setQueryData(['tracks', playlistId], context.previousTracks)
             }
             console.error('Disconnect track from playlist error:', error)
-            alert('Failed to remove track from playlist')
+            alert(error.message || 'Failed to remove track from playlist')
         },
         onSettled: () => {
             // 작업 완료 후 캐시 무효화하여 최신 데이터 요청

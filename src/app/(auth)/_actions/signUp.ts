@@ -57,6 +57,6 @@ export const signUp = async (
             data: userWithoutPassword,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }

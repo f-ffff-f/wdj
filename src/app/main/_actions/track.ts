@@ -80,7 +80,7 @@ export async function uploadTrack(formData: FormData): Promise<AppResponse<Track
             data: newTrack,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -129,7 +129,7 @@ export async function getTrackPresignedUrl(
             },
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -172,7 +172,7 @@ export async function getTrackDownloadUrl(trackId: string): Promise<AppResponse<
             data: presignedUrl,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -232,7 +232,7 @@ export async function deleteTrack(trackId: string): Promise<AppResponse<{ id: st
             },
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -252,7 +252,7 @@ export async function deleteAllTracksDB(): Promise<AppResponse<void>> {
             success: true,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -288,6 +288,22 @@ export async function connectTrackToPlaylist(trackId: string, playlistId: string
             throw new AppError(ErrorMessage.PLAYLIST_NOT_FOUND)
         }
 
+        // 트랙이 이미 플레이리스트에 있는지 확인
+        const existingConnection = await prisma.playlist.findFirst({
+            where: {
+                id: playlistId,
+                tracks: {
+                    some: {
+                        id: trackId,
+                    },
+                },
+            },
+        })
+
+        if (existingConnection) {
+            throw new AppError(ErrorMessage.TRACK_ALREADY_IN_PLAYLIST)
+        }
+
         // 트랙과 플레이리스트 연결
         const updatedTrack = await prisma.track.update({
             where: {
@@ -315,7 +331,7 @@ export async function connectTrackToPlaylist(trackId: string, playlistId: string
             data: updatedTrack,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -378,6 +394,6 @@ export async function disconnectTrackFromPlaylist(trackId: string, playlistId: s
             data: updatedTrack,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }

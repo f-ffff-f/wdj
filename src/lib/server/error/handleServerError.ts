@@ -1,19 +1,12 @@
 import { AppError } from '@/lib/server/error/AppError'
-import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
-import { AppResponse } from '@/lib/shared/types'
 
-export const handleServerError = (error: unknown): Promise<AppResponse<never>> => {
+export const handleServerError = (error: unknown): AppError => {
     console.error(error)
 
     if (error instanceof AppError) {
-        return Promise.reject({
-            success: false,
-            error: error.message as ErrorMessage,
-        })
+        return error
     } else {
-        return Promise.reject({
-            success: false,
-            error: ErrorMessage.UNKNOWN_ERROR,
-        })
+        // 알 수 없는 에러
+        return new AppError()
     }
 }
