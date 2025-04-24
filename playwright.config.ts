@@ -13,7 +13,7 @@ export default defineConfig({
         reuseExistingServer: false,
     },
     use: {
-        headless: false,
+        headless: true,
         baseURL: 'http://localhost:3000',
         screenshot: 'only-on-failure',
         video: 'on',
