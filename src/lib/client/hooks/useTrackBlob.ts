@@ -32,7 +32,11 @@ export const useTrackBlob = () => {
                     }
                 }
             } catch (error) {
-                alert(error)
+                if (error instanceof Error) {
+                    alert(error.message)
+                } else {
+                    alert('Failed to get track blob')
+                }
             }
         },
         [session?.user?.role],

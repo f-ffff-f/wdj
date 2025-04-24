@@ -2,16 +2,15 @@
 
 import { AppError } from '@/lib/server/error/AppError'
 import { ErrorMessage } from '@/lib/server/error/ErrorMessage'
-import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { handleServerError } from '@/lib/server/error/handleServerError'
-import { generateS3FilePath, getEnv } from '@/lib/server/utils'
-import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
+import { getUserIdFromSession } from '@/lib/server/getUserIdFromSession'
 import { prisma } from '@/lib/server/prisma'
+import { generateS3FilePath, getEnv } from '@/lib/server/utils'
+import { AppResponse } from '@/lib/shared/types'
 import { CreateTrackSchema, UploadUrlRequestSchema } from '@/lib/shared/validations/trackSchema'
 import { DeleteObjectCommand, GetObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { Track } from '@prisma/client'
-import { AppResponse } from '@/lib/shared/types'
 
 // S3 클라이언트 생성
 const s3 = new S3Client({
@@ -21,44 +20,6 @@ const s3 = new S3Client({
         secretAccessKey: getEnv('AWS_SECRET_ACCESS_KEY'),
     },
 })
-
-export const getTracks = async (playlistId: string | typeof PLAYLIST_DEFAULT_ID): Promise<AppResponse<Track[]>> => {
-    const userId = await getUserIdFromSession()
-
-    try {
-        if (playlistId === PLAYLIST_DEFAULT_ID) {
-            const allTracks = await prisma.track.findMany({
-                where: { userId },
-                orderBy: { createdAt: 'desc' },
-            })
-
-            return {
-                success: true,
-                data: allTracks,
-            }
-        } else {
-            // 특정 플레이리스트의 트랙만 가져옴
-            const playlist = await prisma.playlist.findUnique({
-                where: {
-                    id: playlistId,
-                    userId,
-                },
-                include: {
-                    tracks: {
-                        orderBy: { createdAt: 'desc' },
-                    },
-                },
-            })
-
-            return {
-                success: true,
-                data: playlist?.tracks ?? [],
-            }
-        }
-    } catch (error) {
-        return handleServerError(error)
-    }
-}
 
 /**
  * 트랙 생성 서버 액션
@@ -119,7 +80,7 @@ export async function uploadTrack(formData: FormData): Promise<AppResponse<Track
             data: newTrack,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -168,7 +129,7 @@ export async function getTrackPresignedUrl(
             },
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -211,7 +172,7 @@ export async function getTrackDownloadUrl(trackId: string): Promise<AppResponse<
             data: presignedUrl,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -271,7 +232,7 @@ export async function deleteTrack(trackId: string): Promise<AppResponse<{ id: st
             },
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -291,7 +252,7 @@ export async function deleteAllTracksDB(): Promise<AppResponse<void>> {
             success: true,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -327,6 +288,22 @@ export async function connectTrackToPlaylist(trackId: string, playlistId: string
             throw new AppError(ErrorMessage.PLAYLIST_NOT_FOUND)
         }
 
+        // 트랙이 이미 플레이리스트에 있는지 확인
+        const existingConnection = await prisma.playlist.findFirst({
+            where: {
+                id: playlistId,
+                tracks: {
+                    some: {
+                        id: trackId,
+                    },
+                },
+            },
+        })
+
+        if (existingConnection) {
+            throw new AppError(ErrorMessage.TRACK_ALREADY_IN_PLAYLIST)
+        }
+
         // 트랙과 플레이리스트 연결
         const updatedTrack = await prisma.track.update({
             where: {
@@ -354,7 +331,7 @@ export async function connectTrackToPlaylist(trackId: string, playlistId: string
             data: updatedTrack,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }
 
@@ -417,6 +394,6 @@ export async function disconnectTrackFromPlaylist(trackId: string, playlistId: s
             data: updatedTrack,
         }
     } catch (error) {
-        return handleServerError(error)
+        throw handleServerError(error)
     }
 }

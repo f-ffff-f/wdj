@@ -7,9 +7,8 @@ import {
     uploadTrack,
 } from '@/app/main/_actions/track'
 import { deleteTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/indexedDB'
-import { state } from '@/lib/client/state'
+import { uiState } from '@/lib/client/state'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
-import { AppResponse } from '@/lib/shared/types'
 import { Role, Track } from '@prisma/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useSession } from 'next-auth/react'
@@ -46,7 +45,7 @@ export const useTrackMutation = () => {
             await setTrackToIndexedDB(response.data.id, file)
 
             // 3. UI 상태 업데이트
-            state.UI.focusedTrackId = response.data.id
+            uiState.focusedTrackId = response.data.id
 
             // 4. 캐시 업데이트 - 트랙 리스트 및 현재 플레이리스트
             // TrackList.tsx에서 사용하는 쿼리 키 형식 ['tracks']
@@ -96,19 +95,17 @@ export const useTrackMutation = () => {
             return deleteTrack(id)
         },
         onMutate: async (id) => {
+            console.log('onMutate')
             // 낙관적 업데이트 시작 - TrackList.tsx의 쿼리 키 형식 사용
             await queryClient.cancelQueries({ queryKey: ['tracks', playlistId] })
 
             // 이전 데이터 저장
-            const previousTracks = queryClient.getQueryData<AppResponse<Track[]>>(['tracks', playlistId])
+            const previousTracks = queryClient.getQueryData<Track[]>(['tracks', playlistId])
 
             // 캐시 업데이트
-            queryClient.setQueryData<AppResponse<Track[]>>(['tracks', playlistId], (old) => {
+            queryClient.setQueryData<Track[]>(['tracks', playlistId], (old) => {
                 if (!old) return old
-                return {
-                    ...old,
-                    data: old.data?.filter((track) => track.id !== id),
-                }
+                return old.filter((track) => track.id !== id)
             })
 
             return { previousTracks }
@@ -117,7 +114,7 @@ export const useTrackMutation = () => {
             // 에러 발생 시 원래 데이터로 복원
             queryClient.setQueryData(['tracks', playlistId], context?.previousTracks)
             console.error('Track deletion error:', error)
-            alert('Failed to delete track')
+            alert(error.message || 'Failed to delete track')
         },
         onSettled: () => {
             // 작업 완료 후 캐시 무효화하여 최신 데이터 요청
@@ -147,7 +144,7 @@ export const useTrackMutation = () => {
             // 에러 발생 시 원래 데이터로 복원
             queryClient.setQueryData(['tracks', playlistId], context?.previousTracks)
             console.error('All tracks deletion error:', error)
-            alert('Failed to delete all tracks')
+            alert(error.message || 'Failed to delete all tracks')
         },
         onSettled: () => {
             // 작업 완료 후 캐시 무효화하여 최신 데이터 요청
@@ -168,7 +165,7 @@ export const useTrackMutation = () => {
         },
         onError: (error) => {
             console.error('Connect track to playlist error:', error)
-            alert('Failed to add track to playlist')
+            alert(error.message || 'Failed to connect track to playlist')
         },
     })
 
@@ -187,12 +184,9 @@ export const useTrackMutation = () => {
                 const previousTracks = queryClient.getQueryData(['tracks', playlistId])
 
                 // 캐시 업데이트 - 현재 플레이리스트에서 트랙 제거
-                queryClient.setQueryData(['tracks', playlistId], (old: { success: boolean; data: Track[] }) => {
-                    if (!old || !old.success || !old.data) return old
-                    return {
-                        ...old,
-                        data: old.data.filter((track: Track) => track.id !== trackId),
-                    }
+                queryClient.setQueryData(['tracks', playlistId], (old: Track[]) => {
+                    if (!old) return old
+                    return old.filter((track: Track) => track.id !== trackId)
                 })
 
                 return { previousTracks }
@@ -204,7 +198,7 @@ export const useTrackMutation = () => {
                 queryClient.setQueryData(['tracks', playlistId], context.previousTracks)
             }
             console.error('Disconnect track from playlist error:', error)
-            alert('Failed to remove track from playlist')
+            alert(error.message || 'Failed to remove track from playlist')
         },
         onSettled: () => {
             // 작업 완료 후 캐시 무효화하여 최신 데이터 요청

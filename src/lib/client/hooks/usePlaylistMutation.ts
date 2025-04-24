@@ -42,7 +42,7 @@ export const usePlaylistMutation = () => {
             if (context?.previousPlaylists) {
                 queryClient.setQueryData(['playlists'], context.previousPlaylists)
             }
-            alert(error)
+            alert(error.message || 'Failed to create playlist')
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['playlists'] })
@@ -75,7 +75,7 @@ export const usePlaylistMutation = () => {
             if (context?.previousPlaylists) {
                 queryClient.setQueryData(['playlists'], context.previousPlaylists)
             }
-            alert(error)
+            alert(error.message || 'Failed to update playlist')
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['playlists'] })
@@ -104,7 +104,7 @@ export const usePlaylistMutation = () => {
             if (context?.previousPlaylists) {
                 queryClient.setQueryData<AppResponse<Playlist[]>>(['playlists'], context.previousPlaylists)
             }
-            alert(error)
+            alert(error.message || 'Failed to delete playlist')
         },
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: ['playlists'] })
