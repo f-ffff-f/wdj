@@ -15,7 +15,7 @@ export const useSignupMutation = (handleSuccess?: () => void) => {
             if (handleSuccess) handleSuccess()
         },
         onError: (error) => {
-            alert(error.message)
+            alert(error.message || 'Failed to sign up')
         },
     })
 }

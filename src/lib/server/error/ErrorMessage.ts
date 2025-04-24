@@ -16,7 +16,7 @@ export enum ErrorMessage {
     TRACK_NOT_FOUND = 'Track not found',
     FAILED_TO_GET_DOWNLOAD_URL = 'Failed to get track download url',
     FAILED_TO_DELETE_TRACK = 'Failed to delete track',
-
+    TRACK_ALREADY_IN_PLAYLIST = 'Track already in playlist',
     // Playlist errors
     FAILED_TO_GET_PLAYLISTS = 'Failed to get playlists',
     PLAYLIST_NOT_FOUND = 'Playlist not found',

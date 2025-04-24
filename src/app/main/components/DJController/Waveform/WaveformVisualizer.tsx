@@ -1,17 +1,14 @@
 'use client'
 
 import WaveformSkeleton from '@/app/main/components/DJController/Waveform/WaveformSkeleton'
-import { TDeckId } from '@/lib/client/types'
-import React, { useRef, useEffect, useState, useCallback } from 'react'
-
-const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
+import { TDeckId, deckoManager, useDeckoSnapshot } from '@ghr95223/decko'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 const Waveform = ({ deckId }: { deckId: TDeckId }) => {
     const containerRef = useRef<HTMLDivElement>(null)
     const canvasRef = useRef<HTMLCanvasElement>(null)
-    const audioBuffer = deckoSingleton.getAudioBuffer(deckId)
-    const playbackTime = deckoSingleton.getPlaybackTime(deckId)
-    const isTrackLoading = deckoSingleton.isTrackLoading(deckId)
+    const audioBuffer = deckoManager.audioBuffers.get(deckId)
+    const { isTrackLoading, uiPlaybackTime, duration } = useDeckoSnapshot(['decks', deckId])
 
     const [isDragging, setIsDragging] = useState(false)
     const [dragX, setDragX] = useState<number | null>(null)
@@ -70,10 +67,9 @@ const Waveform = ({ deckId }: { deckId: TDeckId }) => {
         if (!ctx) return
 
         const { width, height } = canvas
-        const duration = audioBuffer.duration
 
         // x 좌표 계산 (currentTime 기반 또는 드래그 중이면 dragX 사용)
-        const x = isDragging && dragX !== null ? dragX : (playbackTime / duration) * width
+        const x = isDragging && dragX !== null ? dragX : (uiPlaybackTime / duration) * width
 
         // 플레이 헤드 그리기
         ctx.beginPath()
@@ -82,7 +78,7 @@ const Waveform = ({ deckId }: { deckId: TDeckId }) => {
         ctx.strokeStyle = 'white'
         ctx.lineWidth = 2
         ctx.stroke()
-    }, [audioBuffer, playbackTime, isDragging, dragX])
+    }, [audioBuffer, uiPlaybackTime, duration, isDragging, dragX])
 
     useEffect(() => {
         drawWaveform()
@@ -108,7 +104,7 @@ const Waveform = ({ deckId }: { deckId: TDeckId }) => {
         const time = (x / rect.width) * duration
 
         setDragX(x)
-        deckoSingleton.seekDeck(deckId, time)
+        deckoManager.seekDeck(deckId, time)
     }
 
     const handleMouseUp = () => {
@@ -122,7 +118,7 @@ const Waveform = ({ deckId }: { deckId: TDeckId }) => {
 
         setIsDragging(false)
         setDragX(null)
-        deckoSingleton.seekDeck(deckId, time)
+        deckoManager.seekDeck(deckId, time)
     }
 
     return (

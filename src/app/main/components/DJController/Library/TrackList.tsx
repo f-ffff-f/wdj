@@ -1,7 +1,7 @@
 'use client'
 
-import { getPlaylists } from '@/app/main/_actions/playlist'
-import { getTracks } from '@/app/main/_actions/track'
+import { fetchPlaylists } from '@/app/main/_fetchers/playlists'
+import { fetchTracks } from '@/app/main/_fetchers/tracks'
 import { Button } from '@/lib/client/components/ui/button'
 import { Card } from '@/lib/client/components/ui/card'
 import {
@@ -15,55 +15,48 @@ import {
 } from '@/lib/client/components/ui/dropdown-menu'
 import { Label } from '@/lib/client/components/ui/label'
 import { SidebarMenuAction } from '@/lib/client/components/ui/sidebar'
-import { DECK_IDS } from '@/lib/client/constants'
-import { TDeckId } from '@/lib/client/types'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
-import { state } from '@/lib/client/state'
+import { uiState } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
-import { useQuery } from '@tanstack/react-query'
+import { DECK_IDS, TDeckId, deckoManager } from '@ghr95223/decko'
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { ArrowUpCircle, MoreVertical } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
 import Marquee from 'react-fast-marquee'
 import { useSnapshot } from 'valtio'
 
-const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
-
 const TrackList = ({ playlistId }: { playlistId: string }) => {
-    const {
-        data: tracks,
-        isLoading,
-        error,
-    } = useQuery({
+    const tracks = useQuery({
         queryKey: ['tracks', playlistId],
-        queryFn: () => getTracks(playlistId),
+        queryFn: () => fetchTracks(playlistId),
     })
 
-    const focusedTrackId = useSnapshot(state).UI.focusedTrackId
+    const focusedTrackId = useSnapshot(uiState).focusedTrackId
     const { getTrackBlobUrl } = useTrackBlob()
 
     const handleLoadToDeck = async (deckId: TDeckId, id: string) => {
         const url = await getTrackBlobUrl(id)
         if (url) {
-            deckoSingleton.loadTrack(deckId, url)
+            deckoManager.loadTrack(deckId, url)
         }
     }
     const handleClick = (id: string) => {
-        state.UI.focusedTrackId = id
+        uiState.focusedTrackId = id
     }
 
-    if (isLoading) {
-        return <Label>Loading tracks...</Label>
+    if (tracks.isLoading) {
+        return <SkeletonTrackItem />
     }
 
-    if (error) {
-        return <Label>Error: {error.message}</Label>
-    }
-
-    if (!tracks?.data) {
+    if (!tracks?.data?.length) {
         return <Label>No tracks available</Label>
+    }
+
+    if (tracks.error) {
+        return <Label>Error: {tracks.error.message}</Label>
     }
 
     return (
@@ -159,15 +152,15 @@ const MarqueeText = ({ text }: { text: string }) => {
 }
 
 const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
-    const { data: playlists, error } = useQuery({
+    const playlists = useSuspenseQuery({
         queryKey: ['playlists'],
-        queryFn: getPlaylists,
+        queryFn: fetchPlaylists,
     })
 
     const { connectTrackToPlaylistMutation, deleteTrackMutation } = useTrackMutation()
 
-    if (error) {
-        return <Label>{error.message}</Label>
+    if (playlists.error) {
+        return <Label>{playlists.error.message}</Label>
     }
 
     return (
@@ -183,7 +176,7 @@ const LibraryDropdownMenu = ({ trackId }: { trackId: string }) => {
                         <span>Add to Playlist</span>
                     </DropdownMenuSubTrigger>
                     <DropdownMenuSubContent>
-                        {playlists?.data?.length ? (
+                        {playlists.data?.length ? (
                             playlists.data?.map((playlist) => (
                                 <DropdownMenuItem
                                     key={playlist.id}
@@ -237,6 +230,32 @@ const PlaylistDropdownMenu = ({ trackId }: { trackId: string }) => {
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>
+    )
+}
+
+const SkeletonTrackItem = () => {
+    return (
+        // 실제 Item과 동일한 flex 구조 사용
+        <div className="flex animate-pulse">
+            {/* 실제 Item의 Card와 유사한 스타일 적용 (padding, shadow 등) */}
+            <Card className="w-full relative flex items-center justify-between p-4 pr-6 shadow-none bg-secondary dark:bg-inherit">
+                {/* 왼쪽 버튼 스켈레톤 */}
+
+                <Button className="bg-transparent">
+                    <ArrowUpCircle className="text-transparent" />
+                </Button>
+
+                {/* 중앙 텍스트 영역 스켈레톤 */}
+                <div className="w-[200px] md:w-[300px] space-y-2">
+                    <div className="h-4 rounded w-3/4 mx-auto"></div> {/* 텍스트 라인 */}
+                </div>
+
+                {/* 오른쪽 버튼 스켈레톤 */}
+                <Button className="bg-transparent">
+                    <ArrowUpCircle className="text-transparent" />
+                </Button>
+            </Card>
+        </div>
     )
 }
 

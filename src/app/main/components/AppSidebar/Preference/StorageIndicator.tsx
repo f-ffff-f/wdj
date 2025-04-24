@@ -2,17 +2,17 @@
 
 import { Button } from '@/lib/client/components/ui/button'
 import { DialogDescription } from '@/lib/client/components/ui/dialog'
-import { clearAllTracksFromIndexedDB } from '@/lib/client/indexedDB'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
-import { state, updateStorageEstimate } from '@/lib/client/state'
+import { clearAllTracksFromIndexedDB } from '@/lib/client/indexedDB'
+import { uiState, updateStorageEstimate } from '@/lib/client/state'
+import { Role } from '@prisma/client'
 import { Trash } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import { useEffect } from 'react'
 import { useSnapshot } from 'valtio'
-import { useSession } from 'next-auth/react'
-import { Role } from '@prisma/client'
 
 const StorageIndicator = () => {
-    const storageEstimate = useSnapshot(state).UI.storageEstimate
+    const storageEstimate = useSnapshot(uiState).storageEstimate
     const { deleteAllTracksDBMutation } = useTrackMutation()
     const { data: session } = useSession()
 

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { Role } from '@prisma/client'
+import { handleApiError } from '@/lib/server/error/handleApiError'
 
 const prisma = new PrismaClient()
 
@@ -28,12 +29,6 @@ export async function GET(req: NextRequest) {
             message: `Deleted ${deletedUsers.count} old guest users`,
         })
     } catch (error) {
-        console.error('Failed to delete guest users:', error)
-        return NextResponse.json(
-            {
-                message: 'Failed to delete guest users',
-            },
-            { status: 500 },
-        )
+        return handleApiError(error)
     }
 }

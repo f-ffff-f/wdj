@@ -1,16 +1,14 @@
 'use client'
 
-import { getTracks } from '@/app/main/_actions/track'
+import { fetchTracks } from '@/app/main/_fetchers/tracks'
 import { Button } from '@/lib/client/components/ui/button'
-import { DECK_IDS } from '@/lib/client/constants'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
-import { state } from '@/lib/client/state'
 import { useQuery } from '@tanstack/react-query'
 import { KeyboardIcon, XIcon } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
-
-const deckoSingleton = await import('@ghr95223/decko').then((module) => module.deckoSingleton)
-
+import { useSnapshot } from 'valtio'
+import { uiState } from '@/lib/client/state'
+import { DECK_IDS, deckoManager, useDeckoSnapshot } from '@ghr95223/decko'
 enum EShortcut {
     KeyQ = 'KeyQ',
     KeyA = 'KeyA',
@@ -134,12 +132,15 @@ const OverlayGuide: React.FC<OverlayGuideProps> = ({ visible }) => {
 }
 
 const Shortcuts = ({ playlistId, children }: { playlistId: string; children: React.ReactNode }) => {
+    const crossFade = useDeckoSnapshot(['crossFade'])
+    const { speed: speed1, volume: volume1 } = useDeckoSnapshot(['decks', DECK_IDS.ID_1])
+    const { speed: speed2, volume: volume2 } = useDeckoSnapshot(['decks', DECK_IDS.ID_2])
     const ref = useRef<HTMLDivElement>(null)
     const [showHelp, setShowHelp] = useState(false)
 
-    const { data: tracks } = useQuery({
+    const tracks = useQuery({
         queryKey: ['tracks', playlistId],
-        queryFn: () => getTracks(playlistId),
+        queryFn: () => fetchTracks(playlistId),
     })
 
     const { getTrackBlobUrl } = useTrackBlob()
@@ -169,72 +170,64 @@ const Shortcuts = ({ playlistId, children }: { playlistId: string; children: Rea
         }
 
         const shortcutHandlers: Record<EShortcut, () => void> = {
-            [EShortcut.KeyQ]: () =>
-                deckoSingleton.setSpeed(DECK_IDS.ID_1, deckoSingleton.getSpeed(DECK_IDS.ID_1) + 0.05),
-            [EShortcut.KeyA]: () =>
-                deckoSingleton.setSpeed(DECK_IDS.ID_1, deckoSingleton.getSpeed(DECK_IDS.ID_1) - 0.05),
-            [EShortcut.BracketRight]: () =>
-                deckoSingleton.setSpeed(DECK_IDS.ID_2, deckoSingleton.getSpeed(DECK_IDS.ID_2) + 0.05),
-            [EShortcut.Quote]: () =>
-                deckoSingleton.setSpeed(DECK_IDS.ID_2, deckoSingleton.getSpeed(DECK_IDS.ID_2) - 0.05),
-            [EShortcut.KeyW]: () =>
-                deckoSingleton.setVolume(DECK_IDS.ID_1, deckoSingleton.getVolume(DECK_IDS.ID_1) + 0.05),
-            [EShortcut.KeyS]: () =>
-                deckoSingleton.setVolume(DECK_IDS.ID_1, deckoSingleton.getVolume(DECK_IDS.ID_1) - 0.05),
-            [EShortcut.BracketLeft]: () =>
-                deckoSingleton.setVolume(DECK_IDS.ID_2, deckoSingleton.getVolume(DECK_IDS.ID_2) + 0.05),
-            [EShortcut.Semicolon]: () =>
-                deckoSingleton.setVolume(DECK_IDS.ID_2, deckoSingleton.getVolume(DECK_IDS.ID_2) - 0.05),
-            [EShortcut.KeyZ]: () => deckoSingleton.setCrossFade(deckoSingleton.getCrossFade() - 0.05),
-            [EShortcut.Slash]: () => deckoSingleton.setCrossFade(deckoSingleton.getCrossFade() + 0.05),
-            [EShortcut.ShiftLeft]: () => deckoSingleton.playPauseDeck(DECK_IDS.ID_1),
-            [EShortcut.ShiftRight]: () => deckoSingleton.playPauseDeck(DECK_IDS.ID_2),
+            [EShortcut.KeyQ]: () => deckoManager.setSpeed(DECK_IDS.ID_1, speed1 + 0.05),
+            [EShortcut.KeyA]: () => deckoManager.setSpeed(DECK_IDS.ID_1, speed1 - 0.05),
+            [EShortcut.BracketRight]: () => deckoManager.setSpeed(DECK_IDS.ID_2, speed2 + 0.05),
+            [EShortcut.Quote]: () => deckoManager.setSpeed(DECK_IDS.ID_2, speed2 - 0.05),
+            [EShortcut.KeyW]: () => deckoManager.setVolume(DECK_IDS.ID_1, volume1 + 0.05),
+            [EShortcut.KeyS]: () => deckoManager.setVolume(DECK_IDS.ID_1, volume1 - 0.05),
+            [EShortcut.BracketLeft]: () => deckoManager.setVolume(DECK_IDS.ID_2, volume2 + 0.05),
+            [EShortcut.Semicolon]: () => deckoManager.setVolume(DECK_IDS.ID_2, volume2 - 0.05),
+            [EShortcut.KeyZ]: () => deckoManager.setCrossFade(crossFade - 0.05),
+            [EShortcut.Slash]: () => deckoManager.setCrossFade(crossFade + 0.05),
+            [EShortcut.ShiftLeft]: () => deckoManager.playPauseDeck(DECK_IDS.ID_1),
+            [EShortcut.ShiftRight]: () => deckoManager.playPauseDeck(DECK_IDS.ID_2),
             [EShortcut.Enter]: () => {
                 const fileInput = document.getElementById('file-uploader')
                 if (fileInput) fileInput.click()
             },
             [EShortcut.ArrowUp]: () => {
-                if (state.UI.focusedTrackId) {
-                    const index = findIndex(tracks?.data, state.UI.focusedTrackId)
-                    if (index > 0 && tracks?.data) {
-                        state.UI.focusedTrackId = tracks?.data[index - 1].id
+                if (uiState.focusedTrackId) {
+                    const index = findIndex(tracks.data, uiState.focusedTrackId)
+                    if (index > 0 && tracks.data) {
+                        uiState.focusedTrackId = tracks.data[index - 1].id
                     } else {
-                        const index = findIndex(tracks?.data, state.UI.focusedTrackId)
-                        if (index > 0 && tracks?.data) {
-                            state.UI.focusedTrackId = tracks?.data[index - 1].id
+                        const index = findIndex(tracks.data, uiState.focusedTrackId)
+                        if (index > 0 && tracks.data) {
+                            uiState.focusedTrackId = tracks.data[index - 1].id
                         }
                     }
                 }
             },
             [EShortcut.ArrowDown]: () => {
-                if (state.UI.focusedTrackId && tracks) {
-                    const index = findIndex(tracks?.data, state.UI.focusedTrackId)
-                    if (index < (tracks?.data?.length ?? 0) - 1) {
-                        state.UI.focusedTrackId = (tracks?.data ?? [])[index + 1].id
+                if (uiState.focusedTrackId && tracks) {
+                    const index = findIndex(tracks.data, uiState.focusedTrackId)
+                    if (index < (tracks.data?.length ?? 0) - 1) {
+                        uiState.focusedTrackId = tracks.data?.[index + 1].id ?? ''
                     }
                 }
             },
             [EShortcut.ArrowLeft]: async () => {
-                if (state.UI.focusedTrackId) {
-                    if (tracks?.data) {
-                        const index = findIndex(tracks?.data, state.UI.focusedTrackId)
+                if (uiState.focusedTrackId) {
+                    if (tracks) {
+                        const index = findIndex(tracks.data, uiState.focusedTrackId)
                         if (index >= 0) {
-                            const url = await getTrackBlobUrl(tracks?.data[index].id)
+                            const url = await getTrackBlobUrl(tracks.data?.[index].id ?? '')
                             if (url) {
-                                deckoSingleton.loadTrack(DECK_IDS.ID_1, url)
+                                deckoManager.loadTrack(DECK_IDS.ID_1, url)
                             }
                         }
                     }
                 }
             },
             [EShortcut.ArrowRight]: async () => {
-                if (state.UI.focusedTrackId) {
-                    if (tracks?.data) {
-                        const index = findIndex(tracks?.data, state.UI.focusedTrackId)
-                        if (index <= tracks?.data.length - 1) {
-                            const url = await getTrackBlobUrl(tracks?.data[index].id)
+                if (uiState.focusedTrackId) {
+                    if (tracks) {
+                        const index = findIndex(tracks.data ?? [], uiState.focusedTrackId)
+                        if (index <= (tracks.data?.length ?? 0) - 1) {
+                            const url = await getTrackBlobUrl(tracks.data?.[index].id ?? '')
                             if (url) {
-                                deckoSingleton.loadTrack(DECK_IDS.ID_2, url)
+                                deckoManager.loadTrack(DECK_IDS.ID_2, url)
                             }
                         }
                     }
@@ -254,7 +247,9 @@ const Shortcuts = ({ playlistId, children }: { playlistId: string; children: Rea
         return () => {
             element?.removeEventListener('keydown', handleKeyDown)
         }
-    }, [tracks, getTrackBlobUrl, playlistId])
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [tracks.data, getTrackBlobUrl, playlistId])
 
     return (
         <div
