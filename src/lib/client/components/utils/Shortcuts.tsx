@@ -3,7 +3,6 @@
 import { fetchTracks } from '@/app/main/_fetchers/tracks'
 import { Button } from '@/lib/client/components/ui/button'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
-import { state } from '@/lib/client/state'
 import { useQuery } from '@tanstack/react-query'
 import { KeyboardIcon, XIcon } from 'lucide-react'
 import React, { useEffect, useRef, useState } from 'react'
