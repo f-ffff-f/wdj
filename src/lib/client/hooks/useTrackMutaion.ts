@@ -7,7 +7,7 @@ import {
     uploadTrack,
 } from '@/app/main/_actions/track'
 import { deleteTrackFromIndexedDB, setTrackToIndexedDB } from '@/lib/client/indexedDB'
-import { state } from '@/lib/client/state'
+import { uiState } from '@/lib/client/state'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { AppResponse } from '@/lib/shared/types'
 import { Role, Track } from '@prisma/client'
@@ -46,7 +46,7 @@ export const useTrackMutation = () => {
             await setTrackToIndexedDB(response.data.id, file)
 
             // 3. UI 상태 업데이트
-            state.UI.focusedTrackId = response.data.id
+            uiState.focusedTrackId = response.data.id
 
             // 4. 캐시 업데이트 - 트랙 리스트 및 현재 플레이리스트
             // TrackList.tsx에서 사용하는 쿼리 키 형식 ['tracks']

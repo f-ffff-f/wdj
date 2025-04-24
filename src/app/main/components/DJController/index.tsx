@@ -8,8 +8,8 @@ import { SliderCrossfade } from '@/lib/client/components/ui/sliderCrossfade'
 import { SliderSpeed } from '@/lib/client/components/ui/sliderSpeed'
 import { SliderVolume } from '@/lib/client/components/ui/sliderVolume'
 import { cn, formatPlaybackTimeUI } from '@/lib/client/utils'
-import React, { useCallback } from 'react' // useState, useEffect, useTransition 제거
-import { useSnapshot } from 'valtio'
+import { DECK_IDS, TDeckId, deckoManager, useDeckoSnapshot } from '@ghr95223/decko'
+import React, { useCallback } from 'react'
 
 // Memoized deck component
 const DeckControl = React.memo(({ id }: { id: TDeckId }) => {
@@ -39,8 +39,8 @@ const DeckControl = React.memo(({ id }: { id: TDeckId }) => {
 DeckControl.displayName = 'DeckControl'
 
 const Volume = React.memo(({ id }: { id: TDeckId }) => {
-    const { volume } = useSnapshot(state.decks[id]!)
-    const handleVolumeChange = useCallback((numbers: number[]) => myDeckoManager.setVolume(id, numbers[0]), [id])
+    const { volume } = useDeckoSnapshot(['decks', id])
+    const handleVolumeChange = useCallback((numbers: number[]) => deckoManager.setVolume(id, numbers[0]), [id])
     return (
         <div className="flex flex-col items-center gap-2">
             <SliderVolume
@@ -59,8 +59,8 @@ const Volume = React.memo(({ id }: { id: TDeckId }) => {
 Volume.displayName = 'Volume'
 
 const Speed = React.memo(({ id }: { id: TDeckId }) => {
-    const { speed } = useSnapshot(state.decks[id]!)
-    const handleSpeedChange = useCallback((numbers: number[]) => myDeckoManager.setSpeed(id, numbers[0]), [id])
+    const { speed } = useDeckoSnapshot(['decks', id])
+    const handleSpeedChange = useCallback((numbers: number[]) => deckoManager.setSpeed(id, numbers[0]), [id])
     return (
         <div className="flex flex-col items-center gap-2">
             <SliderSpeed
@@ -81,8 +81,8 @@ Speed.displayName = 'Speed'
 const PlayPause = React.memo(
     // onChange prop의 타입을 명확히 합니다 (이 함수는 DeckControl의 handlePlayPause와 연결됨)
     ({ id }: { id: TDeckId }) => {
-        const { isPlaying } = useSnapshot(state.decks[id]!)
-        const handlePlayPause = useCallback(() => myDeckoManager.playPauseDeck(id), [id])
+        const { isPlaying } = useDeckoSnapshot(['decks', id])
+        const handlePlayPause = useCallback(() => deckoManager.playPauseDeck(id), [id])
         return (
             // onClick에서 id를 전달하는 대신, useCallback으로 id가 이미 캡처된 onChange 함수를 사용
             <Button onClick={handlePlayPause} id={`play-pause-${id}`} className="min-w-[80px] text-center">
@@ -97,7 +97,7 @@ PlayPause.displayName = 'PlayPause'
 const PlayBackTime = React.memo(({ deckId }: { deckId: TDeckId }) => {
     // valtio 상태에서 해당 덱의 uiPlaybackTime과 duration만 snapshot으로 가져옵니다.
     // 이렇게 하면 uiPlaybackTime이나 duration이 변경될 때만 이 컴포넌트가 리렌더링됩니다.
-    const { uiPlaybackTime, duration } = useSnapshot(state.decks[deckId]!)
+    const { uiPlaybackTime, duration } = useDeckoSnapshot(['decks', deckId])
 
     return (
         <Label className="min-w-[10ch] inline-block text-center text-xs">
@@ -110,8 +110,8 @@ const PlayBackTime = React.memo(({ deckId }: { deckId: TDeckId }) => {
 PlayBackTime.displayName = 'PlayBackTime'
 
 const Crossfader = React.memo(() => {
-    const crossFade = useSnapshot(state).crossFade
-    const onChange = useCallback((numbers: number[]) => myDeckoManager.setCrossFade(numbers[0]), [])
+    const crossFade = useDeckoSnapshot(['crossFade'])
+    const onChange = useCallback((numbers: number[]) => deckoManager.setCrossFade(numbers[0]), [])
     return (
         <div className="w-1/2 self-center flex flex-col gap-2">
             <SliderCrossfade id="crossfader" min={0} max={1} step={0.01} value={[crossFade]} onValueChange={onChange} />

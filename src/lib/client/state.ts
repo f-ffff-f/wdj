@@ -2,14 +2,12 @@ import { proxy } from 'valtio'
 import { devtools } from 'valtio/utils'
 
 interface IuiState {
-    UI: {
-        focusedTrackId: string | null
-    }
+    focusedTrackId: string | null
     storageEstimate: StorageEstimate | null
 }
 
 export const uiState = proxy<IuiState>({
-    UI: { focusedTrackId: null },
+    focusedTrackId: null,
     storageEstimate: null,
 })
 

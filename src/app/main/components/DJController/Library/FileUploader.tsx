@@ -1,4 +1,6 @@
-import React, { Fragment, useCallback } from 'react'
+'use client'
+
+import React, { useCallback } from 'react'
 import { InputFile } from '@/lib/client/components/ui/inputFile'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
 import { Label } from '@/lib/client/components/ui/label'

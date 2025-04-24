@@ -17,9 +17,10 @@ import { Label } from '@/lib/client/components/ui/label'
 import { SidebarMenuAction } from '@/lib/client/components/ui/sidebar'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
-import { state } from '@/lib/client/state'
+import { uiState } from '@/lib/client/state'
 import { cn } from '@/lib/client/utils'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
+import { DECK_IDS, TDeckId, deckoManager } from '@ghr95223/decko'
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { ArrowUpCircle, MoreVertical } from 'lucide-react'
 import { useParams } from 'next/navigation'
@@ -33,17 +34,17 @@ const TrackList = ({ playlistId }: { playlistId: string }) => {
         queryFn: () => fetchTracks(playlistId),
     })
 
-    const focusedTrackId = useSnapshot(state).UI.focusedTrackId
+    const focusedTrackId = useSnapshot(uiState).focusedTrackId
     const { getTrackBlobUrl } = useTrackBlob()
 
     const handleLoadToDeck = async (deckId: TDeckId, id: string) => {
         const url = await getTrackBlobUrl(id)
         if (url) {
-            myDeckoManager.loadTrack(deckId, url)
+            deckoManager.loadTrack(deckId, url)
         }
     }
     const handleClick = (id: string) => {
-        state.UI.focusedTrackId = id
+        uiState.focusedTrackId = id
     }
 
     if (tracks.isLoading) {

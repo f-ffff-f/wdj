@@ -12,6 +12,7 @@ const PlaylistPage = async ({ params }: Props) => {
     const { playlistId } = await params
 
     const isValidPlaylist = await getIsValidPlaylist(playlistId)
+
     if (!isValidPlaylist) {
         notFound()
     }
