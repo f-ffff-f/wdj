@@ -1,6 +1,5 @@
 'use client'
 
-import FileUploader from '@/app/main/components/DJController/Library/FileUploader'
 import WaveformVisualizer from '@/app/main/components/DJController/Waveform/WaveformVisualizer'
 import { Button } from '@/lib/client/components/ui/button'
 import { Label } from '@/lib/client/components/ui/label'
@@ -132,11 +131,12 @@ const DJController = ({ children: TrackListComponent }: { children: React.ReactN
                 ))}
             </div>
             <Crossfader />
-
-            <div className="flex flex-col items-center self-center gap-4">
+            <div className="flex flex-col items-center self-center gap-4">{TrackListComponent}</div>
+            {/* bad practice */}
+            {/* <div key="test" className="flex flex-col items-center self-center gap-4">
                 <FileUploader />
                 {TrackListComponent}
-            </div>
+            </div> */}
         </div>
     )
 }
