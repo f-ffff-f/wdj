@@ -121,7 +121,7 @@ const Crossfader = React.memo(() => {
 
 Crossfader.displayName = 'Crossfader'
 
-const DJController = ({ children: TrackListComponent }: { children: React.ReactNode }) => {
+const DJController = ({ children }: { children: React.ReactNode }) => {
     return (
         <div className="flex flex-col gap-8">
             <div className="flex gap-4">
@@ -131,7 +131,7 @@ const DJController = ({ children: TrackListComponent }: { children: React.ReactN
                 ))}
             </div>
             <Crossfader />
-            <div className="flex flex-col items-center self-center gap-4">{TrackListComponent}</div>
+            <div className="flex flex-col items-center self-center gap-4">{children}</div>
             {/* bad practice */}
             {/* <div key="test" className="flex flex-col items-center self-center gap-4">
                 <FileUploader />
