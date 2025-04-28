@@ -19,9 +19,10 @@ type Props = {
     // edit mode
     initialValue?: string
     onCancel?: () => void
+    isAutoFocus?: boolean
 }
 
-const PlaylistForm: FC<Props> = ({ onSubmit, isSubmitting, initialValue = '', onCancel, placeholder }) => {
+const PlaylistForm: FC<Props> = ({ onSubmit, isSubmitting, initialValue = '', onCancel, isAutoFocus, placeholder }) => {
     const {
         register,
         handleSubmit,
@@ -55,6 +56,7 @@ const PlaylistForm: FC<Props> = ({ onSubmit, isSubmitting, initialValue = '', on
                     className="h-8"
                     disabled={isSubmitting}
                     data-testid="playlist-input"
+                    autoFocus={isAutoFocus}
                 />
                 {onCancel && (
                     <Button
