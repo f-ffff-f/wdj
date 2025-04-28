@@ -7,11 +7,12 @@ import { uiState } from '@/lib/client/state'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { TDeckId, deckoManager } from '@ghr95223/decko'
 import { useQuery } from '@tanstack/react-query'
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useSnapshot } from 'valtio'
 import Item from '@/app/main/components/DJController/Library/TrackList/Item'
 import Skeleton from '@/app/main/components/DJController/Library/TrackList/Skeleton'
 import DropdownMenu from '@/app/main/components/DJController/Library/TrackList/Item/DropdownMenu'
+import MyLoader from '@/lib/client/components/utils/MyLoader'
 
 const LibraryDropdownMenu = React.lazy(
     () => import('@/app/main/components/DJController/Library/TrackList/Item/LibraryDropdownMenu'),
@@ -68,11 +69,15 @@ const TrackList = ({ playlistId }: TrackListProps) => {
                 >
                     {playlistId === PLAYLIST_DEFAULT_ID ? (
                         <DropdownMenu trackId={track.id}>
-                            <LibraryDropdownMenu trackId={track.id} />
+                            <Suspense fallback={<MyLoader />}>
+                                <LibraryDropdownMenu trackId={track.id} />
+                            </Suspense>
                         </DropdownMenu>
                     ) : (
                         <DropdownMenu trackId={track.id}>
-                            <PlaylistDropdownMenu trackId={track.id} />
+                            <Suspense fallback={<MyLoader />}>
+                                <PlaylistDropdownMenu trackId={track.id} />
+                            </Suspense>
                         </DropdownMenu>
                     )}
                 </Item>
