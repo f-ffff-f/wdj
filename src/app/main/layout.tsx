@@ -15,8 +15,8 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
     return (
         <SidebarProvider defaultOpen={true}>
             <AppSidebar />
-            <SidebarTrigger />
             <div className="flex-1">
+                <SidebarTrigger />
                 <DJController>{children}</DJController>
             </div>
         </SidebarProvider>
