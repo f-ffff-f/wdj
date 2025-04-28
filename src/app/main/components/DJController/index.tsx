@@ -11,24 +11,24 @@ import { DECK_IDS, TDeckId, deckoManager, useDeckoSnapshot } from '@ghr95223/dec
 import React, { useCallback } from 'react'
 
 // Memoized deck component
-const DeckControl = React.memo(({ id }: { id: TDeckId }) => {
+const DeckControl = React.memo(({ deckId }: { deckId: TDeckId }) => {
     return (
         <div className="flex flex-col gap-4 flex-1">
             <div
                 className={cn(
                     'max-md:flex-wrap',
                     'flex items-baseline gap-1',
-                    id === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row',
+                    deckId === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row',
                 )}
             >
-                <Volume id={id} />
-                <Speed id={id} />
-                <WaveformVisualizer deckId={id} />
+                <Volume deckId={deckId} />
+                <Speed deckId={deckId} />
+                <WaveformVisualizer deckId={deckId} />
             </div>
-            <div className={cn('flex items-center gap-4', id === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row')}>
-                <PlayPause id={id} />
+            <div className={cn('flex items-center gap-4', deckId === DECK_IDS.ID_1 ? 'flex-row-reverse' : 'flex-row')}>
+                <PlayPause deckId={deckId} />
                 <div>
-                    <PlayBackTime deckId={id} />
+                    <PlayBackTime deckId={deckId} />
                 </div>
             </div>
         </div>
@@ -37,13 +37,13 @@ const DeckControl = React.memo(({ id }: { id: TDeckId }) => {
 
 DeckControl.displayName = 'DeckControl'
 
-const Volume = React.memo(({ id }: { id: TDeckId }) => {
-    const { volume } = useDeckoSnapshot(['decks', id])
-    const handleVolumeChange = useCallback((numbers: number[]) => deckoManager.setVolume(id, numbers[0]), [id])
+const Volume = React.memo(({ deckId }: { deckId: TDeckId }) => {
+    const { volume } = useDeckoSnapshot(['decks', deckId])
+    const handleVolumeChange = useCallback((numbers: number[]) => deckoManager.setVolume(deckId, numbers[0]), [deckId])
     return (
         <div className="flex flex-col items-center gap-2">
             <SliderVolume
-                id={`volume-${id}`}
+                id={`volume-${deckId}`}
                 min={0}
                 max={1}
                 step={0.01}
@@ -57,13 +57,13 @@ const Volume = React.memo(({ id }: { id: TDeckId }) => {
 
 Volume.displayName = 'Volume'
 
-const Speed = React.memo(({ id }: { id: TDeckId }) => {
-    const { speed } = useDeckoSnapshot(['decks', id])
-    const handleSpeedChange = useCallback((numbers: number[]) => deckoManager.setSpeed(id, numbers[0]), [id])
+const Speed = React.memo(({ deckId }: { deckId: TDeckId }) => {
+    const { speed } = useDeckoSnapshot(['decks', deckId])
+    const handleSpeedChange = useCallback((numbers: number[]) => deckoManager.setSpeed(deckId, numbers[0]), [deckId])
     return (
         <div className="flex flex-col items-center gap-2">
             <SliderSpeed
-                id={`speed-${id}`}
+                id={`speed-${deckId}`}
                 min={0.5}
                 max={1.5}
                 step={0.01}
@@ -79,12 +79,12 @@ Speed.displayName = 'Speed'
 
 const PlayPause = React.memo(
     // onChange prop의 타입을 명확히 합니다 (이 함수는 DeckControl의 handlePlayPause와 연결됨)
-    ({ id }: { id: TDeckId }) => {
-        const { isPlaying } = useDeckoSnapshot(['decks', id])
-        const handlePlayPause = useCallback(() => deckoManager.playPauseDeck(id), [id])
+    ({ deckId }: { deckId: TDeckId }) => {
+        const { isPlaying } = useDeckoSnapshot(['decks', deckId])
+        const handlePlayPause = useCallback(() => deckoManager.playPauseDeck(deckId), [deckId])
         return (
             // onClick에서 id를 전달하는 대신, useCallback으로 id가 이미 캡처된 onChange 함수를 사용
-            <Button onClick={handlePlayPause} id={`play-pause-${id}`} className="min-w-[80px] text-center">
+            <Button onClick={handlePlayPause} id={`play-pause-${deckId}`} className="min-w-[80px] text-center">
                 {isPlaying ? 'pause' : 'play'}
             </Button>
         )
@@ -127,7 +127,7 @@ const DJController = ({ children }: { children: React.ReactNode }) => {
             <div className="flex gap-4">
                 {Object.values(DECK_IDS).map((deckId) => (
                     // DeckControl에는 id만 전달
-                    <DeckControl key={deckId} id={deckId} />
+                    <DeckControl key={`deck-control-${deckId}`} deckId={deckId} />
                 ))}
             </div>
             <Crossfader />
