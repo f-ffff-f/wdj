@@ -75,6 +75,7 @@ const PlaylistsList = () => {
                         isSubmitting={updatePlaylistMutation.isPending}
                         initialValue={playlist.name}
                         onCancel={() => setEditingPlaylistId(null)}
+                        isAutoFocus={true}
                         placeholder="Change Playlist Name"
                     />
                 )
