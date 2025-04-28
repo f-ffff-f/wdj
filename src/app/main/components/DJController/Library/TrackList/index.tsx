@@ -9,12 +9,16 @@ import { TDeckId, deckoManager } from '@ghr95223/decko'
 import { useQuery } from '@tanstack/react-query'
 import React from 'react'
 import { useSnapshot } from 'valtio'
-import Item from './Item'
-import SkeletonTrackItem from './Skeleton'
-import DropdownMenu from './Item/DropdownMenu'
+import Item from '@/app/main/components/DJController/Library/TrackList/Item'
+import Skeleton from '@/app/main/components/DJController/Library/TrackList/Skeleton'
+import DropdownMenu from '@/app/main/components/DJController/Library/TrackList/Item/DropdownMenu'
 
-const LibraryDropdownMenu = React.lazy(() => import('./Item/LibraryDropdownMenu'))
-const PlaylistDropdownMenu = React.lazy(() => import('./Item/PlaylistDropdownMenu'))
+const LibraryDropdownMenu = React.lazy(
+    () => import('@/app/main/components/DJController/Library/TrackList/Item/LibraryDropdownMenu'),
+)
+const PlaylistDropdownMenu = React.lazy(
+    () => import('@/app/main/components/DJController/Library/TrackList/Item/PlaylistDropdownMenu'),
+)
 
 export interface TrackListProps {
     playlistId: string
@@ -40,7 +44,7 @@ const TrackList = ({ playlistId }: TrackListProps) => {
     }
 
     if (tracks.isLoading) {
-        return <SkeletonTrackItem />
+        return <Skeleton />
     }
 
     if (!tracks?.data?.length) {

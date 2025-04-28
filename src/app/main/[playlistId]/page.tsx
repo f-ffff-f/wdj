@@ -20,10 +20,10 @@ const PlaylistPage = async ({ params }: Props) => {
     }
 
     return (
-        <Fragment>
+        <div className="w-full md:w-[500px] text-center flex flex-col gap-4">
             <FileUploader />
             <TrackList playlistId={playlistId} />
-        </Fragment>
+        </div>
     )
 }
 
