@@ -11,14 +11,14 @@ import React, { Suspense } from 'react'
 import { useSnapshot } from 'valtio'
 import Item from '@/app/main/components/DJController/Library/TrackList/Item'
 import Skeleton from '@/app/main/components/DJController/Library/TrackList/Skeleton'
-import DropdownMenu from '@/app/main/components/DJController/Library/TrackList/Item/DropdownMenu'
 import MyLoader from '@/lib/client/components/utils/MyLoader'
+import DropdownTrigger from '@/app/main/components/DJController/Library/TrackList/Item/DropdownTrigger'
 
-const LibraryDropdownMenu = React.lazy(
-    () => import('@/app/main/components/DJController/Library/TrackList/Item/LibraryDropdownMenu'),
+const LibraryDropdown = React.lazy(
+    () => import('@/app/main/components/DJController/Library/TrackList/Item/LibraryDropdown'),
 )
-const PlaylistDropdownMenu = React.lazy(
-    () => import('@/app/main/components/DJController/Library/TrackList/Item/PlaylistDropdownMenu'),
+const PlaylistDropdown = React.lazy(
+    () => import('@/app/main/components/DJController/Library/TrackList/Item/PlaylistDropdown'),
 )
 
 export interface TrackListProps {
@@ -68,17 +68,17 @@ const TrackList = ({ playlistId }: TrackListProps) => {
                     handleClick={handleClick}
                 >
                     {playlistId === PLAYLIST_DEFAULT_ID ? (
-                        <DropdownMenu trackId={track.id}>
+                        <DropdownTrigger trackId={track.id}>
                             <Suspense fallback={<MyLoader />}>
-                                <LibraryDropdownMenu trackId={track.id} />
+                                <LibraryDropdown trackId={track.id} />
                             </Suspense>
-                        </DropdownMenu>
+                        </DropdownTrigger>
                     ) : (
-                        <DropdownMenu trackId={track.id}>
+                        <DropdownTrigger trackId={track.id}>
                             <Suspense fallback={<MyLoader />}>
-                                <PlaylistDropdownMenu trackId={track.id} />
+                                <PlaylistDropdown trackId={track.id} />
                             </Suspense>
-                        </DropdownMenu>
+                        </DropdownTrigger>
                     )}
                 </Item>
             ))}

@@ -1,12 +1,7 @@
 'use client'
 
 import { fetchPlaylists } from '@/app/main/_fetchers/playlists'
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/lib/client/components/ui/dropdown-menu'
+import { DropdownMenuContent, DropdownMenuTrigger } from '@/lib/client/components/ui/dropdown-menu'
 import { Label } from '@/lib/client/components/ui/label'
 import { SidebarMenuAction, SidebarMenuButton, SidebarMenuItem } from '@/lib/client/components/ui/sidebar'
 import MyLoader from '@/lib/client/components/utils/MyLoader'
@@ -15,12 +10,14 @@ import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { useQuery } from '@tanstack/react-query'
 import { MoreHorizontal } from 'lucide-react'
 import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useParams } from 'next/navigation'
+import React, { Suspense, useState } from 'react'
 import PlaylistForm from './PlaylistForm'
+import { DropdownMenu } from '@radix-ui/react-dropdown-menu'
+
+const Dropdown = React.lazy(() => import('@/app/main/components/AppSidebar/Playlists/Dropdown'))
 
 const PlaylistsList = () => {
-    const router = useRouter()
     const { playlistId } = useParams<{ playlistId?: string }>()
 
     const playlists = useQuery({
@@ -28,7 +25,7 @@ const PlaylistsList = () => {
         queryFn: () => fetchPlaylists(),
     })
 
-    const { updatePlaylistMutation, deletePlaylistMutation } = usePlaylistMutation()
+    const { updatePlaylistMutation } = usePlaylistMutation()
 
     const [editingPlaylistId, setEditingPlaylistId] = useState<string | null>(null)
 
@@ -36,13 +33,6 @@ const PlaylistsList = () => {
     const handleUpdatePlaylist = (playlistId: string, data: { name: string }) => {
         updatePlaylistMutation.mutate({ id: playlistId, name: data.name })
         setEditingPlaylistId(null)
-    }
-
-    const handleDeletePlaylist = (selectedPlaylistId: string) => {
-        deletePlaylistMutation.mutate(selectedPlaylistId)
-        if (playlistId === selectedPlaylistId) {
-            router.push(`/main/${PLAYLIST_DEFAULT_ID}`)
-        }
     }
 
     if (playlists.error) {
@@ -72,19 +62,9 @@ const PlaylistsList = () => {
                                 </SidebarMenuAction>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent side="right" align="start">
-                                <DropdownMenuItem
-                                    onClick={() => setEditingPlaylistId(playlist.id)}
-                                    disabled={deletePlaylistMutation.isPending}
-                                >
-                                    <span>Rename Playlist</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    onClick={() => handleDeletePlaylist(playlist.id)}
-                                    disabled={deletePlaylistMutation.isPending}
-                                    className="text-destructive"
-                                >
-                                    <span>Delete Playlist</span>
-                                </DropdownMenuItem>
+                                <Suspense fallback={<MyLoader />}>
+                                    <Dropdown playlistId={playlist.id} setEditingPlaylistId={setEditingPlaylistId} />
+                                </Suspense>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </SidebarMenuItem>

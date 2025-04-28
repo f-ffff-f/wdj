@@ -4,7 +4,7 @@ import React from 'react'
 import { MoreVertical } from 'lucide-react'
 import { SidebarMenuAction } from '@/lib/client/components/ui/sidebar'
 import {
-    DropdownMenu as _DropdownMenu,
+    DropdownTrigger as _DropdownMenu,
     DropdownMenuTrigger,
     DropdownMenuContent,
 } from '@/lib/client/components/ui/dropdown-menu'
@@ -14,7 +14,7 @@ export interface DropdownMenuProps {
     children: React.ReactNode
 }
 
-const DropdownMenu = ({ trackId, children }: DropdownMenuProps) => {
+const DropdownTrigger = ({ trackId, children }: DropdownMenuProps) => {
     return (
         <_DropdownMenu>
             <DropdownMenuTrigger asChild className="top-1/2 transform -translate-y-1/2 right-1">
@@ -29,4 +29,4 @@ const DropdownMenu = ({ trackId, children }: DropdownMenuProps) => {
     )
 }
 
-export default DropdownMenu
+export default DropdownTrigger

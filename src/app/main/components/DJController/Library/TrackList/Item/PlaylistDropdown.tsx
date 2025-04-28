@@ -5,11 +5,11 @@ import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
 import { useParams } from 'next/navigation'
 
-export interface PlaylistDropdownMenuProps {
+export interface PlaylistDropdownProps {
     trackId: string
 }
 
-const PlaylistDropdownMenu = ({ trackId }: PlaylistDropdownMenuProps) => {
+const PlaylistDropdown = ({ trackId }: PlaylistDropdownProps) => {
     const { disconnectTrackFromPlaylistMutation } = useTrackMutation()
     const { playlistId: playlistIdParam } = useParams<{ playlistId: string | typeof PLAYLIST_DEFAULT_ID }>()
 
@@ -27,4 +27,4 @@ const PlaylistDropdownMenu = ({ trackId }: PlaylistDropdownMenuProps) => {
     )
 }
 
-export default PlaylistDropdownMenu
+export default PlaylistDropdown

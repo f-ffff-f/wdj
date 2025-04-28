@@ -12,11 +12,11 @@ import { fetchPlaylists } from '@/app/main/_fetchers/playlists'
 import { useTrackMutation } from '@/lib/client/hooks/useTrackMutaion'
 import { useSuspenseQuery } from '@tanstack/react-query'
 
-export interface LibraryDropdownMenuProps {
+export interface LibraryDropdownProps {
     trackId: string
 }
 
-const LibraryDropdownMenu = ({ trackId }: LibraryDropdownMenuProps) => {
+const LibraryDropdown = ({ trackId }: LibraryDropdownProps) => {
     const playlists = useSuspenseQuery({
         queryKey: ['playlists'],
         queryFn: fetchPlaylists,
@@ -64,4 +64,4 @@ const LibraryDropdownMenu = ({ trackId }: LibraryDropdownMenuProps) => {
     )
 }
 
-export default LibraryDropdownMenu
+export default LibraryDropdown
