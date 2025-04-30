@@ -6,6 +6,7 @@ import { Input } from '@/lib/client/components/ui/input'
 import { Label } from '@/lib/client/components/ui/label'
 import TurnstileWidget from '@/lib/client/components/utils/TurnstileWidget'
 import Link from 'next/link'
+import Script from 'next/script'
 import { useReducer } from 'react'
 
 type formState = {
@@ -89,6 +90,7 @@ const SignIn = () => {
 
     return (
         <div className="max-w-md m-auto p-4">
+            <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer />
             <div>
                 <fieldset disabled={process.env.NEXT_PUBLIC_IS_CI ? false : state.isTurnstilePending}>
                     <div className="flex flex-col gap-2">
