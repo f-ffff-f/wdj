@@ -127,10 +127,11 @@ const Waveform = ({ deckId }: { deckId: TDeckId }) => {
     return (
         <div ref={containerRef} className="max-md:w-full md:flex-1">
             {snap.decks[deckId].isTrackLoading ? (
-                <WaveformSkeleton />
+                <WaveformSkeleton key={`waveform-skeleton-${deckId}`} />
             ) : (
                 <canvas
                     ref={canvasRef}
+                    key={`waveform-${deckId}`}
                     width="100%"
                     onMouseDown={handleMouseDown}
                     onMouseMove={handleMouseMove}
