@@ -44,16 +44,16 @@ const TrackList = ({ playlistId }: TrackListProps) => {
         uiState.focusedTrackId = id
     }
 
+    if (tracks.error) {
+        return <Label>Error: {tracks.error.message}</Label>
+    }
+
     if (tracks.isLoading) {
         return <Skeleton />
     }
 
     if (!tracks?.data?.length) {
         return <Label>No tracks available</Label>
-    }
-
-    if (tracks.error) {
-        return <Label>Error: {tracks.error.message}</Label>
     }
 
     return (
