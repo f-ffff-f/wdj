@@ -3,12 +3,13 @@
 import { fetchTracks } from '@/app/main/_fetchers/tracks'
 import { Button } from '@/lib/client/components/ui/button'
 import { useTrackBlob } from '@/lib/client/hooks/useTrackBlob'
-import { useQuery } from '@tanstack/react-query'
-import { KeyboardIcon, XIcon } from 'lucide-react'
-import React, { useEffect, useRef, useState } from 'react'
-import { useSnapshot } from 'valtio'
 import { uiState } from '@/lib/client/state'
 import { DECK_IDS, deckoManager, useDeckoSnapshot } from '@ghr95223/decko'
+import { useQuery } from '@tanstack/react-query'
+import { KeyboardIcon, XIcon } from 'lucide-react'
+import { useParams } from 'next/navigation'
+import React, { useEffect, useRef, useState } from 'react'
+
 enum EShortcut {
     KeyQ = 'KeyQ',
     KeyA = 'KeyA',
@@ -131,16 +132,21 @@ const OverlayGuide: React.FC<OverlayGuideProps> = ({ visible }) => {
     )
 }
 
-const Shortcuts = ({ playlistId, children }: { playlistId: string; children: React.ReactNode }) => {
-    const crossFade = useDeckoSnapshot(['crossFade'])
-    const { speed: speed1, volume: volume1 } = useDeckoSnapshot(['decks', DECK_IDS.ID_1])
-    const { speed: speed2, volume: volume2 } = useDeckoSnapshot(['decks', DECK_IDS.ID_2])
+const Shortcuts = ({ children }: { children: React.ReactNode }) => {
+    const { playlistId } = useParams()
+
+    const speed1 = useDeckoSnapshot().decks[1].speed
+    const speed2 = useDeckoSnapshot().decks[2].speed
+    const volume1 = useDeckoSnapshot().decks[1].volume
+    const volume2 = useDeckoSnapshot().decks[2].volume
+    const crossFade = useDeckoSnapshot().crossFade
+
     const ref = useRef<HTMLDivElement>(null)
     const [showHelp, setShowHelp] = useState(false)
 
     const tracks = useQuery({
         queryKey: ['tracks', playlistId],
-        queryFn: () => fetchTracks(playlistId),
+        queryFn: () => fetchTracks(playlistId as string),
     })
 
     const { getTrackBlobUrl } = useTrackBlob()
@@ -243,13 +249,11 @@ const Shortcuts = ({ playlistId, children }: { playlistId: string; children: Rea
         }
 
         element?.addEventListener('keydown', handleKeyDown)
-
         return () => {
             element?.removeEventListener('keydown', handleKeyDown)
         }
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [tracks.data, getTrackBlobUrl, playlistId])
+    }, [crossFade, getTrackBlobUrl, speed1, speed2, volume1, volume2])
 
     return (
         <div
@@ -260,11 +264,11 @@ const Shortcuts = ({ playlistId, children }: { playlistId: string; children: Rea
         >
             {children}
             {showHelp ? (
-                <Button className="fixed bottom-4 right-4 z-50" onClick={() => setShowHelp(false)}>
+                <Button className="fixed bottom-4 right-0 z-50" onClick={() => setShowHelp(false)}>
                     <XIcon />
                 </Button>
             ) : (
-                <Button className="fixed bottom-4 right-4 z-50" onClick={() => setShowHelp(true)}>
+                <Button className="fixed bottom-4 right-0 z-50" onClick={() => setShowHelp(true)}>
                     <KeyboardIcon />
                 </Button>
             )}
@@ -273,4 +277,6 @@ const Shortcuts = ({ playlistId, children }: { playlistId: string; children: Rea
     )
 }
 
-export default Shortcuts
+Shortcuts.displayName = 'Shortcuts'
+
+export default React.memo(Shortcuts)

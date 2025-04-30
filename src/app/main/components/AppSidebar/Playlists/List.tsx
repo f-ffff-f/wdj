@@ -42,6 +42,7 @@ const PlaylistsList = () => {
     if (playlists.isLoading) {
         return <MyLoader />
     }
+
     return (
         <div>
             <SidebarMenuItem>

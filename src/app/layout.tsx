@@ -29,8 +29,6 @@ export default function RootLayout({
     return (
         <html lang="en" className={`${geistMono.variable} dark`}>
             <body className={`antialiased`}>
-                <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer />
-
                 <SessionProvider>
                     <QueryProvider>
                         <ThemeProvider>{children}</ThemeProvider>
