@@ -84,11 +84,10 @@ const SignIn = () => {
 
         if (!success) {
             alert(error)
+            // Reset the Turnstile widget after submission
+            dispatch({ type: 'SET_RESET_TRIGGER', payload: state.resetTrigger + 1 })
+            dispatch({ type: 'SET_IS_TURNSTILE_PENDING', payload: true })
         }
-
-        // Reset the Turnstile widget after submission
-        dispatch({ type: 'SET_RESET_TRIGGER', payload: state.resetTrigger + 1 })
-        dispatch({ type: 'SET_IS_TURNSTILE_PENDING', payload: true })
     }
 
     return (
