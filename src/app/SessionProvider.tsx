@@ -23,6 +23,7 @@ export const SessionProvider = ({
     }, [session, sessionKey])
 
     return (
+        // !!!!!!!!!due to auth.js issue, need to give prop session, key to the provider for updating client session
         <NextAuthSessionProvider session={session} key={memoizedSessionKey}>
             {children}
         </NextAuthSessionProvider>
