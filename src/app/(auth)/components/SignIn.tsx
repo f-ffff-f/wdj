@@ -7,7 +7,7 @@ import { Label } from '@/lib/client/components/ui/label'
 import TurnstileWidget from '@/lib/client/components/utils/TurnstileWidget'
 import Link from 'next/link'
 import Script from 'next/script'
-import { useReducer } from 'react'
+import { useReducer, useState } from 'react'
 
 type formState = {
     email: string
@@ -62,6 +62,7 @@ const SignIn = () => {
         resetTrigger: 0,
         isTurnstilePending: true,
     })
+    const [isLoading, setIsLoading] = useState(false)
 
     const handleTokenChange = (token: string) => {
         dispatch({ type: 'SET_TURNSTILE_TOKEN', payload: token })
@@ -76,8 +77,10 @@ const SignIn = () => {
         formData.append('turnstileToken', state.turnstileToken)
         formData.append(submitType, 'true')
 
+        setIsLoading(true)
+
         // Call the server action
-        const { success, error } = await signInAction(formData)
+        const { success, error } = await signInAction(formData).finally(() => setIsLoading(false))
 
         if (!success) {
             alert(error)
@@ -92,7 +95,7 @@ const SignIn = () => {
         <div className="max-w-md m-auto p-4">
             <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" defer />
             <div>
-                <fieldset disabled={process.env.NEXT_PUBLIC_IS_CI ? false : state.isTurnstilePending}>
+                <fieldset disabled={process.env.NEXT_PUBLIC_IS_CI ? false : state.isTurnstilePending || isLoading}>
                     <div className="flex flex-col gap-2">
                         <Label htmlFor="email">Email</Label>
                         <Input
