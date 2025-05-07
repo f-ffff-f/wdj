@@ -70,6 +70,8 @@ const SignIn = () => {
     }
 
     const handleSubmit = async (submitType: 'userSignin' | 'guestSignin') => {
+        setIsLoading(true)
+
         // Create a FormData object manually
         const formData = new FormData()
         formData.append('email', state.email)
@@ -77,10 +79,8 @@ const SignIn = () => {
         formData.append('turnstileToken', state.turnstileToken)
         formData.append(submitType, 'true')
 
-        setIsLoading(true)
-
         // Call the server action
-        const { success, error } = await signInAction(formData).finally(() => setIsLoading(false))
+        const { success, error } = await signInAction(formData)
 
         if (!success) {
             alert(error)
@@ -117,7 +117,9 @@ const SignIn = () => {
                         <input type="hidden" value={state.turnstileToken} />
 
                         <Button
-                            onClick={() => handleSubmit('userSignin')}
+                            onClick={() => {
+                                handleSubmit('userSignin')
+                            }}
                             className="w-full"
                             data-testid="signin-button"
                         >
