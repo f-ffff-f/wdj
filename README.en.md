@@ -4,20 +4,68 @@
 
 A DJ web application.
 
-## Preview
+## Tech
 
-[https://wdj-delta.vercel.app](https://wdj-delta.vercel.app)
+### 1. Backend
 
-## Getting Started
+1. **Database Design**
 
-1. Start as a Guest or Log in.
-2. Press Enter or click "Choose File" to upload an audio file.
-3. Load the audio file onto a deck using left/right arrow keys or edge buttons.
-4. Return to Step 2 and load another audio file onto the opposite deck.
+    - Below is an ERD visualizing the schema.
 
-## Tech Stack
+    ```mermaid
+        erDiagram
+            User {
+                String id PK "uuid, default(uuid())"
+                String email "nullable, unique"
+                String password "nullable"
+                Role role "default(MEMBER)"
+                DateTime createdAt "default(now())"
+            }
 
-### 1. Frontend
+            Track {
+                String id PK "uuid, default(uuid())"
+                String fileName
+                DateTime createdAt "default(now())"
+                String userId FK "references User.id"
+            }
+
+            Playlist {
+                String id PK "uuid, default(uuid())"
+                String name
+                DateTime createdAt "default(now())"
+                DateTime updatedAt "updatedAt"
+                String userId FK "references User.id"
+            }
+
+            Role {
+                enum GUEST
+                enum MEMBER
+            }
+
+            User ||--o{ Playlist : "owns / creates"
+            User ||--o{ Track : "uploads"
+            Playlist }o--o{ Track : "contains"
+    ```
+
+    - Type safety ensured through Prisma ORM
+    - PostgreSQL database utilization
+
+2. **Authentication System**
+
+    - Authentication system using NextAuth
+        - Credential-based login support
+        - Session management through middleware
+        - JWT-based authentication
+    - Bot prevention using Cloudflare Turnstile
+        - User verification for login and registration
+        - Enhanced security for guest login
+        - Server-side token validation
+
+3. **Data Validation and Processing**
+    - API request/response schema validation using Zod
+    - Secure data handling integrated with Prisma
+
+### 2. Frontend
 
 1. **UI/UX**
 
@@ -40,29 +88,7 @@ A DJ web application.
     - User input validation using Zod
     - Type-safe form data handling with React Hook Form
 
-### 2. Backend
-
-1. **Authentication System**
-
-    - Authentication system using NextAuth
-        - Credential-based login support
-        - Session management through middleware
-        - JWT-based authentication
-    - Bot prevention using Cloudflare Turnstile
-        - User verification for login and registration
-        - Enhanced security for guest login
-        - Server-side token validation
-
-2. **Data Validation and Processing**
-
-    - API request/response schema validation using Zod
-    - Secure data handling integrated with Prisma
-
-3. **Database Design**
-    - Type safety ensured through Prisma ORM
-    - PostgreSQL database utilization
-
-### 4. Infrastructure
+### 3. Infrastructure
 
 1. **Serverless Deployment**
 
@@ -86,12 +112,23 @@ A DJ web application.
 4. **Development Environment Containerization**
     - Local development environment setup using Docker and Docker Compose
 
-### 5. Testing and Quality Assurance
+### 4. Testing and Quality Assurance
 
 1. **E2E Testing**
     - Playwright
 2. **Unit Testing**
     - Vitest
+
+## Preview
+
+[https://wdj-delta.vercel.app](https://wdj-delta.vercel.app)
+
+## Getting Started
+
+1. Start as a Guest or Log in.
+2. Press Enter or click "Choose File" to upload an audio file.
+3. Load the audio file onto a deck using left/right arrow keys or edge buttons.
+4. Return to Step 2 and load another audio file onto the opposite deck.
 
 ## Development Environment Setup
 
