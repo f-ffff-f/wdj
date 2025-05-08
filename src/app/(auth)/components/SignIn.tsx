@@ -80,7 +80,7 @@ const SignIn = () => {
         formData.append(submitType, 'true')
 
         // Call the server action
-        const { success, error } = await signInAction(formData)
+        const { success, error } = await signInAction(formData).finally(() => setIsLoading(false))
 
         if (!success) {
             alert(error)
