@@ -4,20 +4,65 @@
 
 DJ 웹 애플리케이션입니다.
 
-## Preview
+## 기술
 
-[https://wdj-delta.vercel.app](https://wdj-delta.vercel.app)
+### 1. 백엔드
+1. **데이터베이스 설계**
+    - 아래는 스키마를 시각화한 ERD입니다.
 
-## 시작하기
+    ```mermaid
+        erDiagram
+            User {
+                String id PK "uuid, default(uuid())"
+                String email "nullable, unique"
+                String password "nullable"
+                Role role "default(MEMBER)"
+                DateTime createdAt "default(now())"
+            }
 
-1. 게스트로 시작하거나 로그인할 수 있습니다.
-2. Enter를 누르거나 파일 선택을 클릭하여 오디오 파일을 업로드합니다.
-3. 왼쪽, 오른쪽 화살표를 누르거나 아이템의 양쪽 끝 버튼을 눌러서 덱에 오디오 파일을 로드합니다.
-4. 스텝 2로 돌아가서 다른쪽 덱에 오디오 파일을 로드합니다.
+            Track {
+                String id PK "uuid, default(uuid())"
+                String fileName
+                DateTime createdAt "default(now())"
+                String userId FK "references User.id"
+            }
 
-## 기술 스택
+            Playlist {
+                String id PK "uuid, default(uuid())"
+                String name
+                DateTime createdAt "default(now())"
+                DateTime updatedAt "updatedAt"
+                String userId FK "references User.id"
+            }
 
-### 1. 프론트엔드
+            Role {
+                enum GUEST
+                enum MEMBER
+            }
+
+            User ||--o{ Playlist : "owns / creates"
+            User ||--o{ Track : "uploads"
+            Playlist }o--o{ Track : "contains"
+    ```
+    - Prisma ORM을 활용한 타입 안전성 확보  
+    - PostgreSQL 데이터베이스 활용 
+
+2. **인증 시스템**  
+    - NextAuth를 활용한 인증 시스템
+      - 자격 증명 기반 로그인 지원
+      - 미들웨어를 통한 세션 관리
+      - JWT 기반 인증
+    - Cloudflare Turnstile을 활용한 봇 방지
+      - 로그인 및 회원가입 시 사용자 검증
+      - 게스트 로그인 보안 강화
+      - 서버 사이드 토큰 검증
+
+3. **데이터 유효성 검사 및 처리**
+   - Zod를 활용한 API 요청/응답 스키마 검증
+   - Prisma와 결합한 안전한 데이터 처리 
+
+
+### 2. 프론트엔드
 
 1. **UI/UX**  
    - Tailwind CSS와 shadcn/ui를 활용한 모던한 UI 구현  
@@ -38,26 +83,7 @@ DJ 웹 애플리케이션입니다.
    - Zod를 활용한 사용자 입력의 유효성 검사
    - React Hook Form을 활용한 타입 안전성이 보장된 폼 데이터 처리
 
-### 2. 백엔드
-1. **인증 시스템**  
-    - NextAuth를 활용한 인증 시스템
-      - 자격 증명 기반 로그인 지원
-      - 미들웨어를 통한 세션 관리
-      - JWT 기반 인증
-    - Cloudflare Turnstile을 활용한 봇 방지
-      - 로그인 및 회원가입 시 사용자 검증
-      - 게스트 로그인 보안 강화
-      - 서버 사이드 토큰 검증
-
-2. **데이터 유효성 검사 및 처리**
-   - Zod를 활용한 API 요청/응답 스키마 검증
-   - Prisma와 결합한 안전한 데이터 처리
-
-3. **데이터베이스 설계**  
-   - Prisma ORM을 활용한 타입 안전성 확보  
-   - PostgreSQL 데이터베이스 활용  
-
-### 4. 인프라스트럭처
+### 3. 인프라스트럭처
 1. **서버리스 배포**
    - Vercel을 활용한 배포
    - Next.js Edge Runtime 활용  
@@ -77,11 +103,23 @@ DJ 웹 애플리케이션입니다.
 4. **개발환경 컨테이너화**
    - Docker 및 Docker Compose를 활용한 로컬 개발 환경 구성  
 
-### 5. 테스트 및 품질 관리  
+### 4. 테스트 및 품질 관리  
 1. **E2E 테스트**  
    - Playwright
 2. **unit 테스트**
    - Vitest
+
+
+## Preview
+
+[https://wdj-delta.vercel.app](https://wdj-delta.vercel.app)
+
+## 시작하기
+
+1. 게스트로 시작하거나 로그인할 수 있습니다.
+2. Enter를 누르거나 파일 선택을 클릭하여 오디오 파일을 업로드합니다.
+3. 왼쪽, 오른쪽 화살표를 누르거나 아이템의 양쪽 끝 버튼을 눌러서 덱에 오디오 파일을 로드합니다.
+4. 스텝 2로 돌아가서 다른쪽 덱에 오디오 파일을 로드합니다.
 
 ## 개발 환경 시작하기
 
