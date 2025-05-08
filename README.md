@@ -1,8 +1,6 @@
 # DJ Mixing Web Application
 
-[English](README.en.md) | 한국어
-
-DJ 웹 애플리케이션입니다.
+데스크톱 DJ 애플리케이션을 웹으로 옮기는 프로젝트입니다.
 
 ## 설계
 
