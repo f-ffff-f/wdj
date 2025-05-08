@@ -8,52 +8,53 @@ DJ 웹 애플리케이션입니다.
 
 ```mermaid
     flowchart TD
-    %% ====== CLIENT ======
-    subgraph Client["Client"]
-        ReactUI["Next.js 15\nReact 19"]
-        IndexedDB["IndexedDB Cache"]
-        WebAudio["Custom WebAudio Lib"]
+    subgraph "Frontend"
+        UI["UI(Next.js)"]
+        State["State Management(Valtio & TanStack Query)"]
+        Audio["Audio Engine(Custom Lib)"]
+        Cache["Local Cache(IndexedDB)"]
     end
 
-    %% ====== EDGE / SERVERLESS ======
-    subgraph Edge["Vercel Edge Serverless Layer"]
-        NextAPI["Serverless API Routes"]
-        ServerActions["Server Actions RPC"]
+    subgraph "Backend"
+        API["API(Next.js Serverless)"]
+        SA["Server Actions"]
+        DB["Database(Prisma + PostgreSQL)"]
     end
 
-    %% ====== BACKEND ======
-    subgraph Backend
-        Prisma["Prisma ORM"]
-        NeonDB["NeonDB PostgreSQL"]
+    subgraph "Infrastructure"
+        Vercel["Vercel + Bun"]
+        NeonDB["NeonDB"]
+        Storage["File Storage(S3)"]
+    end
+    
+    subgraph "CI/CD"
+        GH["GitHub Actions"]
+        Vitest["Vitest(Integration)"]
+        Playwright["Playwright(E2E)"]
     end
 
-    %% ====== STORAGE ======
-    subgraph Storage
-        S3["AWS S3"]
-    end
-
-    %% ====== CI / CD ======
-    subgraph CICD["GitHub Actions Pipeline"]
-        GH["CI/CD Workflow"]
-        Vitest["Vitest (Unit/Integration)"]
-        Playwright["Playwright (E2E)"]
-    end
-
-    %% ----- DATA / CALL FLOWS -----
-    ReactUI -->|"HTTP"| NextAPI
-    ReactUI -.->|"RPC"| ServerActions
-    ReactUI --> WebAudio
-    ReactUI -->|"Static Assets"| IndexedDB --> S3
-
-    NextAPI --> Prisma
-    ServerActions --> Prisma
-    Prisma --> NeonDB
-
-    NextAPI -->|"Media Storage"| S3
-
-    GH -->|"Build & Deploy"| Edge
+    UI <--> State
+    UI --> Audio
+    Audio <--> Cache
+    
+    State <--> API
+    State <--> SA
+    
+    API <--> DB
+    SA <--> DB
+    API <--> Storage
+    
+    DB --- NeonDB
+    
+    Cache <-.->|Caching| Storage
+    
     GH --> Vitest
     GH --> Playwright
+    GH -->|CD| Vercel
+    Vercel -->|Deploy| API
+    
+    API --- Vercel
+    SA --- Vercel
 ```
 
 ## 설계 상세
