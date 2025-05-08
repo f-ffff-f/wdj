@@ -4,7 +4,59 @@
 
 DJ 웹 애플리케이션입니다.
 
-## 기술
+## 설계
+
+```mermaid
+    flowchart TD
+    %% ====== CLIENT ======
+    subgraph Client["Client"]
+        ReactUI["Next.js 15\nReact 19"]
+        IndexedDB["IndexedDB Cache"]
+        WebAudio["Custom WebAudio Lib"]
+    end
+
+    %% ====== EDGE / SERVERLESS ======
+    subgraph Edge["Vercel Edge Serverless Layer"]
+        NextAPI["Serverless API Routes"]
+        ServerActions["Server Actions RPC"]
+    end
+
+    %% ====== BACKEND ======
+    subgraph Backend
+        Prisma["Prisma ORM"]
+        NeonDB["NeonDB PostgreSQL"]
+    end
+
+    %% ====== STORAGE ======
+    subgraph Storage
+        S3["AWS S3"]
+    end
+
+    %% ====== CI / CD ======
+    subgraph CICD["GitHub Actions Pipeline"]
+        GH["CI/CD Workflow"]
+        Vitest["Vitest (Unit/Integration)"]
+        Playwright["Playwright (E2E)"]
+    end
+
+    %% ----- DATA / CALL FLOWS -----
+    ReactUI -->|"HTTP"| NextAPI
+    ReactUI -.->|"RPC"| ServerActions
+    ReactUI --> WebAudio
+    ReactUI -->|"Static Assets"| IndexedDB --> S3
+
+    NextAPI --> Prisma
+    ServerActions --> Prisma
+    Prisma --> NeonDB
+
+    NextAPI -->|"Media Storage"| S3
+
+    GH -->|"Build & Deploy"| Edge
+    GH --> Vitest
+    GH --> Playwright
+```
+
+## 설계 상세
 
 ### 1. 백엔드
 1. **데이터베이스 설계**
@@ -134,16 +186,6 @@ DJ 웹 애플리케이션입니다.
             P --> R[음원 재생]
             Q --> R
         end
-        
-        classDef browser fill:#f9f,stroke:#333,stroke-width:2px;
-        classDef server fill:#bbf,stroke:#333,stroke-width:2px;
-        classDef aws fill:#ffa,stroke:#333,stroke-width:2px;
-        classDef process fill:#afa,stroke:#333,stroke-width:2px;
-        
-        class A,B1,B2,I,J,P,Q,R browser;
-        class C,D,G,H,K,L,M server;
-        class E,F,N,O aws;
-        class I,J,P,Q,R process;
     ```
    - AWS S3를 활용한 오디오 파일 저장    
    - Presigned URL을 통한 보안 강화  
