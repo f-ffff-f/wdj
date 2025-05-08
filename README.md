@@ -97,6 +97,54 @@ DJ 웹 애플리케이션입니다.
      - 글로벌 리전 지원  
 
 3. **클라우드 스토리지**
+    - 아래는 음원 자원관리 플로우를 시각화한 차트입니다.
+   ```mermaid
+    flowchart TD
+        subgraph 클라이언트 브라우저
+            A[사용자 음원 업로드] --> B1[IndexedDB에 음원 캐싱]
+            A --> |병렬 처리| B2[S3 업로드 요청]
+        end
+        
+        subgraph 서버
+            B2 --> C[Presigned-URL 생성]
+            C --> D[Presigned-URL 반환]
+            
+            G[음원 ID로 데이터베이스 저장] --> H[Track 엔티티 생성]
+            
+            K[음원 요청 수신] --> L[S3 다운로드용 Presigned-URL 생성]
+            L --> M[Presigned-URL 반환]
+        end
+        
+        subgraph AWS S3
+            D --> E[Presigned-URL로 S3에 업로드]
+            E --> F[업로드 완료 신호]
+            
+            N[S3에서 음원 다운로드] --> O[음원 데이터 반환]
+        end
+        
+        F --> G
+        
+        subgraph 음원 재생 프로세스
+            I[음원 재생 요청] --> J{IndexedDB에 
+            음원 존재?}
+            J -->|Yes| P[로컬 캐시에서 음원 로드]
+            J -->|No| K
+            M --> N
+            O --> Q[브라우저 IndexedDB에 캐싱]
+            P --> R[음원 재생]
+            Q --> R
+        end
+        
+        classDef browser fill:#f9f,stroke:#333,stroke-width:2px;
+        classDef server fill:#bbf,stroke:#333,stroke-width:2px;
+        classDef aws fill:#ffa,stroke:#333,stroke-width:2px;
+        classDef process fill:#afa,stroke:#333,stroke-width:2px;
+        
+        class A,B1,B2,I,J,P,Q,R browser;
+        class C,D,G,H,K,L,M server;
+        class E,F,N,O aws;
+        class I,J,P,Q,R process;
+    ```
    - AWS S3를 활용한 오디오 파일 저장    
    - Presigned URL을 통한 보안 강화  
 
