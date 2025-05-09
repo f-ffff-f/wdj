@@ -3,7 +3,7 @@
 import { DropdownMenuItem } from '@/lib/client/components/ui/dropdown-menu'
 import { usePlaylistMutation } from '@/lib/client/hooks/usePlaylistMutation'
 import { PLAYLIST_DEFAULT_ID } from '@/lib/shared/constants'
-import router from 'next/router'
+import { useRouter } from 'next/navigation'
 
 const DropdownContent = ({
     playlistId,
@@ -12,6 +12,7 @@ const DropdownContent = ({
     playlistId: string
     setEditingPlaylistId: (id: string) => void
 }) => {
+    const router = useRouter()
     const { deletePlaylistMutation } = usePlaylistMutation()
 
     const handleDeletePlaylist = (selectedPlaylistId: string) => {
