@@ -158,9 +158,10 @@ export const useTrackMutation = () => {
             // 서버 액션으로 트랙에 플레이리스트 연결
             return connectTrackToPlaylist(trackId, targetPlaylistId)
         },
-        onSuccess: () => {
+        onSuccess: (_, variables) => {
             // 성공 시 관련 쿼리 무효화
-            queryClient.invalidateQueries({ queryKey: ['tracks', playlistId] })
+            const { playlistId: targetPlaylistId } = variables
+            queryClient.invalidateQueries({ queryKey: ['tracks', targetPlaylistId] })
             queryClient.invalidateQueries({ queryKey: ['playlists'] })
         },
         onError: (error) => {

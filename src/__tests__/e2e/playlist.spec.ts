@@ -12,12 +12,6 @@ interface Track {
     createdAt: string
 }
 
-interface Playlist {
-    id: string
-    name: string
-    tracks?: Track[]
-}
-
 /**
  * Playlist API Tests
  * These tests now use server actions instead of API endpoints
@@ -58,6 +52,54 @@ test.describe('Playlist Operations', () => {
 
         // Verify the URL contains the playlist ID
         await page.waitForURL((url) => url.toString().includes('/main/') && !url.toString().includes('/main/library'))
+    })
+
+    test('should add track to playlist from library and verify it appears in the playlist', async ({ page }) => {
+        // Skip if no playlist was created
+        test.skip(!createdPlaylistName, 'No playlist created to test with')
+
+        // Navigate to the library page (PLAYLIST_DEFAULT_ID)
+        await page.goto(`/main/${PLAYLIST_DEFAULT_ID}`)
+        await page.waitForSelector('body')
+
+        // Create a track in the library
+        await createTrack(page)
+
+        // Wait for the track to appear and get its ID
+        await page.waitForTimeout(2000)
+        const createdTrackId = (await page
+            .locator(`[data-testid^="track-item-"]`)
+            .first()
+            .getAttribute('data-trackid')) as string
+
+        expect(!!createdTrackId).toBe(true)
+
+        // Open track options menu
+        await page.getByTestId(`dropdown-trigger-${createdTrackId}`).click()
+
+        // Hover "Add to Playlist" option
+        await page.getByText('Add to Playlist').hover()
+
+        // Select our created playlist
+        await page.waitForTimeout(2000)
+        await page.locator('role=menu').getByText(createdPlaylistName).click()
+
+        // Wait for the operation to complete
+        await page.waitForTimeout(2000)
+
+        // Navigate to the playlist
+        const playlistElement = page.getByRole('link', { name: createdPlaylistName })
+        await playlistElement.click()
+
+        // Wait for navigation and page load
+        await page.waitForURL(
+            (url) => url.toString().includes('/main/') && !url.toString().includes(`/main/${PLAYLIST_DEFAULT_ID}`),
+        )
+        await page.waitForTimeout(2000)
+
+        // Verify the track is visible in the playlist
+        const trackInPlaylist = await page.locator(`[data-trackid="${createdTrackId}"]`).isVisible()
+        expect(trackInPlaylist).toBe(true)
     })
 
     test('should add track to playlist and delete track from playlist', async ({ page }) => {
