@@ -27,6 +27,7 @@ const FileUploader = () => {
             <InputFile
                 type="file"
                 accept="audio/mp3"
+                multiple
                 onChange={(e) => handleFileUpload(e)}
                 id="file-uploader"
                 disabled={createTrackMutation.isPending}
